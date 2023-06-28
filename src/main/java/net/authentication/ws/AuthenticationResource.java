@@ -36,12 +36,12 @@ public class AuthenticationResource {
         	   System.out.println("User created-authenticated ...");
         	   if(USER_AUTH.getROLE_ID() == 2) { /// If ROLE_ID is equal with 2 that means the user is a journalist ...
         		   return Response.status(Response.Status.UNAUTHORIZED)
-                           .entity(HtmlHandler.getJOURNALIST_HTML(USER_AUTH.getNAME(), USER_AUTH.getSURNAME()))
+                           .entity(HtmlHandler.getJOURNALIST_HTML(USER_AUTH.getUSERNAME(), USER_AUTH.getNAME(), USER_AUTH.getSURNAME()))
                            .type(MediaType.TEXT_HTML)
                            .build();
         	   } else { /// else the user is a curator ...
 	        	   return   Response.status(Response.Status.UNAUTHORIZED)
-		                   .entity(HtmlHandler.getCURATOR_HTML(USER_AUTH.getNAME(), USER_AUTH.getSURNAME()))
+		                   .entity(HtmlHandler.getCURATOR_HTML(USER_AUTH.getUSERNAME(), USER_AUTH.getNAME(), USER_AUTH.getSURNAME()))
 		                   .type(MediaType.TEXT_HTML)
 		                   .build();
         	   }

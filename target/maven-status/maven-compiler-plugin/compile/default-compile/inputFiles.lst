@@ -1,8 +1,8 @@
-C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\articles\ws\ArticleResource.java
+C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\exceptions\ws\NotIdentifiedRole.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\authentication\ws\Authentication.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\htmlhandler\ws\HtmlHandler.java
-C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\articles\ws\DisplayTopicResource.java
+C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\articles\ws\CreateArticleResource.java
+C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\topics\ws\DisplayTopicResource.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\authentication\ws\AuthenticationResource.java
-C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\topics\ws\TopicResource.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\authentication\ws\User.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\comments\ws\CommentResource.java

@@ -27,7 +27,7 @@ public class HtmlHandler {
 	        "</body>\n" +
 	        "</html>";
 	
-	public static String getJOURNALIST_HTML(String name, String surname) {
+	public static String getJOURNALIST_HTML(String username, String name, String surname) {
 		return  "<!DOCTYPE html>\n" +
 		        "<html>\n" +
 		        "<head>\n" +
@@ -51,7 +51,7 @@ public class HtmlHandler {
 		        "<body>\n" +
 		        "  <div class=\"center\">\n" +
 		        "    <h1>Welcome " + name + " " + surname + " - Role: " + "JOURNALIST" + "</h1>\n" +
-		        "    <a class=\"link\" href=\"#\">Create Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_article?username=" + username + "&role=" + "JOURNALIST" + "\">Create Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Modify Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Submit Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Search Article</a>\n" +
@@ -61,7 +61,7 @@ public class HtmlHandler {
 		        "    <a class=\"link\" href=\"#\">Add Comment</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display Comments of an Article</a>\n" +
 		        "    <hr>\n" +
-		        "    <a class=\"link\" href=\"#\">Display Topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Search Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Create Topic</a>\n" +
@@ -71,7 +71,8 @@ public class HtmlHandler {
 		        "</html>";
 	}
 	
-	public static String getCURATOR_HTML(String name, String surname) {
+	/// NOTE: We send back the username so we can know which user is requesting ...
+	public static String getCURATOR_HTML(String username, String name, String surname) {
 		return  "<!DOCTYPE html>\n" +
 		        "<html>\n" +
 		        "<head>\n" +
@@ -95,7 +96,7 @@ public class HtmlHandler {
 		        "<body>\n" +
 		        "  <div class=\"center\">\n" +
 		        "    <h1>Welcome " + name + " " + surname + " - Role: " + "CURATOR" + "</h1>\n" +
-		        "    <a class=\"link\" href=\"#\">Create Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_article?username=" + username + "&role=" + "CURATOR" + "\">Create Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Modify Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Submit Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Accept Article</a>\n" +
@@ -115,7 +116,7 @@ public class HtmlHandler {
 		        "    <a class=\"link\" href=\"#\">Modify Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Accept Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Decline Topic</a>\n" +
-		        "    <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic\">Display Topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "CURATOR" + "\">Display Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Search Topics</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display Articles of a Topic</a>\n" +
@@ -155,11 +156,53 @@ public class HtmlHandler {
 	              "    <a class=\"link\" href=\"#\">Add Comment</a>\n" +
 	              "    <a class=\"link\" href=\"#\">Display Comment of an Article</a>\n" +
 	              "    <hr>\n" +
-	              "    <a class=\"link\" href=\"#\">Display Topic</a>\n" +
+	              "<a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?role=" + "VISITOR" + "\">Display Topic</a>\n" +
 	              "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
 	              "    <a class=\"link\" href=\"#\">Search Topics</a>\n" +
 	              "  </div>\n" +
 	              "</body>\n" +
 	              "</html>";
+	}
+	
+	
+	
+	public static String getCREATE_ARTICLE_HTML(String username, String role) {
+		return  "<!DOCTYPE html>\n" +
+		        "<html>\n" +
+		        "<head>\n" +
+		        "    <title>Create Article</title>\n" +
+		        "    <style>\n" +
+		        "        body {\n" +
+		        "            display: flex;\n" +
+		        "            justify-content: center;\n" +
+		        "            align-items: center;\n" +
+		        "            height: 100vh;\n" +
+		        "        }\n" +
+		        "        .container {\n" +
+		        "            text-align: center;\n" +
+		        "        }\n" +
+		        "    </style>\n" +
+		        "</head>\n" +
+		        "<body>\n" +
+		        "    <div class=\"container\">\n" +
+		        "        <h1>USERNAME: " + username + " - ROLE: " + role + "</h1>\n" +
+		        "        <h1>Create an Article</h1>\n" +
+		        "        <form action=\"/RESTstart/rest/auth/auth_user/create_article/submit\" method=\"post\">\n" +
+		        "            <label for=\"topic\">Topic:</label>\n" +
+		        "            <input type=\"text\" id=\"topic\" name=\"topic\">\n" +
+		        "            <br>\n" +
+		        "            <label for=\"title\">Title:</label>\n" +
+		        "            <input type=\"text\" id=\"title\" name=\"title\">\n" +
+		        "            <br>\n" +
+		        "            <label for=\"content\">Content:</label>\n" +
+		        "            <br>\n" +
+		        "            <textarea id=\"content\" name=\"content\" rows=\"10\" cols=\"30\"></textarea>\n" +
+		        "            <br>\n" +
+		        "            <button type=\"submit\">Submit</button>\n" +
+		        "        </form>\n" +
+		        "    </div>\n" +
+		        "</body>\n" +
+		        "</html>";
+
 	}
 }
