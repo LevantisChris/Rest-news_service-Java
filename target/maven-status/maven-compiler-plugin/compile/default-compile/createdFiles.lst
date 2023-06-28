@@ -1,0 +1,8 @@
+net\authentication\ws\User.class
+net\comments\ws\CommentResource.class
+net\articles\ws\ArticleResource.class
+net\htmlhandler\ws\HtmlHandler.class
+net\topics\ws\TopicResource.class
+net\authentication\ws\AuthenticationResource.class
+net\articles\ws\DisplayTopicResource.class
+net\authentication\ws\Authentication.class

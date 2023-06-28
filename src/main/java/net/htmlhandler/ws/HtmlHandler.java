@@ -1,0 +1,165 @@
+package net.htmlhandler.ws;
+
+/* HERE WE ARE GOING TO HAVE ALL THE HTML CODES THAT WE WILL NEED IN OUR SERVICE */
+
+public class HtmlHandler {
+	public static String AUTH_HTML = "<!DOCTYPE html>\n" +
+	        "<html>\n" +
+	        "<head>\n" +
+	        "  <title>Log in</title>\n" +
+	        "  <style>\n" +
+	        "    body {\n" +
+	        "      text-align: center;\n" +
+	        "    }\n" +
+	        "  </style>\n" +
+	        "</head>\n" +
+	        "<body>\n" +
+	        "  <h1>Log in to our service</h1>\n" +
+	        "  <p>Type your username and password</p>\n" +
+	        "  <form action=\"/RESTstart/rest/auth/auth_user\" method=\"post\">\n" +
+	        "    <input type=\"text\" name=\"username\" placeholder=\"Username\"><br>\n" +
+	        "    <input type=\"password\" name=\"password\" placeholder=\"Password\"><br>\n" +
+	        "    <input type=\"submit\" value=\"Login\">\n" +
+	        "  </form>\n" +
+	        "  <form action=\"/RESTstart/rest/auth/not_auth_user\" method=\"post\">\n" +
+	        "    <input type=\"submit\" value=\"Visitor\">\n" +
+	        "  </form>\n" +
+	        "</body>\n" +
+	        "</html>";
+	
+	public static String getJOURNALIST_HTML(String name, String surname) {
+		return  "<!DOCTYPE html>\n" +
+		        "<html>\n" +
+		        "<head>\n" +
+		        "  <title>Journalist Control Center</title>\n" +
+		        "  <style>\n" +
+		        "    body {\n" +
+		        "      text-align: center;\n" +
+		        "    }\n" +
+		        "    .center {\n" +
+		        "      display: flex;\n" +
+		        "      flex-direction: column;\n" +
+		        "      justify-content: center;\n" +
+		        "      align-items: center;\n" +
+		        "      height: 100vh;\n" +
+		        "    }\n" +
+		        "    .link {\n" +
+		        "      margin-bottom: 10px;\n" +
+		        "    }\n" +
+		        "  </style>\n" +
+		        "</head>\n" +
+		        "<body>\n" +
+		        "  <div class=\"center\">\n" +
+		        "    <h1>Welcome " + name + " " + surname + " - Role: " + "JOURNALIST" + "</h1>\n" +
+		        "    <a class=\"link\" href=\"#\">Create Article</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Modify Article</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Submit Article</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Search Article</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Display Article</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Display all the Articles</a>\n" +
+		        "    <hr>\n" +
+		        "    <a class=\"link\" href=\"#\">Add Comment</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Display Comments of an Article</a>\n" +
+		        "    <hr>\n" +
+		        "    <a class=\"link\" href=\"#\">Display Topic</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Search Topic</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Create Topic</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Modify Topic</a>\n" +
+		        "  </div>\n" +
+		        "</body>\n" +
+		        "</html>";
+	}
+	
+	public static String getCURATOR_HTML(String name, String surname) {
+		return  "<!DOCTYPE html>\n" +
+		        "<html>\n" +
+		        "<head>\n" +
+		        "  <title>Curator Control Center</title>\n" +
+		        "  <style>\n" +
+		        "    body {\n" +
+		        "      text-align: center;\n" +
+		        "    }\n" +
+		        "    .center {\n" +
+		        "      display: flex;\n" +
+		        "      flex-direction: column;\n" +
+		        "      justify-content: center;\n" +
+		        "      align-items: center;\n" +
+		        "      height: 100vh;\n" +
+		        "    }\n" +
+		        "    .link {\n" +
+		        "      margin-bottom: 10px;\n" +
+		        "    }\n" +
+		        "  </style>\n" +
+		        "</head>\n" +
+		        "<body>\n" +
+		        "  <div class=\"center\">\n" +
+		        "    <h1>Welcome " + name + " " + surname + " - Role: " + "CURATOR" + "</h1>\n" +
+		        "    <a class=\"link\" href=\"#\">Create Article</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Modify Article</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Submit Article</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Accept Article</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Decline Article</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Article Publication</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Search Article</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Display Article</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Display all the Articles</a>\n" +
+		        "    <hr>\n" +
+		        "    <a class=\"link\" href=\"#\">Add Comment</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Modify Comment</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Accept Comment</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Decline Comment</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Display Comment of an Article</a>\n" +
+		        "    <hr>\n" +
+		        "    <a class=\"link\" href=\"#\">Create Topic</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Modify Topic</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Accept Topic</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Decline Topic</a>\n" +
+		        "    <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic\">Display Topic</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Search Topics</a>\n" +
+		        "    <a class=\"link\" href=\"#\">Display Articles of a Topic</a>\n" +
+		        "  </div>\n" +
+		        "</body>\n" +
+		        "</html>";
+	}
+	
+	public static String getVISITOR_HTML() {
+		return  "<!DOCTYPE html>\n" +
+	              "<html>\n" +
+	              "<head>\n" +
+	              "  <title>Visitor Control Center</title>\n" +
+	              "  <style>\n" +
+	              "    body {\n" +
+	              "      text-align: center;\n" +
+	              "    }\n" +
+	              "    .center {\n" +
+	              "      display: flex;\n" +
+	              "      flex-direction: column;\n" +
+	              "      justify-content: center;\n" +
+	              "      align-items: center;\n" +
+	              "      height: 100vh;\n" +
+	              "    }\n" +
+	              "    .link {\n" +
+	              "      margin-bottom: 10px;\n" +
+	              "    }\n" +
+	              "  </style>\n" +
+	              "</head>\n" +
+	              "<body>\n" +
+	              "  <div class=\"center\">\n" +
+	              "    <h1>Welcome - Role: " + "VISITOR" + "</h1>\n" +
+	              "    <a class=\"link\" href=\"#\">Search Article</a>\n" +
+	              "    <a class=\"link\" href=\"#\">Display Article</a>\n" +
+	              "    <a class=\"link\" href=\"#\">Display all the Articles</a>\n" +
+	              "    <hr>\n" +
+	              "    <a class=\"link\" href=\"#\">Add Comment</a>\n" +
+	              "    <a class=\"link\" href=\"#\">Display Comment of an Article</a>\n" +
+	              "    <hr>\n" +
+	              "    <a class=\"link\" href=\"#\">Display Topic</a>\n" +
+	              "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
+	              "    <a class=\"link\" href=\"#\">Search Topics</a>\n" +
+	              "  </div>\n" +
+	              "</body>\n" +
+	              "</html>";
+	}
+}
