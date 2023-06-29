@@ -60,6 +60,8 @@ public class CreateArticleResource {
 		}
 	}
 	
+	/// NOTE: WE USE POST BECAUSE WE WANT TO CREATE A NEW RESOURCE (AN ARTICLE)
+	/// ALSO THE RESOURCE DOES NOT EXIST ...
 	@Path("/submit")
 	@POST
 	@Produces(MediaType.TEXT_HTML)
