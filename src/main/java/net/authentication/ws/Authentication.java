@@ -23,7 +23,7 @@ public class Authentication {
 	    try {
 	        Class.forName("com.mysql.jdbc.Driver");
 	        connection = DriverManager.getConnection(url, username, passwd);
-	        System.out.println("\nConnected to the database...");
+	        System.out.println("\nSERVER STATUS: Connected to the database...");
 	        
 	        String query = "SELECT * FROM USERS WHERE USERNAME = ? AND PASSWORD = ?";
 	        statement = connection.prepareStatement(query);

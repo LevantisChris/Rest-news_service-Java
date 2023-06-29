@@ -2,7 +2,12 @@ package net.articles.ws;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
@@ -31,16 +36,20 @@ public class CreateArticleResource {
 			if(role.equals("JOURNALIST")) {
 				ROLE_ID = 2;
 				
+				ArrayList<String> TOPICS_LIST = takeTheAvailableTopics(); 
+				
 				return Response.status(Response.Status.UNAUTHORIZED)
-                .entity(HtmlHandler.getCREATE_ARTICLE_HTML(username, role))
+                .entity(HtmlHandler.getCREATE_ARTICLE_HTML(TOPICS_LIST, username, role))
                 .type(MediaType.TEXT_HTML)
                 .build();
 				
 			} else if(role.equals("CURATOR")){
 				ROLE_ID = 3;
 				
+				ArrayList<String> TOPICS_LIST = takeTheAvailableTopics();
+				
 				return Response.status(Response.Status.UNAUTHORIZED)
-                .entity(HtmlHandler.getCREATE_ARTICLE_HTML(username, role))
+                .entity(HtmlHandler.getCREATE_ARTICLE_HTML(TOPICS_LIST, username, role))
                 .type(MediaType.TEXT_HTML)
                 .build();
 				
@@ -54,10 +63,10 @@ public class CreateArticleResource {
 	@Path("/submit")
 	@POST
 	@Produces(MediaType.TEXT_HTML)
-    public Response handleFormSubmission(@FormParam("topic") String topic, @FormParam("title") String title, @FormParam("content") String content) {
+    public Response handleFormSubmission(@FormParam("username") String username, @FormParam("topic") String topic, @FormParam("title") String title, @FormParam("content") String content) {
 		
 		System.out.println("-------------------------------------");
-        System.out.println("THE ARTICLE THAT SUBMITED --> ");
+        System.out.println("THE ARTICLE THAT SUBMITED FROM THE USER //" + username + "// IS --> ");
 		System.out.println("TITLE --> " + title);
         System.out.println("CONTENT --> " + content);
         System.out.println("TOPIC --> " + topic);
@@ -70,24 +79,107 @@ public class CreateArticleResource {
 	    			.entity("Empty Fields...")
 	    		    .type(MediaType.TEXT_HTML)
 	                .build();
-	    }	
-        return Response.ok("Form submitted successfully").build();
+	    } else {
+	    	String MSG = addInTheDB(username, title, content, topic);
+	    	System.out.println("SERVER STATUS: FINAL MSG IN CREATE TOPIC --( " + MSG + " )--");
+	    	if(MSG.equals("THE_CREATION_OF_THE_ARTICLE_DONE") || MSG.equals("TOPIC_DOES_NOT_EXIST")) {
+	    		return Response.ok(MSG).build();
+	    	} else {
+	    		return Response.serverError().build();
+	    	}
+	    } 
     }
 	
-	/*public boolean addInTheDB(String title, String content, String topic) {
-		String url = "jdbc:mysql://localhost:3306/news_db";
-		String username = "root";
-		String passwd = "kolos2020";
-		
-		Connection connection = DriverManager.getConnection(url, username, passwd);
-		
-		String query = "INSERT INTO ARTICLES (TITLE, CONTENT, DATE_CREATION, TOPIC_ID, STATE_ID, CREATOR_USERNAME) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
-		
-		/*PreparedStatement statement = connection.prepareStatement(query);
-		statement.setString(1, title);
-		statement.setString(2, content);
-		statement.setString(3, LocalDate.now().toString());
-		statement.setString(4, content);
-	}*/
+	/// NOTE: in this function, firstly we will execute the select statement to see if the 
+	/// TOPIC (title) exists, if the title does not exists we will return false. We understand this by see if the ResultSet
+	/// is empty or not.
+	/// if the title exists we can execute the insertion and insert in the topic_id field the output of the select query.
+	public String addInTheDB(String username, String title, String content, String topic) {
+	    String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    Connection connection = null;
+	    PreparedStatement selectStatement = null;
+	    PreparedStatement insertStatement = null;
+
+	    String selectQuery = "SELECT ID FROM TOPIC WHERE TITLE = ?";
+	    String insertQuery = "INSERT INTO ARTICLES (TITLE, CONTENT, DATE_CREATION, TOPIC_ID, STATE_ID, CREATOR_USERNAME) " +
+	            "VALUES (?, ?, ?, ?, ?, ?)";
+
+	    try {
+	        connection = DriverManager.getConnection(url, username_DB, passwd);
+	        System.out.println("\nSERVER STATUS: Connected to the database...");
+	        
+	        selectStatement = connection.prepareStatement(selectQuery);
+	        selectStatement.setString(1, topic);
+	        ResultSet resultSet = selectStatement.executeQuery();
+
+	        if (!resultSet.next()) {
+	            System.out.println("SERVER STATUS: --ERROR-- Topic does not exist, the creation failed");
+	            return "TOPIC_DOES_NOT_EXIST";
+	        }
+
+	        int topicId = resultSet.getInt("ID"); // the ID that we take from the select query ...
+	        insertStatement = connection.prepareStatement(insertQuery);
+	        insertStatement.setString(1, title);
+	        insertStatement.setString(2, content);
+	        insertStatement.setString(3, LocalDate.now().toString());
+	        insertStatement.setInt(4, topicId);
+	        insertStatement.setInt(5, 1);
+	        insertStatement.setString(6, username);
+
+	        int rowsAffected = insertStatement.executeUpdate();
+
+	        if (rowsAffected > 0) {
+	            System.out.println("SERVER STATUS: Insert successful for the article");
+	            return "THE_CREATION_OF_THE_ARTICLE_DONE";
+	        } else {
+	            System.out.println("SERVER STATUS: --ERROR-- Insert failed for the article");
+	            return "ERROR_IN_INSERTION";
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        System.out.println("SERVER STATUS: --ERROR-- Insert failed for the article");
+	        return "FATAL_ERROR_IN_CREATE_TOPIC";
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (insertStatement != null) {
+	                insertStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
+
+	
+	/// NOTE: In this code we will get the available topics that has been created in the past.
+	/// We will display them in the html code that has to do with the creation of an article.
+	private ArrayList<String> takeTheAvailableTopics() {
+	    String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    ArrayList<String> topics = new ArrayList<>();
+
+	    try (Connection connection = DriverManager.getConnection(url, username_DB, passwd);
+	         PreparedStatement statement = connection.prepareStatement("SELECT TITLE FROM TOPIC WHERE STATE_ID = 4");
+	         ResultSet resultSet = statement.executeQuery()) {
+
+	        while (resultSet.next()) {
+	            String topic = resultSet.getString("TITLE");
+	            topics.add(topic);
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return topics;
+	}
+
 }

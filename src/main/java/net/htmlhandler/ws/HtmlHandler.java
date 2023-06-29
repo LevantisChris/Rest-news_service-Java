@@ -1,5 +1,7 @@
 package net.htmlhandler.ws;
 
+import java.util.ArrayList;
+
 /* HERE WE ARE GOING TO HAVE ALL THE HTML CODES THAT WE WILL NEED IN OUR SERVICE */
 
 public class HtmlHandler {
@@ -165,44 +167,64 @@ public class HtmlHandler {
 	}
 	
 	
-	
-	public static String getCREATE_ARTICLE_HTML(String username, String role) {
+	/// NOTE: In this HTML code in the POST I also include the username (hidden) because later in the 
+	/// insertion in the database I will need to add also the CREATOR of the article
+	///
+	/// NOTE: FOR CONVENIENCE WE WILL ASSUME THAT THERE ARE ONLY TWO TOPICS 
+	public static String getCREATE_ARTICLE_HTML(ArrayList<String> TOPICS_LIST, String username, String role) {
+		
+		StringBuilder topicsString;
+		if(TOPICS_LIST.size() != 0) {
+			topicsString = new StringBuilder();
+		    for (String topic : TOPICS_LIST) {
+		        topicsString.append(topic).append(", ");
+		    }
+		    // Remove the trailing comma and space
+		    if (topicsString.length() > 0) {
+		        topicsString.setLength(topicsString.length() - 2);
+		    }
+		} else {
+			topicsString = new StringBuilder();
+			topicsString.append("NO TOPICS CREATED"); // if it is empty we assume that there are not topics inside the database ...
+		}
+		
 		return  "<!DOCTYPE html>\n" +
-		        "<html>\n" +
-		        "<head>\n" +
-		        "    <title>Create Article</title>\n" +
-		        "    <style>\n" +
-		        "        body {\n" +
-		        "            display: flex;\n" +
-		        "            justify-content: center;\n" +
-		        "            align-items: center;\n" +
-		        "            height: 100vh;\n" +
-		        "        }\n" +
-		        "        .container {\n" +
-		        "            text-align: center;\n" +
-		        "        }\n" +
-		        "    </style>\n" +
-		        "</head>\n" +
-		        "<body>\n" +
-		        "    <div class=\"container\">\n" +
-		        "        <h1>USERNAME: " + username + " - ROLE: " + role + "</h1>\n" +
-		        "        <h1>Create an Article</h1>\n" +
-		        "        <form action=\"/RESTstart/rest/auth/auth_user/create_article/submit\" method=\"post\">\n" +
-		        "            <label for=\"topic\">Topic:</label>\n" +
-		        "            <input type=\"text\" id=\"topic\" name=\"topic\">\n" +
-		        "            <br>\n" +
-		        "            <label for=\"title\">Title:</label>\n" +
-		        "            <input type=\"text\" id=\"title\" name=\"title\">\n" +
-		        "            <br>\n" +
-		        "            <label for=\"content\">Content:</label>\n" +
-		        "            <br>\n" +
-		        "            <textarea id=\"content\" name=\"content\" rows=\"10\" cols=\"30\"></textarea>\n" +
-		        "            <br>\n" +
-		        "            <button type=\"submit\">Submit</button>\n" +
-		        "        </form>\n" +
-		        "    </div>\n" +
-		        "</body>\n" +
-		        "</html>";
+                "<html>\n" +
+                "<head>\n" +
+                "    <title>Create Article</title>\n" +
+                "    <style>\n" +
+                "        body {\n" +
+                "            display: flex;\n" +
+                "            justify-content: center;\n" +
+                "            align-items: center;\n" +
+                "            height: 100vh;\n" +
+                "        }\n" +
+                "        .container {\n" +
+                "            text-align: center;\n" +
+                "        }\n" +
+                "    </style>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "    <div class=\"container\">\n" +
+                "        <h1>USERNAME: " + username + " - ROLE: " + role + "</h1>\n" +
+                "        <h1>Create an Article {THE TOPICS ARE: " + topicsString + "} </h1>\n" +
+                "        <form action=\"/RESTstart/rest/auth/auth_user/create_article/submit\" method=\"post\">\n" +
+                "            <input type=\"hidden\" id=\"username\" name=\"username\" value=\"" + username + "\">\n" +
+                "            <label for=\"topic\">Topic:</label>\n" +
+                "            <input type=\"text\" id=\"topic\" name=\"topic\">\n" +
+                "            <br>\n" +
+                "            <label for=\"title\">Title:</label>\n" +
+                "            <input type=\"text\" id=\"title\" name=\"title\">\n" +
+                "            <br>\n" +
+                "            <label for=\"content\">Content:</label>\n" +
+                "            <br>\n" +
+                "            <textarea id=\"content\" name=\"content\" rows=\"10\" cols=\"30\"></textarea>\n" +
+                "            <br>\n" +
+                "            <button type=\"submit\">Submit</button>\n" +
+                "        </form>\n" +
+                "    </div>\n" +
+                "</body>\n" +
+                "</html>";
 
 	}
 }
