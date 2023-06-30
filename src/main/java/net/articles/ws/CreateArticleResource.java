@@ -84,8 +84,10 @@ public class CreateArticleResource {
 	    } else {
 	    	String MSG = addInTheDB(username, title, content, topic);
 	    	System.out.println("SERVER STATUS: FINAL MSG IN CREATE TOPIC --( " + MSG + " )--");
-	    	if(MSG.equals("THE_CREATION_OF_THE_ARTICLE_DONE") || MSG.equals("TOPIC_DOES_NOT_EXIST")) {
+	    	if(MSG.equals("THE_CREATION_OF_THE_ARTICLE_DONE")) {
 	    		return Response.ok(MSG).build();
+	    	} else if (MSG.equals("TOPIC_DOES_NOT_EXIST")) {
+	    		return Response.status(Response.Status.NOT_FOUND).entity(MSG).build();
 	    	} else {
 	    		return Response.serverError().build();
 	    	}

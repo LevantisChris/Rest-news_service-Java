@@ -79,9 +79,7 @@ public class ModifyArticleResource {
 		if(CONTENTS_FROM_DB == null) {
 			return Response.serverError().build();
 		}
-		System.out.print("BEFORE ID --> " + id);
 		ID_CLICKED = id;
-		System.out.print("AFTER ID_CLICKED --> " + ID_CLICKED);
 		/// We return him the same html page but filled with the contents of the article he clicked
 		return   Response.status(Response.Status.OK)
                 .entity(HtmlHandler.getMODIFY_ARTICLE_HTML(ARTICLES_IDs, username, role, TITLE_FROM_DB, TOPIC_TITLE_FROM_DB, CONTENTS_FROM_DB))
@@ -89,14 +87,84 @@ public class ModifyArticleResource {
                 .build();
     }
 	
+	/// NOTE: Here based of the id of the article the user has modified, we submit those changes in the DB 
 	@POST
 	@Path("/modify")
 	public Response submitModifiedArticle(@FormParam("id") String id, @FormParam("title") String title, @FormParam("topic") String topic, @FormParam("content") String content) {
 		System.out.println("FINAL ID_CLICKED --> " + ID_CLICKED);
-		return Response.ok(ID_CLICKED).build();
+		
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    Connection connection = null;
+	    PreparedStatement selectTopicStatement = null;
+	    PreparedStatement updateStatement = null;
+	    int rowsAffected = 0; // to see if the update has been done successfully ...
+		
+	    String selectTopicQuery = "SELECT ID FROM TOPIC WHERE TITLE = ?"; // see if the topic title that the user add exists
+		try {
+				connection = DriverManager.getConnection(url, username_DB, passwd);
+				System.out.println("\nSERVER STATUS: Connected to the database...");
+				
+				selectTopicStatement = connection.prepareStatement(selectTopicQuery);
+				selectTopicStatement.setString(1, topic);
+				
+				ResultSet resultSet = selectTopicStatement.executeQuery();
+	
+				//
+		        if (!resultSet.next()) {
+		            System.out.println("SERVER STATUS: --ERROR-- Topic does not exist, the modification failed");
+		            return Response.status(Response.Status.NOT_FOUND)
+		            		.entity("TOPIC_DOES_NOT_EXIST")
+		            		.build();
+		        }
+		        int topic_id = resultSet.getInt("ID");
+		        System.out.println("TEST --> " + topic_id);
+		        //
+	        
+		        /// Now we are sure that the topic exists and we can insert the modified article ...
+		        String updateQuery = "UPDATE ARTICLES SET TITLE = ?, CONTENT = ?, TOPIC_ID = ? WHERE ID = ?";
+	        
+		        //
+	            System.out.println("\nSERVER STATUS: Connected to the database...");
+	            updateStatement = connection.prepareStatement(updateQuery);
+	            updateStatement.setString(1, title);
+	            updateStatement.setString(2, content);
+	            updateStatement.setInt(3, topic_id);
+	            updateStatement.setInt(4, Integer.parseInt(ID_CLICKED)); 
+	            rowsAffected = updateStatement.executeUpdate();
+	            if (rowsAffected > 0) {
+	                System.out.println("SERVER STATUS: Update successful (IN MOFIFY ARTICLE:ID:" + ID_CLICKED + ") " + rowsAffected + " rows affected.");
+	                return Response.ok("MODIFICATION_DONE_SUCCESFULLY:ID_MODIFIED:" + ID_CLICKED).build();
+	            } else {
+	                System.out.println("SERVER STATUS: Update failed (IN MOFIFY ARTICLE:ID: " + ID_CLICKED + ") No rows affected.");
+	                return Response.serverError().build();
+	            }
+	            //
+	        } catch(SQLException e) {
+	            e.printStackTrace();
+	            return Response.serverError().build();
+	        } finally {
+		        try {
+		            if (selectTopicStatement != null) {
+		            	selectTopicStatement.close();
+		            }
+		            if (updateStatement != null) {
+		            	updateStatement.close();
+		            }
+		            if (connection != null && !connection.isClosed()) {
+		                connection.close();
+		                System.out.println("Disconnected from the database...\n");
+		            }
+		        } catch (SQLException e) {
+		            e.printStackTrace();
+		        }
+		    }
 	}
 	
-	/* NOTE: In this function we will get all the IDs of the articles that the user has clicked ... */
+	/* NOTE: In this function we will get all the IDs of the articles that the user has create ... 
+	 * NOTE: WE ONLY RETURN THE ARTICLES THAT HAVE STATE == 1 */
 	private ArrayList<String> getAllArticleIDS(String username) {
 		String url = "jdbc:mysql://localhost:3306/news_db";
 	    String username_DB = "root";
@@ -105,7 +173,7 @@ public class ModifyArticleResource {
 	    Connection connection = null;
 	    PreparedStatement selectStatement = null;
 	    
-	    String selectQuery = "SELECT ID FROM articles WHERE CREATOR_USERNAME = ?;";
+	    String selectQuery = "SELECT ID FROM articles WHERE CREATOR_USERNAME = ? AND STATE_ID = 1;";
 	    
 	    ArrayList<String> ARTICLES_IDs = new ArrayList<>();
 	    
