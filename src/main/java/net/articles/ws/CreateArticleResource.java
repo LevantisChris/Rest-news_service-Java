@@ -62,11 +62,10 @@ public class CreateArticleResource {
 	
 	/// NOTE: WE USE POST BECAUSE WE WANT TO CREATE A NEW RESOURCE (AN ARTICLE)
 	/// ALSO THE RESOURCE DOES NOT EXIST ...
-	@Path("/submit")
+	@Path("/create")
 	@POST
 	@Produces(MediaType.TEXT_HTML)
     public Response handleFormSubmission(@FormParam("username") String username, @FormParam("topic") String topic, @FormParam("title") String title, @FormParam("content") String content) {
-		
 		System.out.println("-------------------------------------");
         System.out.println("THE ARTICLE THAT SUBMITED FROM THE USER //" + username + "// IS --> ");
 		System.out.println("TITLE --> " + title);
