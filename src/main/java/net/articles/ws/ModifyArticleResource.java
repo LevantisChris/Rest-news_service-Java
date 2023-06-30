@@ -30,8 +30,7 @@ public class ModifyArticleResource {
 	 * THAT BELONGS TO HIM ...*/
 	@GET
 	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
-		System.out.println("IN HERE 1 USERNAME --> " + username);
-		System.out.println("IN HERE 2 ROLE --> " + role);
+		ID_CLICKED = null;
 		int ROLE_ID;
 		try {
 			if(role.equals("JOURNALIST")) {
@@ -40,7 +39,7 @@ public class ModifyArticleResource {
 				ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username);
 				
 				return Response.status(Response.Status.OK)
-                .entity(HtmlHandler.getMODIFY_ARTICLE_HTML(ARTICLES_IDs, username, role, "SELECT ID", "SELECT ID", "SELECT ID"))
+                .entity(HtmlHandler.getIDS_MODIFY_ARTICLE_HTML(ARTICLES_IDs))
                 .type(MediaType.TEXT_HTML)
                 .build();
 				
@@ -50,9 +49,9 @@ public class ModifyArticleResource {
 				ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username);
 				
 				return Response.status(Response.Status.OK)
-                .entity(HtmlHandler.getMODIFY_ARTICLE_HTML(ARTICLES_IDs, username, role, "SELECT ID", "SELECT ID", "SELECT ID"))
-                .type(MediaType.TEXT_HTML)
-                .build();
+		                .entity(HtmlHandler.getIDS_MODIFY_ARTICLE_HTML(ARTICLES_IDs))
+		                .type(MediaType.TEXT_HTML)
+		                .build();
 				
 			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
 		} catch(NotIdentifiedRole e) {
@@ -65,7 +64,11 @@ public class ModifyArticleResource {
 	@GET
     @Path("/{id}")
     public Response getArticle(@PathParam("id") String id, @PathParam("username") String username, @PathParam("role") String role, @PathParam("title") String title, @PathParam("topic") String topic, @PathParam("content") String content) {
-		ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username);
+		if(id == null || id.isEmpty() || id.isBlank()) {
+			Response.status(Response.Status.NOT_FOUND)
+    		.entity("SELECT_ID")
+    		.build();
+		}
 		
 		String TITLE_FROM_DB = getTitleArticle_DB(id); 
 		if(TITLE_FROM_DB == null) {
@@ -82,7 +85,7 @@ public class ModifyArticleResource {
 		ID_CLICKED = id;
 		/// We return him the same html page but filled with the contents of the article he clicked
 		return   Response.status(Response.Status.OK)
-                .entity(HtmlHandler.getMODIFY_ARTICLE_HTML(ARTICLES_IDs, username, role, TITLE_FROM_DB, TOPIC_TITLE_FROM_DB, CONTENTS_FROM_DB))
+                .entity(HtmlHandler.getMODIFY_ARTICLE_HTML(username, role, TITLE_FROM_DB, TOPIC_TITLE_FROM_DB, CONTENTS_FROM_DB))
                 .type(MediaType.TEXT_HTML)
                 .build();
     }
@@ -91,6 +94,22 @@ public class ModifyArticleResource {
 	@POST
 	@Path("/modify")
 	public Response submitModifiedArticle(@FormParam("id") String id, @FormParam("title") String title, @FormParam("topic") String topic, @FormParam("content") String content) {
+		
+		if(ID_CLICKED == null) {
+			return Response.status(Response.Status.NOT_FOUND)
+            		.entity("EEEEEDDDOOOO")
+            		.build();
+		}
+		if(title.equals("SELECT ID") || topic.equals("SELECT ID") || content.equals("SELECT ID")) {
+			return Response.status(Response.Status.NOT_FOUND)
+            		.entity("SELECT_ID")
+            		.build();
+		} else if(title.isEmpty() || content.isEmpty() || topic.isEmpty()) {
+			return Response.status(Response.Status.NOT_FOUND)
+            		.entity("EMPTY_FIELDS")
+            		.build();
+		}
+		
 		System.out.println("FINAL ID_CLICKED --> " + ID_CLICKED);
 		
 		String url = "jdbc:mysql://localhost:3306/news_db";

@@ -228,15 +228,51 @@ public class HtmlHandler {
 
 	}
 	
-	public static String getMODIFY_ARTICLE_HTML(ArrayList<String> ARTICLES_IDs, String username, String role, String title, String topic, String content) {
+	/// NOTE: For modify article ...
+	public static String getIDS_MODIFY_ARTICLE_HTML(ArrayList<String> ARTICLES_IDs) {
 		String frameHTML = "<div class=\"ids-frame\">";
 		
 		for (int i = 0; i < ARTICLES_IDs.size(); i++) {
-			frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/modify_article/" + ARTICLES_IDs.get(i) + "?method=GET\">" + ARTICLES_IDs.get(i) + "</a> ";
+	        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/modify_article/" + ARTICLES_IDs.get(i) + "?method=GET\">" + ARTICLES_IDs.get(i) + "</a> ";
 		}
 		
 		frameHTML += "</div>";
 		
+		String htmlCode = "<!DOCTYPE html>\n" +
+		        "<html>\n" +
+		        "<head>\n" +
+		        "    <title>Modify an Article</title>\n" +
+		        "    <style>\n" +
+		        "        body {\n" +
+		        "            display: flex;\n" +
+		        "            justify-content: center;\n" +
+		        "            align-items: center;\n" +
+		        "            height: 100vh;\n" +
+		        "        }\n" +
+		        "        .container {\n" +
+		        "            text-align: center;\n" +
+		        "        }\n" +
+		        "        .ids-frame {\n" +
+		        "            margin-bottom: 20px;\n" +
+		        "        }\n" +
+		        "        .ids-frame a {\n" +
+		        "            display: inline-block;\n" +
+		        "            margin-right: 5px;\n" +
+		        "            text-decoration: underline;\n" +
+		        "        }\n" +
+		        "    </style>\n" +
+		        "</head>\n" +
+		        "<body>\n" +
+		        "    <div class=\"container\">\n" +
+		        "        <h1>Modify an Article Choose ID of an article.</h1>\n" +
+		        "        <h2>The articles that you see belongs to you and have state CREATED (STATE_ID: 1)</h2>\n" +
+                "        " + frameHTML + "\n" +
+		        "    </div>\n" +
+		        "</body>\n" +
+		        "</html>";
+		return htmlCode;
+	}
+	public static String getMODIFY_ARTICLE_HTML(String username, String role, String title, String topic, String content) {
 		String htmlCode = "<!DOCTYPE html>\n" +
                 "<html>\n" +
                 "<head>\n" +
@@ -264,7 +300,6 @@ public class HtmlHandler {
                 "<body>\n" +
                 "    <div class=\"container\">\n" +
                 "        <h1>Modify an Article</h1>\n" +
-                "        " + frameHTML + "\n" +
                 "        <form action=\"/RESTstart/rest/auth/auth_user/modify_article/modify\" method=\"post\">\n" +
                 "            <label for=\"topic\">Topic:</label>\n" +
                 "            <input type=\"text\" id=\"topic\" name=\"topic\" value=\"" + topic + "\">\n" +
@@ -282,6 +317,6 @@ public class HtmlHandler {
                 "</body>\n" +
                 "</html>";
 		return htmlCode;
-
 	}
+	///
 }

@@ -77,8 +77,8 @@ public class CreateArticleResource {
         ///We see if the fields are empty if one is empty then we send back an error ...
 	    if(title.isEmpty() || content.isEmpty() || topic.isEmpty()) {
 	    	  
-	    	 return Response.status(Response.Status.BAD_REQUEST)
-	    			.entity("Empty Fields...")
+	    	 return Response.status(Response.Status.NOT_FOUND)
+	    			.entity("EMPTY_FIELDS")
 	    		    .type(MediaType.TEXT_HTML)
 	                .build();
 	    } else {
