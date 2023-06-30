@@ -97,7 +97,7 @@ public class ModifyArticleResource {
 		
 		if(ID_CLICKED == null) {
 			return Response.status(Response.Status.NOT_FOUND)
-            		.entity("EEEEEDDDOOOO")
+            		.entity("SELECT_ID")
             		.build();
 		}
 		if(title.equals("SELECT ID") || topic.equals("SELECT ID") || content.equals("SELECT ID")) {
