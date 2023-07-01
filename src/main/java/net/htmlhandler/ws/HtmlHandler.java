@@ -100,9 +100,9 @@ public class HtmlHandler {
 		        "    <h1>Welcome " + name + " " + surname + " - Role: " + "CURATOR" + "</h1>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_article?username=" + username + "&role=" + "CURATOR" + "\">Create Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_article?username=" + username + "&role=" + "CURATOR" + "\">Modify Article</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article?username=" + username + "&role=" + "JOURNALIST" + "\">Submit Article</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Accept Article</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Decline Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article?username=" + username + "&role=" + "CURATOR" + "\">Submit Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_article?username=" + username + "&role=" + "CURATOR" + "\">Approve Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_article?username=" + username + "&role=" + "CURATOR" + "\">Decline Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Article Publication</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Search Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display Article</a>\n" +
@@ -265,57 +265,71 @@ public class HtmlHandler {
 		        "<body>\n" +
 		        "    <div class=\"container\">\n" +
 		        "        <h1>Modify an Article. Choose ID of an article.</h1>\n" +
-		        "        <h2>The articles that you see belongs to you and have state CREATED (STATE_ID: 1)</h2>\n" +
+		        "        <h2>The articles that you see, have state CREATED (STATE_ID: 1)</h2>\n" +
                 "        " + frameHTML + "\n" +
 		        "    </div>\n" +
 		        "</body>\n" +
 		        "</html>";
 		return htmlCode;
 	}
-	public static String getMODIFY_ARTICLE_HTML(String username, String role, String title, String topic, String content) {
+	public static String getMODIFY_ARTICLE_HTML(String username, String role, String title, String topic, String content, String cause) {
+		
+		String CAUSE_LABEL;
+		if(cause.isEmpty()) {
+			CAUSE_LABEL = "You have no alerts in this article at this time ...";
+		} else {
+			CAUSE_LABEL = "ALERT: " + cause;
+		}
+		
 		String htmlCode = "<!DOCTYPE html>\n" +
-                "<html>\n" +
-                "<head>\n" +
-                "    <title>Modify Article</title>\n" +
-                "    <style>\n" +
-                "        body {\n" +
-                "            display: flex;\n" +
-                "            justify-content: center;\n" +
-                "            align-items: center;\n" +
-                "            height: 100vh;\n" +
-                "        }\n" +
-                "        .container {\n" +
-                "            text-align: center;\n" +
-                "        }\n" +
-                "        .ids-frame {\n" +
-                "            margin-bottom: 20px;\n" +
-                "        }\n" +
-                "        .ids-frame a {\n" +
-                "            display: inline-block;\n" +
-                "            margin-right: 5px;\n" +
-                "            text-decoration: underline;\n" +
-                "        }\n" +
-                "    </style>\n" +
-                "</head>\n" +
-                "<body>\n" +
-                "    <div class=\"container\">\n" +
-                "        <h1>Modify an Article</h1>\n" +
-                "        <form action=\"/RESTstart/rest/auth/auth_user/modify_article/modify\" method=\"post\">\n" +
-                "            <label for=\"topic\">Topic:</label>\n" +
-                "            <input type=\"text\" id=\"topic\" name=\"topic\" value=\"" + topic + "\">\n" +
-                "            <br>\n" +
-                "            <label for=\"title\">Title:</label>\n" +
-                "            <input type=\"text\" id=\"title\" name=\"title\" value=\"" + title + "\">\n" +
-                "            <br>\n" +
-                "            <label for=\"content\">Content:</label>\n" +
-                "            <br>\n" +
-                "            <textarea id=\"content\" name=\"content\" rows=\"10\" cols=\"30\">" + content + "</textarea>\n" +
-                "            <br>\n" +
-                "            <button type=\"submit\">Modify</button>\n" +
-                "        </form>\n" +
-                "    </div>\n" +
-                "</body>\n" +
-                "</html>";
+		        "<html>\n" +
+		        "<head>\n" +
+		        "    <title>Modify Article</title>\n" +
+		        "    <style>\n" +
+		        "        body {\n" +
+		        "            display: flex;\n" +
+		        "            justify-content: center;\n" +
+		        "            align-items: center;\n" +
+		        "            height: 100vh;\n" +
+		        "        }\n" +
+		        "        .container {\n" +
+		        "            text-align: center;\n" +
+		        "        }\n" +
+		        "        .ids-frame {\n" +
+		        "            margin-bottom: 20px;\n" +
+		        "        }\n" +
+		        "        .ids-frame a {\n" +
+		        "            display: inline-block;\n" +
+		        "            margin-right: 5px;\n" +
+		        "            text-decoration: underline;\n" +
+		        "        }\n" +
+		        "        .cause-label {\n" +
+		        "            color: red;\n" +
+		        "            font-weight: bold;\n" +
+		        "        }\n" +
+		        "    </style>\n" +
+		        "</head>\n" +
+		        "<body>\n" +
+		        "    <div class=\"container\">\n" +
+		        "        <h1>Modify an Article</h1>\n" +
+		        "        <form action=\"/RESTstart/rest/auth/auth_user/modify_article/modify\" method=\"post\">\n" +
+		        "            <label for=\"topic\">Topic:</label>\n" +
+		        "            <input type=\"text\" id=\"topic\" name=\"topic\" value=\"" + topic + "\">\n" +
+		        "            <br>\n" +
+		        "            <label for=\"title\">Title:</label>\n" +
+		        "            <input type=\"text\" id=\"title\" name=\"title\" value=\"" + title + "\">\n" +
+		        "            <br>\n" +
+		        "            <label for=\"content\">Content:</label>\n" +
+		        "            <br>\n" +
+		        "            <textarea id=\"content\" name=\"content\" rows=\"10\" cols=\"30\">" + content + "</textarea>\n" +
+		        "            <br>\n" +
+		        "            <label class=\"cause-label\">" + CAUSE_LABEL + "</label>\n" +
+		        "            <br>\n" +
+		        "            <button type=\"submit\">Modify</button>\n" +
+		        "        </form>\n" +
+		        "    </div>\n" +
+		        "</body>\n" +
+		        "</html>";
 		return htmlCode;
 	}
 	///
@@ -358,7 +372,7 @@ public class HtmlHandler {
 		        "<body>\n" +
 		        "    <div class=\"container\">\n" +
 		        "        <h1>Submit an Article. Choose ID of an article.</h1>\n" +
-		        "        <h2>The articles that you see belongs to you and have state CREATED (STATE_ID: 1)<p>After the submition the article will go to the state of SUBMITED (STATE_ID: 2)<p>A curator will check it and publish it.</h2>\n" +
+		        "        <h2>The articles that you see, have state CREATED (STATE_ID: 1)and also are not in --alert-- mode.<p>After the submition the article will go to the state of SUBMITED (STATE_ID: 2)<p>A curator will check it and accepted it.</h2>\n" +
                 "        " + frameHTML + "\n" +
 		        "    </div>\n" +
 		        "</body>\n" +
@@ -441,4 +455,250 @@ public class HtmlHandler {
 		        "</html>";
 		return htmlCode;
 	}
+	
+	///This is for the APPROVE Article
+	public static String getIDS_APPROVE_ARTICLE_HTML(ArrayList<String> ARTICLES_IDs) {
+		String frameHTML = "<div class=\"ids-frame\">";
+		
+		for (int i = 0; i < ARTICLES_IDs.size(); i++) {
+	        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/approve_article/" + ARTICLES_IDs.get(i) + "?method=GET\">" + ARTICLES_IDs.get(i) + "</a> ";
+		}
+		
+		frameHTML += "</div>";
+		
+		String htmlCode = "<!DOCTYPE html>\n" +
+		        "<html>\n" +
+		        "<head>\n" +
+		        "    <title>Accept Article</title>\n" +
+		        "    <style>\n" +
+		        "        body {\n" +
+		        "            display: flex;\n" +
+		        "            justify-content: center;\n" +
+		        "            align-items: center;\n" +
+		        "            height: 100vh;\n" +
+		        "        }\n" +
+		        "        .container {\n" +
+		        "            text-align: center;\n" +
+		        "        }\n" +
+		        "        .ids-frame {\n" +
+		        "            margin-bottom: 20px;\n" +
+		        "        }\n" +
+		        "        .ids-frame a {\n" +
+		        "            display: inline-block;\n" +
+		        "            margin-right: 5px;\n" +
+		        "            text-decoration: underline;\n" +
+		        "        }\n" +
+		        "    </style>\n" +
+		        "</head>\n" +
+		        "<body>\n" +
+		        "    <div class=\"container\">\n" +
+		        "        <h1>Approve an Article. Choose ID of an article.</h1>\n" +
+		        "        <h2>The articles that you see, have state SUBMITTED (STATE_ID: 2)<p>After the acceptance (approve) the article will go to the state of APPROVED (STATE_ID: 3)<p>A curator will check it and publish it.</h2>\n" +
+                "        " + frameHTML + "\n" +
+		        "    </div>\n" +
+		        "</body>\n" +
+		        "</html>";
+		return htmlCode;
+	}
+	public static String getAPPROVE_ARTICLE_HTML(String username, String role, String title, String topic, String content) {
+		String htmlCode = "<!DOCTYPE html>\n" +
+		        "<html>\n" +
+		        "<head>\n" +
+		        "    <title>Approve Article</title>\n" +
+		        "    <style>\n" +
+		        "        body {\n" +
+		        "            display: flex;\n" +
+		        "            justify-content: center;\n" +
+		        "            align-items: center;\n" +
+		        "            height: 100vh;\n" +
+		        "        }\n" +
+		        "        .container {\n" +
+		        "            text-align: center;\n" +
+		        "        }\n" +
+		        "        .ids-frame {\n" +
+		        "            margin-bottom: 20px;\n" +
+		        "        }\n" +
+		        "        .ids-frame a {\n" +
+		        "            display: inline-block;\n" +
+		        "            margin-right: 5px;\n" +
+		        "            text-decoration: underline;\n" +
+		        "        }\n" +
+		        "    </style>\n" +
+		        "</head>\n" +
+		        "<body>\n" +
+		        "    <div class=\"container\">\n" +
+		        "        <h1>Approve an Article</h1>\n" +
+		        "        <h2>You cannot modify the code here</h2>\n" +
+		        "        <form id=\"submitForm\" method=\"put\">\n" +
+		        "            <label for=\"topic\">Topic:</label>\n" +
+		        "            <input type=\"text\" id=\"topic\" name=\"topic\" value=\"" + topic + "\" readonly>\n" +
+		        "            <br>\n" +
+		        "            <label for=\"title\">Title:</label>\n" +
+		        "            <input type=\"text\" id=\"title\" name=\"title\" value=\"" + title + "\" readonly>\n" +
+		        "            <br>\n" +
+		        "            <label for=\"content\">Content:</label>\n" +
+		        "            <br>\n" +
+		        "            <textarea id=\"content\" name=\"content\" rows=\"10\" cols=\"30\" readonly>" + content + "</textarea>\n" +
+		        "            <br>\n" +
+		        "            <button type=\"button\" onclick=\"submitForm()\">Approve</button>\n" +
+		        "        </form>\n" +
+		        "        <div id=\"responseDiv\"></div>\n" + 
+		        "    </div>\n" +
+		        "\n" +
+		        "    <script>\n" +
+		        "        function submitForm() {\n" +
+		        "            var form = document.getElementById(\"submitForm\");\n" +
+		        "            var formData = new FormData(form);\n" +
+		        "\n" +
+		        "            var xhr = new XMLHttpRequest();\n" +
+		        "            xhr.open(\"PUT\", \"/RESTstart/rest/auth/auth_user/approve_article/approve\", true);\n" +
+		        "            xhr.setRequestHeader(\"Content-Type\", \"application/x-www-form-urlencoded\");\n" +
+		        "\n" +
+		        "            xhr.onreadystatechange = function() {\n" +
+		        "                if (xhr.readyState === XMLHttpRequest.DONE) {\n" +
+		        "                    if (xhr.status === 200) {\n" +
+		        "                        console.log(\"Success\");\n" +
+		        "                        var response = xhr.responseText; // Get the response from the server\n" +
+		        "                        var responseDiv = document.getElementById(\"responseDiv\"); // Get the <div> element to display the response\n" +
+		        "                        responseDiv.textContent = response; // Update the content of the <div> with the response\n" +
+		        "                    } else {\n" +
+		        "                        console.log(\"Error\");\n" +
+		        "                    }\n" +
+		        "                }\n" +
+		        "            };\n" +
+		        "\n" +
+		        "            xhr.send(new URLSearchParams(formData));\n" +
+		        "        }\n" +
+		        "    </script>\n" +
+		        "</body>\n" +
+		        "</html>";
+		return htmlCode;
+	}
+	
+	///This is for the DECLINE Article
+	public static String getIDS_DECLINE_ARTICLE_HTML(ArrayList<String> ARTICLES_IDs) {
+		String frameHTML = "<div class=\"ids-frame\">";
+		
+		for (int i = 0; i < ARTICLES_IDs.size(); i++) {
+	        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/decline_article/" + ARTICLES_IDs.get(i) + "?method=GET\">" + ARTICLES_IDs.get(i) + "</a> ";
+		}
+		
+		frameHTML += "</div>";
+		
+		String htmlCode = "<!DOCTYPE html>\n" +
+		        "<html>\n" +
+		        "<head>\n" +
+		        "    <title>Decline Article</title>\n" +
+		        "    <style>\n" +
+		        "        body {\n" +
+		        "            display: flex;\n" +
+		        "            justify-content: center;\n" +
+		        "            align-items: center;\n" +
+		        "            height: 100vh;\n" +
+		        "        }\n" +
+		        "        .container {\n" +
+		        "            text-align: center;\n" +
+		        "        }\n" +
+		        "        .ids-frame {\n" +
+		        "            margin-bottom: 20px;\n" +
+		        "        }\n" +
+		        "        .ids-frame a {\n" +
+		        "            display: inline-block;\n" +
+		        "            margin-right: 5px;\n" +
+		        "            text-decoration: underline;\n" +
+		        "        }\n" +
+		        "    </style>\n" +
+		        "</head>\n" +
+		        "<body>\n" +
+		        "    <div class=\"container\">\n" +
+		        "        <h1>Decline an Article. Choose ID of an article.</h1>\n" +
+		        "        <h2>The articles that you see, have state SUBMITTED (STATE_ID: 2) and state APPROVED (STATE_ID: 3)<p>If you decline the article you choose you have to give an explanation.</h2>\n" +
+                "        " + frameHTML + "\n" +
+		        "    </div>\n" +
+		        "</body>\n" +
+		        "</html>";
+		return htmlCode;
+	}
+	public static String getDECLINE_ARTICLE_HTML(String username, String role, String title, String topic, String content) {
+		String htmlCode = "<!DOCTYPE html>\n" +
+			    "<html>\n" +
+			    "<head>\n" +
+			    "    <title>Decline Article</title>\n" +
+			    "    <style>\n" +
+			    "        body {\n" +
+			    "            display: flex;\n" +
+			    "            justify-content: center;\n" +
+			    "            align-items: center;\n" +
+			    "            height: 100vh;\n" +
+			    "        }\n" +
+			    "        .container {\n" +
+			    "            text-align: center;\n" +
+			    "        }\n" +
+			    "        .ids-frame {\n" +
+			    "            margin-bottom: 20px;\n" +
+			    "        }\n" +
+			    "        .ids-frame a {\n" +
+			    "            display: inline-block;\n" +
+			    "            margin-right: 5px;\n" +
+			    "            text-decoration: underline;\n" +
+			    "        }\n" +
+			    "    </style>\n" +
+			    "</head>\n" +
+			    "<body>\n" +
+			    "    <div class=\"container\">\n" +
+			    "        <h1>Decline an Article</h1>\n" +
+			    "        <h2>You cannot modify the code here</h2>\n" +
+			    "        <form id=\"submitForm\" method=\"put\">\n" +
+			    "            <label for=\"topic\">Topic:</label>\n" +
+			    "            <input type=\"text\" id=\"topic\" name=\"topic\" value=\"" + topic + "\" readonly>\n" +
+			    "            <br>\n" +
+			    "            <label for=\"title\">Title:</label>\n" +
+			    "            <input type=\"text\" id=\"title\" name=\"title\" value=\"" + title + "\" readonly>\n" +
+			    "            <br>\n" +
+			    "            <label for=\"content\">Content:</label>\n" +
+			    "            <br>\n" +
+			    "            <textarea id=\"content\" name=\"content\" rows=\"10\" cols=\"30\" readonly>" + content + "</textarea>\n" +
+			    "            <br>\n" +
+			    "            <label for=\"cause\">Cause:</label>\n" +
+			    "            <br>\n" +
+			    "            <textarea id=\"cause\" name=\"cause\" rows=\"5\" cols=\"30\"></textarea>\n" +
+			    "            <br>\n" +
+			    "            <button type=\"button\" onclick=\"submitForm()\">Decline</button>\n" +
+			    "        </form>\n" +
+			    "        <div id=\"responseDiv\"></div>\n" +
+			    "    </div>\n" +
+			    "\n" +
+			    "    <script>\n" +
+			    "        function submitForm() {\n" +
+			    "            var form = document.getElementById(\"submitForm\");\n" +
+			    "            var formData = new FormData(form);\n" +
+			    "\n" +
+			    "            var cause = document.getElementById(\"cause\").value;\n" +
+			    "\n" +
+			    "            var xhr = new XMLHttpRequest();\n" +
+			    "            xhr.open(\"PUT\", \"/RESTstart/rest/auth/auth_user/decline_article/decline?cause=\" + encodeURIComponent(cause), true);\n" +
+			    "            xhr.setRequestHeader(\"Content-Type\", \"application/x-www-form-urlencoded\");\n" +
+			    "\n" +
+			    "            xhr.onreadystatechange = function() {\n" +
+			    "                if (xhr.readyState === XMLHttpRequest.DONE) {\n" +
+			    "                    if (xhr.status === 200) {\n" +
+			    "                        console.log(\"Success\");\n" +
+			    "                        var response = xhr.responseText;\n" +
+			    "                        var responseDiv = document.getElementById(\"responseDiv\");\n" +
+			    "                        responseDiv.textContent = response;\n" +
+			    "                    } else {\n" +
+			    "                        console.log(\"Error\");\n" +
+			    "                    }\n" +
+			    "                }\n" +
+			    "            };\n" +
+			    "\n" +
+			    "            xhr.send(new URLSearchParams(formData));\n" +
+			    "        }\n" +
+			    "    </script>\n" +
+			    "</body>\n" +
+			    "</html>";
+
+		return htmlCode;
+	}
+	
 }

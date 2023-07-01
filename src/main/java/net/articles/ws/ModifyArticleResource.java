@@ -19,6 +19,8 @@ import jakarta.ws.rs.core.Response;
 import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
 
+/* NOTE: IF THERE IS A ALERT ON AN ARTICLE THE USER WILL SEE THE CAUSE OF IT ... */ 
+
 @Path("/auth/auth_user/modify_article")
 public class ModifyArticleResource {
 	
@@ -36,7 +38,7 @@ public class ModifyArticleResource {
 			if(role.equals("JOURNALIST")) {
 				ROLE_ID = 2;
 				
-				ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username);
+				ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username, role);
 				
 				return Response.status(Response.Status.OK)
                 .entity(HtmlHandler.getIDS_MODIFY_ARTICLE_HTML(ARTICLES_IDs))
@@ -46,7 +48,7 @@ public class ModifyArticleResource {
 			} else if(role.equals("CURATOR")){
 				ROLE_ID = 3;
 				
-				ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username);
+				ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username, role);
 				
 				return Response.status(Response.Status.OK)
 		                .entity(HtmlHandler.getIDS_MODIFY_ARTICLE_HTML(ARTICLES_IDs))
@@ -70,6 +72,10 @@ public class ModifyArticleResource {
     		.build();
 		}
 		
+		/// Find if a curator has --DECLINED-- the article that clicked, and if it has, bring the cause to display it in the 
+		/// user.
+		String CAUSE = getCAUSE(Integer.parseInt(id)); 
+		
 		String TITLE_FROM_DB = getTitleArticle_DB(id); 
 		if(TITLE_FROM_DB == null) {
 			return Response.serverError().build(); // if is null that means the query failed to execute, we must not run the other code ...
@@ -85,7 +91,7 @@ public class ModifyArticleResource {
 		ID_CLICKED = id;
 		/// We return him the same html page but filled with the contents of the article he clicked
 		return   Response.status(Response.Status.OK)
-                .entity(HtmlHandler.getMODIFY_ARTICLE_HTML(username, role, TITLE_FROM_DB, TOPIC_TITLE_FROM_DB, CONTENTS_FROM_DB))
+                .entity(HtmlHandler.getMODIFY_ARTICLE_HTML(username, role, TITLE_FROM_DB, TOPIC_TITLE_FROM_DB, CONTENTS_FROM_DB, CAUSE))
                 .type(MediaType.TEXT_HTML)
                 .build();
     }
@@ -109,8 +115,6 @@ public class ModifyArticleResource {
             		.entity("EMPTY_FIELDS")
             		.build();
 		}
-		
-		System.out.println("FINAL ID_CLICKED --> " + ID_CLICKED);
 		
 		String url = "jdbc:mysql://localhost:3306/news_db";
 	    String username_DB = "root";
@@ -155,6 +159,11 @@ public class ModifyArticleResource {
 	            rowsAffected = updateStatement.executeUpdate();
 	            if (rowsAffected > 0) {
 	                System.out.println("SERVER STATUS: Update successful (IN MOFIFY ARTICLE:ID:" + ID_CLICKED + ") " + rowsAffected + " rows affected.");
+	                
+	                /// Now we are going to remove the alert and the cause, if exists ...
+	                removeCause(Integer.parseInt(ID_CLICKED));
+	                updateAlert(Integer.parseInt(ID_CLICKED));
+	                
 	                return Response.ok("MODIFICATION_DONE_SUCCESFULLY:ID_MODIFIED:" + ID_CLICKED).build();
 	            } else {
 	                System.out.println("SERVER STATUS: Update failed (IN MOFIFY ARTICLE:ID: " + ID_CLICKED + ") No rows affected.");
@@ -182,9 +191,131 @@ public class ModifyArticleResource {
 		    }
 	}
 	
+	private String getCAUSE(int article_id_clicked) {
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    Connection connection = null;
+	    PreparedStatement selectStatement = null;
+	    
+	    String selectQuery = "SELECT CAUSE FROM alerts_causes WHERE ARTICLE_ID = ?;";
+	    
+	    try { 
+	    	connection = DriverManager.getConnection(url, username_DB, passwd);
+	    	System.out.println("\nSERVER STATUS: Connected to the database...");
+	    	selectStatement = connection.prepareStatement(selectQuery);
+	    	selectStatement.setInt(1, article_id_clicked);
+	      
+	    	ResultSet resultSet = selectStatement.executeQuery();
+
+	    	String CAUSE = "";
+	        while(resultSet.next()) {
+	        	CAUSE = resultSet.getString("CAUSE");
+	        }
+	        return CAUSE;
+	    }catch(SQLException e) {
+	    	e.printStackTrace();
+	    	return "";
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
+	
+	/// Here we remove the alert and also the cause ...
+	private void updateAlert(int id) {
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    int rowsAffected;
+	    
+	    Connection connection = null;
+	    PreparedStatement updateStatement = null;
+	    
+	    try {
+	    	connection = DriverManager.getConnection(url, username_DB, passwd);
+			System.out.println("\nSERVER STATUS: Connected to the database...");
+			
+		    String updateQuery = "UPDATE ARTICLES SET alert = 0 WHERE ID = ?;";
+		    updateStatement = connection.prepareStatement(updateQuery);
+		    updateStatement.setInt(1, Integer.parseInt(ID_CLICKED));
+	        rowsAffected = updateStatement.executeUpdate();
+	        if (rowsAffected > 0) {
+                System.out.println("SERVER STATUS: Update successful (IN MODIFY (updateAlert) ARTICLE:ID:" + ID_CLICKED + ") " + rowsAffected + " rows affected.");
+            } else {
+                System.out.println("SERVER STATUS: Update failed (IN MODIFY (updateAlert) ARTICLE:ID: " + ID_CLICKED + ") No rows affected.");
+            }
+	    } catch(SQLException e) {
+	    	e.printStackTrace();
+	    } finally {
+	        try {
+	            if (updateStatement != null) {
+	            	updateStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }     
+	}
+	private void removeCause(int id) {
+		// First we remove the cause from the table alerts_cause based on the ID of the article the modify pressed
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    int rowsAffected;
+	    
+	    Connection connection = null;
+	    PreparedStatement deleteStatement = null;
+	    
+	    try {
+	    	connection = DriverManager.getConnection(url, username_DB, passwd);
+			System.out.println("\nSERVER STATUS: Connected to the database...");
+			
+		    String deleteQuery = "DELETE FROM ALERTS_CAUSES WHERE ARTICLE_ID = ?;";
+		    deleteStatement = connection.prepareStatement(deleteQuery);
+		    deleteStatement.setInt(1, Integer.parseInt(ID_CLICKED));
+	        rowsAffected = deleteStatement.executeUpdate();
+	        if (rowsAffected > 0) {
+                System.out.println("SERVER STATUS: Delete successful (IN MODIFY (removeAlert) ARTICLE:ID:" + ID_CLICKED + ") " + rowsAffected + " rows affected.");
+            } else {
+                System.out.println("SERVER STATUS: Delete failed (IN MODIFY (removeAlert) ARTICLE:ID: " + ID_CLICKED + ") No rows affected.");
+            }
+	    } catch(SQLException e) {
+	    	e.printStackTrace();
+	    } finally {
+	        try {
+	            if (deleteStatement != null) {
+	            	deleteStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }     
+	}
+	
 	/* NOTE: In this function we will get all the IDs of the articles that the user has create ... 
 	 * NOTE: WE ONLY RETURN THE ARTICLES THAT HAVE STATE == 1 */
-	private ArrayList<String> getAllArticleIDS(String username) {
+	private ArrayList<String> getAllArticleIDS(String username, String role) {
 		String url = "jdbc:mysql://localhost:3306/news_db";
 	    String username_DB = "root";
 	    String passwd = "kolos2020";
@@ -199,9 +330,16 @@ public class ModifyArticleResource {
 	    try {
 	    	connection = DriverManager.getConnection(url, username_DB, passwd);
 	        System.out.println("\nSERVER STATUS: Connected to the database...");
-		    
-	        selectStatement = connection.prepareStatement(selectQuery);
-	        selectStatement.setString(1, username);
+	    	
+	    	if(role.equals("JOURNALIST")) {
+		    	selectQuery = "SELECT ID FROM articles WHERE CREATOR_USERNAME = ? AND STATE_ID = 1;";
+		    	selectStatement = connection.prepareStatement(selectQuery);
+		    	selectStatement.setString(1, username);
+		    } else { // if the user is CURATOR, all the articles will be displayed ... 
+		    	selectQuery = "SELECT ID FROM articles WHERE STATE_ID = 1;";
+		    	selectStatement = connection.prepareStatement(selectQuery);
+		    }
+		   
 	        ResultSet resultSet = selectStatement.executeQuery();
 
 	        while(resultSet.next()) {

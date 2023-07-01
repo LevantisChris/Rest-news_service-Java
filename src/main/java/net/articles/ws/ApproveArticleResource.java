@@ -1,5 +1,4 @@
 package net.articles.ws;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -7,44 +6,40 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
 
-@Path("/auth/auth_user/submit_article")
-public class SubmitArticleResource {
+///NOTE: The function accept article is only available for the Curator ...
+/* NOTE: THE CURATOR CAN SEE ALL THE ARTICLES THAT BELONGS TO EVERY-ONE */
+
+@Path("/auth/auth_user/approve_article")
+public class ApproveArticleResource {
 	
 	private static String ID_CLICKED;
 	
 	@GET
 	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
-		System.out.println("SERVER STATUS --> SUBMIT ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		System.out.println("SERVER STATUS --> ACCEPT ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		ID_CLICKED = null;
 		int ROLE_ID;
 		try {
 			if(role.equals("JOURNALIST")) {
 				ROLE_ID = 2;
 				
-				ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username, role);
+				ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username);
 				
-				return Response.status(Response.Status.OK)
-                .entity(HtmlHandler.getIDS_SUBMIT_ARTICLE_HTML(ARTICLES_IDs))
-                .type(MediaType.TEXT_HTML)
-                .build();
+				return Response.serverError().build(); // If for some reason we have a failure in out system and a JOURNALIST or some other access this function, we send a server error ... 
 				
 			} else if(role.equals("CURATOR")){
 				ROLE_ID = 3;
 				
-				ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username, role);
+				ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username);
 				
 				return Response.status(Response.Status.OK)
-		                .entity(HtmlHandler.getIDS_SUBMIT_ARTICLE_HTML(ARTICLES_IDs))
+		                .entity(HtmlHandler.getIDS_APPROVE_ARTICLE_HTML(ARTICLES_IDs))
 		                .type(MediaType.TEXT_HTML)
 		                .build();
 				
@@ -53,60 +48,6 @@ public class SubmitArticleResource {
 			System.out.print(e.getMessage());
 			return Response.ok(e.getMessage()).build();
 		}
-	}
-	
-	/* NOTE: We do not display articles that are in alert mode because the user must go in the modify function to change it ... */
-	private ArrayList<String> getAllArticleIDS(String username, String role) {
-		String url = "jdbc:mysql://localhost:3306/news_db";
-	    String username_DB = "root";
-	    String passwd = "kolos2020";
-	    
-	    Connection connection = null;
-	    PreparedStatement selectStatement = null;
-	    
-	    String selectQuery = null;
-	    
-	    
-	    
-	    ArrayList<String> ARTICLES_IDs = new ArrayList<>();
-	    
-	    try {
-	    	
-	    	connection = DriverManager.getConnection(url, username_DB, passwd);
-	        System.out.println("\nSERVER STATUS: Connected to the database...");
-	    	
-	    	if(role.equals("JOURNALIST")) {
-		    	selectQuery = "SELECT ID FROM articles WHERE CREATOR_USERNAME = ? AND STATE_ID = 1 AND alert = 0;";
-		    	selectStatement = connection.prepareStatement(selectQuery);
-		    	 selectStatement.setString(1, username);
-		    } else { // if the user is CURATOR, all the articles will be displayed ... 
-		    	selectQuery = "SELECT ID FROM articles WHERE STATE_ID = 1 AND alert = 0;";
-		    	selectStatement = connection.prepareStatement(selectQuery);
-		    }
-		   
-	        ResultSet resultSet = selectStatement.executeQuery();
-
-	        while(resultSet.next()) {
-	        	int articleId = resultSet.getInt("ID");
-	        	ARTICLES_IDs.add(String.valueOf(articleId));
-	        }
-		    return ARTICLES_IDs;
-	    } catch(SQLException e) {
-	    	e.printStackTrace();
-	    	return null;
-	    } finally {
-	        try {
-	            if (selectStatement != null) {
-	                selectStatement.close();
-	            }
-	            if (connection != null && !connection.isClosed()) {
-	                connection.close();
-	                System.out.println("Disconnected from the database...\n");
-	            }
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	        }
-	    }
 	}
 	
 	@GET
@@ -133,10 +74,65 @@ public class SubmitArticleResource {
 		ID_CLICKED = id;
 		/// We return him the same html page but filled with the contents of the article he clicked
 		return   Response.status(Response.Status.OK)
-                .entity(HtmlHandler.getSUBMIT_ARTICLE_HTML(username, role, TITLE_FROM_DB, TOPIC_TITLE_FROM_DB, CONTENTS_FROM_DB))
+                .entity(HtmlHandler.getAPPROVE_ARTICLE_HTML(username, role, TITLE_FROM_DB, TOPIC_TITLE_FROM_DB, CONTENTS_FROM_DB))
                 .type(MediaType.TEXT_HTML)
                 .build();
     }
+	
+	@Path("/approve")
+	@PUT
+	public Response submitArticle() {
+		System.out.println("SERVER STATUS: ARTICLE THAT CLICKED FOR CHANGING STATE TO --ACCEPTED-- IS WITH THE ID == " + ID_CLICKED);
+	    if(changeState() == true) {
+	    	return Response.ok("APPROVE_DONE_SUCCESFULLY:ID_MODIFIED:" + ID_CLICKED).build();
+	    } else
+	    	return Response.serverError().build();
+	}
+	
+	
+	/*-------------------------------------------------------------------------------------------------------------------------------------*/
+	private ArrayList<String> getAllArticleIDS(String username) {
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    Connection connection = null;
+	    PreparedStatement selectStatement = null;
+	    
+	    String selectQuery = "SELECT ID FROM articles WHERE STATE_ID = 2;"; // we display the articles that are in the state submitted ...
+	    
+	    ArrayList<String> ARTICLES_IDs = new ArrayList<>();
+	    
+	    try {
+	    	connection = DriverManager.getConnection(url, username_DB, passwd);
+	        System.out.println("\nSERVER STATUS: Connected to the database...");
+		    
+	        selectStatement = connection.prepareStatement(selectQuery);
+	        //selectStatement.setString(1, username);
+	        ResultSet resultSet = selectStatement.executeQuery();
+
+	        while(resultSet.next()) {
+	        	int articleId = resultSet.getInt("ID");
+	        	ARTICLES_IDs.add(String.valueOf(articleId));
+	        }
+		    return ARTICLES_IDs;
+	    } catch(SQLException e) {
+	    	e.printStackTrace();
+	    	return null;
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
 	private String getTitleArticle_DB(String id) {
 		String url = "jdbc:mysql://localhost:3306/news_db";
 	    String username_DB = "root";
@@ -278,17 +274,6 @@ public class SubmitArticleResource {
 	    }
 	}
 	
-	/// NOTE: we are going to UPDATE the STATE_ID based on the title of the 
-	@Path("/submit")
-	@PUT
-	public Response submitArticle() {
-		System.out.println("SERVER STATUS: ARTICLE THAT CLICKED FOR CHANGING STATE TO --SUBMITTED-- IS WITH THE ID == " + ID_CLICKED);
-	    if(changeState() == true) {
-	    	return Response.ok("SUBMIT_DONE_SUCCESFULLY:ID_MODIFIED:" + ID_CLICKED).build();
-	    } else
-	    	return Response.serverError().build();
-	}
-
 	private boolean changeState() {
 		String url = "jdbc:mysql://localhost:3306/news_db";
 	    String username_DB = "root";
@@ -303,7 +288,7 @@ public class SubmitArticleResource {
 	    	connection = DriverManager.getConnection(url, username_DB, passwd);
 			System.out.println("\nSERVER STATUS: Connected to the database...");
 			
-		    String updateQuery = "UPDATE ARTICLES SET STATE_ID = 2 WHERE ID = ?;";
+		    String updateQuery = "UPDATE ARTICLES SET STATE_ID = 3 WHERE ID = ?;";
 		    updateStatement = connection.prepareStatement(updateQuery);
 		    updateStatement.setInt(1, Integer.parseInt(ID_CLICKED)); // 2 is the state for submited
 	        rowsAffected = updateStatement.executeUpdate();
