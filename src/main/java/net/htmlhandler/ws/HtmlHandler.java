@@ -103,7 +103,7 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article?username=" + username + "&role=" + "CURATOR" + "\">Submit Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_article?username=" + username + "&role=" + "CURATOR" + "\">Approve Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_article?username=" + username + "&role=" + "CURATOR" + "\">Decline Article</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Article Publication</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/publish_article?username=" + username + "&role=" + "CURATOR" + "\">Article Puplication</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Search Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display all the Articles</a>\n" +
@@ -265,7 +265,7 @@ public class HtmlHandler {
 		        "<body>\n" +
 		        "    <div class=\"container\">\n" +
 		        "        <h1>Modify an Article. Choose ID of an article.</h1>\n" +
-		        "        <h2>The articles that you see, have state CREATED (STATE_ID: 1)</h2>\n" +
+		        "        <h2>The articles that you see, have state CREATED (STATE_ID: 1)<p><h3>AND FOR A CURATOR WE DISPLAY ALSO ARTICLES THAT ARE IN THE STATE APPROVED (STATE_ID: 3)</h3></h2>\n" +
                 "        " + frameHTML + "\n" +
 		        "    </div>\n" +
 		        "</body>\n" +
@@ -701,4 +701,124 @@ public class HtmlHandler {
 		return htmlCode;
 	}
 	
+	
+	///This is for the PUBLISH Article
+		public static String getIDS_PUBLISH_ARTICLE_HTML(ArrayList<String> ARTICLES_IDs) {
+			String frameHTML = "<div class=\"ids-frame\">";
+			
+			for (int i = 0; i < ARTICLES_IDs.size(); i++) {
+		        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/publish_article/" + ARTICLES_IDs.get(i) + "?method=GET\">" + ARTICLES_IDs.get(i) + "</a> ";
+			}
+			
+			frameHTML += "</div>";
+			
+			String htmlCode = "<!DOCTYPE html>\n" +
+			        "<html>\n" +
+			        "<head>\n" +
+			        "    <title>Publish Article</title>\n" +
+			        "    <style>\n" +
+			        "        body {\n" +
+			        "            display: flex;\n" +
+			        "            justify-content: center;\n" +
+			        "            align-items: center;\n" +
+			        "            height: 100vh;\n" +
+			        "        }\n" +
+			        "        .container {\n" +
+			        "            text-align: center;\n" +
+			        "        }\n" +
+			        "        .ids-frame {\n" +
+			        "            margin-bottom: 20px;\n" +
+			        "        }\n" +
+			        "        .ids-frame a {\n" +
+			        "            display: inline-block;\n" +
+			        "            margin-right: 5px;\n" +
+			        "            text-decoration: underline;\n" +
+			        "        }\n" +
+			        "    </style>\n" +
+			        "</head>\n" +
+			        "<body>\n" +
+			        "    <div class=\"container\">\n" +
+			        "        <h1>Publish an Article. Choose ID of an article.</h1>\n" +
+			        "        <h2>The articles that you see, have state APPROVED (STATE_ID: 3)<p>If you publish the article you choose then this article is available for display for everyone</h2>\n" +
+	                "        " + frameHTML + "\n" +
+			        "    </div>\n" +
+			        "</body>\n" +
+			        "</html>";
+			return htmlCode;
+		}
+	
+		public static String getPUBLISH_ARTICLE_HTML(String username, String role, String title, String topic, String content) {
+			String htmlCode = "<!DOCTYPE html>\n" +
+			        "<html>\n" +
+			        "<head>\n" +
+			        "    <title>Publish Article</title>\n" +
+			        "    <style>\n" +
+			        "        body {\n" +
+			        "            display: flex;\n" +
+			        "            justify-content: center;\n" +
+			        "            align-items: center;\n" +
+			        "            height: 100vh;\n" +
+			        "        }\n" +
+			        "        .container {\n" +
+			        "            text-align: center;\n" +
+			        "        }\n" +
+			        "        .ids-frame {\n" +
+			        "            margin-bottom: 20px;\n" +
+			        "        }\n" +
+			        "        .ids-frame a {\n" +
+			        "            display: inline-block;\n" +
+			        "            margin-right: 5px;\n" +
+			        "            text-decoration: underline;\n" +
+			        "        }\n" +
+			        "    </style>\n" +
+			        "</head>\n" +
+			        "<body>\n" +
+			        "    <div class=\"container\">\n" +
+			        "        <h1>Publish an Article</h1>\n" +
+			        "        <h2>You cannot modify the code here</h2>\n" +
+			        "        <form id=\"submitForm\" method=\"put\">\n" +
+			        "            <label for=\"topic\">Topic:</label>\n" +
+			        "            <input type=\"text\" id=\"topic\" name=\"topic\" value=\"" + topic + "\" readonly>\n" +
+			        "            <br>\n" +
+			        "            <label for=\"title\">Title:</label>\n" +
+			        "            <input type=\"text\" id=\"title\" name=\"title\" value=\"" + title + "\" readonly>\n" +
+			        "            <br>\n" +
+			        "            <label for=\"content\">Content:</label>\n" +
+			        "            <br>\n" +
+			        "            <textarea id=\"content\" name=\"content\" rows=\"10\" cols=\"30\" readonly>" + content + "</textarea>\n" +
+			        "            <br>\n" +
+			        "            <button type=\"button\" onclick=\"submitForm()\">Publish</button>\n" +
+			        "        </form>\n" +
+			        "        <div id=\"responseDiv\"></div>\n" + 
+			        "    </div>\n" +
+			        "\n" +
+			        "    <script>\n" +
+			        "        function submitForm() {\n" +
+			        "            var form = document.getElementById(\"submitForm\");\n" +
+			        "            var formData = new FormData(form);\n" +
+			        "\n" +
+			        "            var xhr = new XMLHttpRequest();\n" +
+			        "            xhr.open(\"PUT\", \"/RESTstart/rest/auth/auth_user/publish_article/publish\", true);\n" +
+			        "            xhr.setRequestHeader(\"Content-Type\", \"application/x-www-form-urlencoded\");\n" +
+			        "\n" +
+			        "            xhr.onreadystatechange = function() {\n" +
+			        "                if (xhr.readyState === XMLHttpRequest.DONE) {\n" +
+			        "                    if (xhr.status === 200) {\n" +
+			        "                        console.log(\"Success\");\n" +
+			        "                        var response = xhr.responseText; // Get the response from the server\n" +
+			        "                        var responseDiv = document.getElementById(\"responseDiv\"); // Get the <div> element to display the response\n" +
+			        "                        responseDiv.textContent = response; // Update the content of the <div> with the response\n" +
+			        "                    } else {\n" +
+			        "                        console.log(\"Error\");\n" +
+			        "                    }\n" +
+			        "                }\n" +
+			        "            };\n" +
+			        "\n" +
+			        "            xhr.send(new URLSearchParams(formData));\n" +
+			        "        }\n" +
+			        "    </script>\n" +
+			        "</body>\n" +
+			        "</html>";
+			return htmlCode;
+		}
 }

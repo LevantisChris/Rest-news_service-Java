@@ -336,7 +336,7 @@ public class ModifyArticleResource {
 		    	selectStatement = connection.prepareStatement(selectQuery);
 		    	selectStatement.setString(1, username);
 		    } else { // if the user is CURATOR, all the articles will be displayed ... 
-		    	selectQuery = "SELECT ID FROM articles WHERE STATE_ID = 1;";
+		    	selectQuery = "SELECT ID FROM articles WHERE STATE_ID = 1 OR STATE_ID = 3;"; // The curator can also modify articles that are in the state 3 (APPROVED)
 		    	selectStatement = connection.prepareStatement(selectQuery);
 		    }
 		   

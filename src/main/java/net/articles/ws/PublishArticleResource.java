@@ -1,4 +1,5 @@
 package net.articles.ws;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -6,23 +7,26 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
 
-///NOTE: The function accept article is only available for the Curator ...
-/* NOTE: THE CURATOR CAN SEE ALL THE ARTICLES THAT BELONGS TO EVERY-ONE */
+/* NOTE: This function is only available for a Curator and no one else ... */ 
 
-@Path("/auth/auth_user/approve_article")
-public class ApproveArticleResource {
-	
+@Path("/auth/auth_user/publish_article")
+public class PublishArticleResource {
+
 	private static String ID_CLICKED;
 	
 	@GET
 	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
-		System.out.println("SERVER STATUS --> ACCEPT ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		System.out.println("SERVER STATUS --> PUBLISH ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		ID_CLICKED = null;
 		int ROLE_ID;
 		try {
@@ -39,7 +43,7 @@ public class ApproveArticleResource {
 				ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username);
 				
 				return Response.status(Response.Status.OK)
-		                .entity(HtmlHandler.getIDS_APPROVE_ARTICLE_HTML(ARTICLES_IDs))
+		                .entity(HtmlHandler.getIDS_PUBLISH_ARTICLE_HTML(ARTICLES_IDs))
 		                .type(MediaType.TEXT_HTML)
 		                .build();
 				
@@ -74,23 +78,22 @@ public class ApproveArticleResource {
 		ID_CLICKED = id;
 		/// We return him the same html page but filled with the contents of the article he clicked
 		return   Response.status(Response.Status.OK)
-                .entity(HtmlHandler.getAPPROVE_ARTICLE_HTML(username, role, TITLE_FROM_DB, TOPIC_TITLE_FROM_DB, CONTENTS_FROM_DB))
+                .entity(HtmlHandler.getPUBLISH_ARTICLE_HTML(username, role, TITLE_FROM_DB, TOPIC_TITLE_FROM_DB, CONTENTS_FROM_DB))
                 .type(MediaType.TEXT_HTML)
                 .build();
     }
 	
-	@Path("/approve")
+	@Path("/publish")
 	@PUT
 	public Response submitArticle() {
-		System.out.println("SERVER STATUS: ARTICLE THAT CLICKED FOR CHANGING STATE TO --APPROVED-- IS WITH THE ID == " + ID_CLICKED);
+		System.out.println("SERVER STATUS: ARTICLE THAT CLICKED FOR CHANGING STATE TO --PUBLISHED-- IS WITH THE ID == " + ID_CLICKED);
 	    if(changeState() == true) {
-	    	return Response.ok("APPROVE_DONE_SUCCESFULLY:ID_MODIFIED:" + ID_CLICKED).build();
+	    	return Response.ok("PUBLISH_DONE_SUCCESFULLY:ID_MODIFIED:" + ID_CLICKED).build();
 	    } else
 	    	return Response.serverError().build();
 	}
 	
-	
-	/*-------------------------------------------------------------------------------------------------------------------------------------*/
+	/*-------------------------------------------------------------------------------------------------------------------------*/
 	private ArrayList<String> getAllArticleIDS(String username) {
 		String url = "jdbc:mysql://localhost:3306/news_db";
 	    String username_DB = "root";
@@ -99,7 +102,7 @@ public class ApproveArticleResource {
 	    Connection connection = null;
 	    PreparedStatement selectStatement = null;
 	    
-	    String selectQuery = "SELECT ID FROM articles WHERE STATE_ID = 2;"; // we display the articles that are in the state submitted ...
+	    String selectQuery = "SELECT ID FROM articles WHERE STATE_ID = 3;"; // we display articles that are in the state approved (3) ...
 	    
 	    ArrayList<String> ARTICLES_IDs = new ArrayList<>();
 	    
@@ -108,7 +111,6 @@ public class ApproveArticleResource {
 	        System.out.println("\nSERVER STATUS: Connected to the database...");
 		    
 	        selectStatement = connection.prepareStatement(selectQuery);
-	        //selectStatement.setString(1, username);
 	        ResultSet resultSet = selectStatement.executeQuery();
 
 	        while(resultSet.next()) {
@@ -133,6 +135,7 @@ public class ApproveArticleResource {
 	        }
 	    }
 	}
+	
 	private String getTitleArticle_DB(String id) {
 		String url = "jdbc:mysql://localhost:3306/news_db";
 	    String username_DB = "root";
@@ -288,15 +291,15 @@ public class ApproveArticleResource {
 	    	connection = DriverManager.getConnection(url, username_DB, passwd);
 			System.out.println("\nSERVER STATUS: Connected to the database...");
 			
-		    String updateQuery = "UPDATE ARTICLES SET STATE_ID = 3 WHERE ID = ?;";
+		    String updateQuery = "UPDATE ARTICLES SET STATE_ID = 4 WHERE ID = ?;";
 		    updateStatement = connection.prepareStatement(updateQuery);
-		    updateStatement.setInt(1, Integer.parseInt(ID_CLICKED)); // 2 is the state for submited
+		    updateStatement.setInt(1, Integer.parseInt(ID_CLICKED));
 	        rowsAffected = updateStatement.executeUpdate();
 	        if (rowsAffected > 0) {
-                System.out.println("SERVER STATUS: Update successful (IN UPDATE ARTICLE:ID:" + ID_CLICKED + ") " + rowsAffected + " rows affected.");
+                System.out.println("SERVER STATUS: Update successful (IN PUBLISH ARTICLE:ID:" + ID_CLICKED + ") " + rowsAffected + " rows affected.");
                 return true;
             } else {
-                System.out.println("SERVER STATUS: Update failed (IN UPDATE ARTICLE:ID: " + ID_CLICKED + ") No rows affected.");
+                System.out.println("SERVER STATUS: Update failed (IN PUBLISH ARTICLE:ID: " + ID_CLICKED + ") No rows affected.");
                 return false;
             }
 	    } catch(SQLException e) {
@@ -316,4 +319,5 @@ public class ApproveArticleResource {
 	        }
 	    }     
 	}
+	
 }
