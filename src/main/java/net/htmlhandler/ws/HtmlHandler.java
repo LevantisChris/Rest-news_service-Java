@@ -56,7 +56,7 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_article?username=" + username + "&role=" + "JOURNALIST" + "\">Create Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_article?username=" + username + "&role=" + "JOURNALIST" + "\">Modify Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article?username=" + username + "&role=" + "JOURNALIST" + "\">Submit Article</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Search Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article?username=" + username + "&role=" + "JOURNALIST" + "\">Search Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display all the Articles</a>\n" +
 		        "    <hr>\n" +
@@ -104,7 +104,7 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_article?username=" + username + "&role=" + "CURATOR" + "\">Approve Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_article?username=" + username + "&role=" + "CURATOR" + "\">Decline Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/publish_article?username=" + username + "&role=" + "CURATOR" + "\">Article Puplication</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Search Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article?username=" + username + "&role=" + "CURATOR" + "\">Search Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display Article</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display all the Articles</a>\n" +
 		        "    <hr>\n" +
@@ -151,7 +151,7 @@ public class HtmlHandler {
 	              "<body>\n" +
 	              "  <div class=\"center\">\n" +
 	              "    <h1>Welcome - Role: " + "VISITOR" + "</h1>\n" +
-	              "    <a class=\"link\" href=\"#\">Search Article</a>\n" +
+			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/search_article?role=" + "VISITOR" + "\">Search Article</a>\n" +
 	              "    <a class=\"link\" href=\"#\">Display Article</a>\n" +
 	              "    <a class=\"link\" href=\"#\">Display all the Articles</a>\n" +
 	              "    <hr>\n" +
@@ -821,4 +821,68 @@ public class HtmlHandler {
 			        "</html>";
 			return htmlCode;
 		}
+
+		///This is for the SEARCH Article
+		/* NOTE: IF THE USER IS A VISITOR WE HAVE THE FIRST URL THAT CORRESPOND TO THE GET METHOD, ELSE WE HAVE THE SECOND ONE */
+		public static String getSEARCH_ARTICLE_KEY_PHRASES_HTML(String username, int USER_ROLE_ID) {
+		    String temp_str, temp_username, temp_input;
+		    if (USER_ROLE_ID == 1) {
+		    	 temp_str = "        <form action=\"/RESTstart/rest/auth/not_auth_user/search_article/search\" method=\"get\">\n";
+		    	 temp_username = "<h2>The articles you see have state PUBLISHED (STATE_ID: 4)";
+		    	 temp_input = "";
+		    } else if(USER_ROLE_ID == 2){ // Journalist can not see all the articles 
+		    	 temp_str = "        <form action=\"/RESTstart/rest/auth/auth_user/search_article/search\" method=\"get\">\n";
+		    	 temp_username =  "		   <h2>The articles you see belongs to " + username + " and have state APPROVED (STATE_ID: 3) and PUBLISHED (STATE_ID: 4)";
+		         temp_input = "    <input type=\"hidden\" name=\"username\" value=\"" + username + "\">\n";
+		    } else { // Curator can see all the articles 
+		    	 temp_str = "        <form action=\"/RESTstart/rest/auth/auth_user/search_article/search\" method=\"get\">\n";
+		    	 temp_username =  "		   <h2>The articles you see belongs to " + username + " and have have all the states possible";
+		         temp_input = "    <input type=\"hidden\" name=\"username\" value=\"" + username + "\">\n";
+		    }
+		    String html_code = "<!DOCTYPE html>\n"
+		        + "<html>\n"
+		        + "<head>\n"
+		        + "    <title>Search Article</title>\n"
+		        + "    <style>\n"
+		        + "        body {\n"
+		        + "            display: flex;\n"
+		        + "            justify-content: center;\n"
+		        + "            align-items: center;\n"
+		        + "            height: 100vh;\n"
+		        + "        }\n"
+		        + "        .container {\n"
+		        + "            text-align: center;\n"
+		        + "        }\n"
+		        + "        form {\n"
+		        + "            margin-top: 20px;\n"
+		        + "        }\n"
+		        + "    </style>\n"
+		        + "</head>\n"
+		        + "<body>\n"
+		        + "    <div class=\"container\">\n"
+		        + "        <h1>Search Article</h1>\n"
+		        + "			<h2>Warning: If you add key phrase for the title AND for the content, both must be satisfied"	
+		        + temp_username
+		        + "\n"
+		        + temp_str
+		        + "            <label for=\"titleKeyPhrases\">Title Key Phrases:</label>\n"
+		        + "            <br>\n"
+		        + "            <textarea id=\"titleKeyPhrases\" name=\"titleKeyPhrases\" rows=\"5\" cols=\"30\"></textarea>\n"
+		        + "            <br>\n"
+		        + "\n"
+		        + "            <label for=\"contentKeyPhrases\">Content Key Phrases:</label>\n"
+		        + "            <br>\n"
+		        + "            <textarea id=\"contentKeyPhrases\" name=\"contentKeyPhrases\" rows=\"5\" cols=\"30\"></textarea>\n"
+		        + "            <br>\n"
+		        + "\n"
+		        + temp_input
+		        + "            <button type=\"submit\">Search</button>\n"
+		        + "        </form>\n"
+		        + "    </div>\n"
+		        + "</body>\n"
+		        + "</html>";
+		    return html_code;
+		}
+
+		
 }
