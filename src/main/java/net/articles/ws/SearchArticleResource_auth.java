@@ -25,7 +25,7 @@ public class SearchArticleResource_auth {
 
 	private static int ROLE_ID;
 	private ArrayList<Article> articles_list;
-	private ArrayList<Article> GOAL_IDs; // the id of the article that satisfies all the criteria
+	private ArrayList<Article> GOAL_ARTICLES; // the articles that satisfy all the criteria ...
 	
 	@GET
 	public Response handleKeyPhrasesAuthUserArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
@@ -62,9 +62,11 @@ public class SearchArticleResource_auth {
 	@GET
 	@Path("/search")
 	public Response sendData(@QueryParam("username") String username, @QueryParam("titleKeyPhrases") String titleKeyPhrases, @QueryParam("contentKeyPhrases") String contentKeyPhrases) {
-		System.out.println("CURATOR AND JOURNALIST, Username --> " + username);
-		System.out.println("CURATOR AND JOURNALIST, Title key phrases --> " + titleKeyPhrases);
-		System.out.println("CURATOR AND JOURNALIST, Content key phrases --> " + contentKeyPhrases);
+		titleKeyPhrases = titleKeyPhrases.replace("\\s", ""); // remove \n
+		contentKeyPhrases = contentKeyPhrases.replace("\\s", ""); // remove \n
+		System.out.println("SERVER STATUS: CURATOR AND JOURNALIST, Username --> " + username);
+		System.out.println("SERVER STATUS: CURATOR AND JOURNALIST, Title key phrases --> " + titleKeyPhrases);
+		System.out.println("SERVER STATUS: CURATOR AND JOURNALIST, Content key phrases --> " + contentKeyPhrases);
 		
 		getAllArticlesFromDB(username); // first we get all the articles ...
 		
@@ -72,11 +74,17 @@ public class SearchArticleResource_auth {
 		if(hasWords(titleKeyPhrases) == false && hasWords(contentKeyPhrases) == false) {
 			articlesGot(); // just to display what articles we have got ...
 			searchTitleAndContentsOneWord(titleKeyPhrases, contentKeyPhrases);
-			if(GOAL_IDs.size() != 0) {
+			if(GOAL_ARTICLES.size() != 0) {
 				printGoals();
-				return Response.ok("TO EXOYN TA: " + GOAL_IDs).build();
+				return Response.status(Response.Status.OK)
+		                .entity(HtmlHandler.getArticlesFromSEARCH_ARTICLES(GOAL_ARTICLES))
+		                .type(MediaType.TEXT_HTML)
+		                .build();
 			} else {
-				return Response.ok("DENNNN TO EXIIII KANENA").build();
+				 return Response.status(Response.Status.OK)
+						.entity(HtmlHandler.getArticlesFromSEARCH_ARTICLES(GOAL_ARTICLES))
+						.type(MediaType.TEXT_HTML)
+		                .build();
 			}
 		}
 		/* NOTE SOS: Here we will have to break the words in the key phrases the user add, and find for each of it, if it exists in an article
@@ -89,22 +97,34 @@ public class SearchArticleResource_auth {
 				ArrayList<String> titleArray = splitStrings(titleKeyPhrases);
 				System.out.println(titleArray);
 				searchTitleTwoWords(titleArray);
-				if(GOAL_IDs.size() != 0) {
+				if(GOAL_ARTICLES.size() != 0) {
 					printGoals();
-					return Response.ok("(MORE THAN ONE WORDS) TO EXOYN TA: " + GOAL_IDs).build();
+					return Response.status(Response.Status.OK)
+			               .entity(HtmlHandler.getArticlesFromSEARCH_ARTICLES(GOAL_ARTICLES))
+			               .type(MediaType.TEXT_HTML)
+			               .build();
 				} else {
-					return Response.ok("(MORE THAN ONE WORDS) DENNNN TO EXIIII KANENA").build();
+					 return Response.status(Response.Status.OK)
+								.entity(HtmlHandler.getArticlesFromSEARCH_ARTICLES(GOAL_ARTICLES))
+								.type(MediaType.TEXT_HTML)
+				                .build();
 				}
 			} else if(titleKeyPhrases.isEmpty() && !contentKeyPhrases.isEmpty()) { // content is not empty and contains more than one words
 				System.out.println("content is not empty and contains more than one words");
 				ArrayList<String> contentArray = splitStrings(contentKeyPhrases);
 				System.out.println(contentArray);
 				searchContentTwoWords(contentArray);
-				if(GOAL_IDs.size() != 0) {
+				if(GOAL_ARTICLES.size() != 0) {
 					printGoals();
-					return Response.ok("(MORE THAN ONE WORDS) TO EXOYN TA: " + GOAL_IDs).build();
+					return Response.status(Response.Status.OK)
+				               .entity(HtmlHandler.getArticlesFromSEARCH_ARTICLES(GOAL_ARTICLES))
+				               .type(MediaType.TEXT_HTML)
+				               .build();
 				} else {
-					return Response.ok("(MORE THAN ONE WORDS) DENNNN TO EXIIII KANENA").build();
+					return Response.status(Response.Status.OK)
+							.entity(HtmlHandler.getArticlesFromSEARCH_ARTICLES(GOAL_ARTICLES))
+							.type(MediaType.TEXT_HTML)
+			                .build();
 				}
 			} else { // both are not empty and contain more than one word
 				System.out.println("both are not empty and contain more than one word");
@@ -112,9 +132,22 @@ public class SearchArticleResource_auth {
 				ArrayList<String> contentArray = splitStrings(contentKeyPhrases);
 				System.out.println(titleArray);
 				System.out.println(contentArray);
-				searchTitleAndContentsTwoWords(titleArray, contentArray);
+				/* WARNING: After this two functions we will have as Goal the articles that have in the satisfy the title OR the Content */
+				searchTitleTwoWords(titleArray);
+				searchContentTwoWords(contentArray);
+				if(GOAL_ARTICLES.size() != 0) {
+					printGoals();
+					return Response.status(Response.Status.OK)
+				               .entity(HtmlHandler.getArticlesFromSEARCH_ARTICLES(GOAL_ARTICLES))
+				               .type(MediaType.TEXT_HTML)
+				               .build();
+				} else {
+					return Response.status(Response.Status.OK)
+							.entity(HtmlHandler.getArticlesFromSEARCH_ARTICLES(GOAL_ARTICLES))
+							.type(MediaType.TEXT_HTML)
+			                .build();
+				}
 			}
-			return Response.ok("PARAPANO APO MIA LEZIS").build();
 		}
 	}
 	
@@ -151,7 +184,7 @@ public class SearchArticleResource_auth {
     		System.out.println("\nSERVER STATUS: Connected to the database...");
 	    	
     		if(ROLE_ID == 2) { // is JOURNALIST
-		    	selectQuery = "SELECT ID, TITLE, CONTENT FROM articles WHERE STATE_ID = 3 OR STATE_ID = 4 AND CREATOR_USERNAME = ?;"; // can see only the articles that are in the stage APPROVED and PUBLISHED
+		    	selectQuery = "SELECT ID, TITLE, CONTENT FROM articles WHERE STATE_ID = 4 OR CREATOR_USERNAME = ?;"; // can see only the articles that are in the stage PUBLISHED or belongs to him
 		    	selectStatement = connection.prepareStatement(selectQuery);
 		    	selectStatement.setString(1, username);
 		    	DATA_DB = selectStatement.executeQuery();
@@ -192,8 +225,8 @@ public class SearchArticleResource_auth {
 	}
 	private void printGoals() {
 		System.out.println("------------------------------------------------");
-		for(int i = 0;i < GOAL_IDs.size();i++) {
-			System.out.println("ARTICLE-GOAL-FOUND --> ID == " + GOAL_IDs.get(i).getId());
+		for(int i = 0;i < GOAL_ARTICLES.size();i++) {
+			System.out.println("ARTICLE-GOAL-FOUND --> ID == " + GOAL_ARTICLES.get(i).getId());
 		}
 		System.out.println("------------------------------------------------");
 	}
@@ -201,26 +234,23 @@ public class SearchArticleResource_auth {
 	/* NOTE: Now we have in the ArrayList all the Articles, we are going to find the articles that have in there titles 
 	 * the key word the user add (titleKeyPhrases) */
 	private void searchTitleAndContentsOneWord(String titleKeyPhrases, String contentKeyPhrases) {
-		GOAL_IDs = new ArrayList<>();
+		GOAL_ARTICLES = new ArrayList<>();
 		if(!titleKeyPhrases.isEmpty() && contentKeyPhrases.isEmpty()) { // the user has only add key phrase about title
-			System.out.println("EDOO 1");
 			for(int i = 0;i < articles_list.size();i++) {
 				if(articles_list.get(i).getTitle().contains(titleKeyPhrases)) {
-					GOAL_IDs.add(articles_list.get(i));
+					GOAL_ARTICLES.add(articles_list.get(i));
 				}
 			}
 		} else if(titleKeyPhrases.isEmpty() && !contentKeyPhrases.isEmpty()) { // the user has only add key phrase about content
-			System.out.println("EDOO 2");
 			for(int i = 0;i < articles_list.size();i++) {
 				if(articles_list.get(i).getContents().contains(contentKeyPhrases)) {
-					GOAL_IDs.add(articles_list.get(i));
+					GOAL_ARTICLES.add(articles_list.get(i));
 				}
 			}
-		} else if(!titleKeyPhrases.isEmpty() && !contentKeyPhrases.isEmpty()) { /// NOTE: if he add title key phrase and also content key phrase, both must be contained ...
-			System.out.println("EDOO 3");
+		} else if(!titleKeyPhrases.isEmpty() && !contentKeyPhrases.isEmpty()) { /// NOTE: if he add title key phrase and also content key phrase, We return the articles that have at least each ...
 			for(int i = 0;i < articles_list.size();i++) { // the user has add key phrase for both content and title
-				if(articles_list.get(i).getContents().contains(contentKeyPhrases) && articles_list.get(i).getTitle().contains(titleKeyPhrases)) {
-					GOAL_IDs.add(articles_list.get(i));
+				if(articles_list.get(i).getContents().contains(contentKeyPhrases) || articles_list.get(i).getTitle().contains(titleKeyPhrases)) {
+					GOAL_ARTICLES.add(articles_list.get(i));
 				}
 			}
 		} 
@@ -247,7 +277,7 @@ public class SearchArticleResource_auth {
 	 * IF IN THE END OF THE INNER FOR WE HAVE THE temp WITH THE VALUE true THEN THAT MEANS ALL THE KEY WORDS ARE CONTAINED IN THE ARTICLE
 	 * 											!!!!SO THE ARTICLE IS A GOAL!!!! */
 	private void searchTitleTwoWords(ArrayList<String> titleArray) {
-		GOAL_IDs = new ArrayList<>();
+		GOAL_ARTICLES = new ArrayList<>();
 		boolean temp = false; // if all the words exists in an article 
 		for(int i = 0;i < articles_list.size();i++) {
 			for(int j = 0;j < titleArray.size();j++) {
@@ -259,12 +289,12 @@ public class SearchArticleResource_auth {
 				}
 			}
 			if(temp == true) {
-				GOAL_IDs.add(articles_list.get(i));
+				GOAL_ARTICLES.add(articles_list.get(i));
 			}
 		}	
 	}
 	private void searchContentTwoWords(ArrayList<String> contentsArray) {
-		GOAL_IDs = new ArrayList<>();
+		GOAL_ARTICLES = new ArrayList<>();
 		boolean temp = false; // if all the words exists in an article 
 		for(int i = 0;i < articles_list.size();i++) {
 			for(int j = 0;j < contentsArray.size();j++) {
@@ -276,11 +306,8 @@ public class SearchArticleResource_auth {
 				}
 			}
 			if(temp == true) {
-				GOAL_IDs.add(articles_list.get(i));
+				GOAL_ARTICLES.add(articles_list.get(i));
 			}
 		}	
-	}
-	private void searchTitleAndContentsTwoWords(ArrayList<String> titleArray, ArrayList<String> contentArray) {
-		/// In costruction ...
 	}
 }

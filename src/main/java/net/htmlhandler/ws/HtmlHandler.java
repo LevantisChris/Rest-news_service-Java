@@ -2,6 +2,8 @@ package net.htmlhandler.ws;
 
 import java.util.ArrayList;
 
+import net.articles.ws.manage_articles.Article;
+
 /* HERE WE ARE GOING TO HAVE ALL THE HTML CODES THAT WE WILL NEED IN OUR SERVICE */
 
 public class HtmlHandler {
@@ -832,7 +834,7 @@ public class HtmlHandler {
 		    	 temp_input = "";
 		    } else if(USER_ROLE_ID == 2){ // Journalist can not see all the articles 
 		    	 temp_str = "        <form action=\"/RESTstart/rest/auth/auth_user/search_article/search\" method=\"get\">\n";
-		    	 temp_username =  "		   <h2>The articles you see belongs to " + username + " and have state APPROVED (STATE_ID: 3) and PUBLISHED (STATE_ID: 4)";
+		    	 temp_username =  "		   <h2>The articles you see belongs to " + username + " OR have state PUBLISHED (STATE_ID: 4)";
 		         temp_input = "    <input type=\"hidden\" name=\"username\" value=\"" + username + "\">\n";
 		    } else { // Curator can see all the articles 
 		    	 temp_str = "        <form action=\"/RESTstart/rest/auth/auth_user/search_article/search\" method=\"get\">\n";
@@ -882,6 +884,57 @@ public class HtmlHandler {
 		        + "</body>\n"
 		        + "</html>";
 		    return html_code;
+		}
+		public static String getArticlesFromSEARCH_ARTICLES(ArrayList<Article> GOAL_ARTICLES) {
+			
+		    if(GOAL_ARTICLES.isEmpty()) {
+		    	String htmlCode = "<!DOCTYPE html>\n"
+		                + "<html>\n"
+		                + "<head>\n"
+		                + "    <title>Articles Not Found</title>\n"
+		                + "</head>\n"
+		                + "<body>\n"
+		                + "    <h1>ARTICLES_NOT_FOUND</h1>\n"
+		                + "</body>\n"
+		                + "</html>";
+
+		        return htmlCode;
+		    }
+			
+			StringBuilder htmlCode = new StringBuilder();
+
+		    htmlCode.append("<!DOCTYPE html>\n");
+		    htmlCode.append("<html>\n");
+		    htmlCode.append("<head>\n");
+		    htmlCode.append("    <title>Articles</title>\n");
+		    htmlCode.append("    <style>\n");
+		    htmlCode.append("        .article {\n");
+		    htmlCode.append("            margin-bottom: 20px;\n");
+		    htmlCode.append("            padding: 10px;\n");
+		    htmlCode.append("            border: 1px solid #ccc;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("        .article h2 {\n");
+		    htmlCode.append("            margin-top: 0;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("        .article p {\n");
+		    htmlCode.append("            margin-bottom: 0;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("    </style>\n");
+		    htmlCode.append("</head>\n");
+		    htmlCode.append("<body>\n");
+
+		    for (Article article : GOAL_ARTICLES) {
+		        htmlCode.append("    <div class=\"article\">\n");
+		        htmlCode.append("        <h2>ID: ").append(article.getId()).append("</h2>\n");
+		        htmlCode.append("        <p>Title: ").append(article.getTitle()).append("</p>\n");
+		        htmlCode.append("        <p>Content: ").append(article.getContents()).append("</p>\n");
+		        htmlCode.append("    </div>\n");
+		    }
+
+		    htmlCode.append("</body>\n");
+		    htmlCode.append("</html>");
+
+		    return htmlCode.toString();
 		}
 
 		
