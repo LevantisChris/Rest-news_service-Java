@@ -29,13 +29,12 @@ public class SearchArticleResource_auth {
 	
 	@GET
 	public Response handleKeyPhrasesAuthUserArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
-		System.out.println("SERVER STATUS --> SEARCH ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		System.out.println("SERVER STATUS: SEARCH ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		try {
 			if(role.equals("VISITOR")) { // if a visitor gets here we have a problem ...
 				ROLE_ID = 1;
 				return Response.serverError().build();
 			} else if(role.equals("JOURNALIST")) {
-				System.out.println("MPIKEEE");
 				ROLE_ID = 2;
 				
 				return Response.status(Response.Status.OK)
