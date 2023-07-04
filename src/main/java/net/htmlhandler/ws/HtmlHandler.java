@@ -59,8 +59,8 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_article?username=" + username + "&role=" + "JOURNALIST" + "\">Modify Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article?username=" + username + "&role=" + "JOURNALIST" + "\">Submit Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article?username=" + username + "&role=" + "JOURNALIST" + "\">Search Article</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Display Article</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Display all the Articles</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_article?username=" + username + "&role=" + "JOURNALIST" + "\">Display Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article?username=" + username + "&role=" + "JOURNALIST" + "\">Display all the Articles</a>\n" +
 		        "    <hr>\n" +
 		        "    <a class=\"link\" href=\"#\">Add Comment</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display Comments of an Article</a>\n" +
@@ -107,8 +107,8 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_article?username=" + username + "&role=" + "CURATOR" + "\">Decline Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/publish_article?username=" + username + "&role=" + "CURATOR" + "\">Article Puplication</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article?username=" + username + "&role=" + "CURATOR" + "\">Search Article</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Display Article</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Display all the Articles</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_article?username=" + username + "&role=" + "CURATOR" + "\">Display Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article?username=" + username + "&role=" + "CURATOR" + "\">Display all the Articles</a>\n" +
 		        "    <hr>\n" +
 		        "    <a class=\"link\" href=\"#\">Add Comment</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Modify Comment</a>\n" +
@@ -154,8 +154,8 @@ public class HtmlHandler {
 	              "  <div class=\"center\">\n" +
 	              "    <h1>Welcome - Role: " + "VISITOR" + "</h1>\n" +
 			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/search_article?role=" + "VISITOR" + "\">Search Article</a>\n" +
-	              "    <a class=\"link\" href=\"#\">Display Article</a>\n" +
-	              "    <a class=\"link\" href=\"#\">Display all the Articles</a>\n" +
+			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/display_article?role=" + "VISITOR" + "\">Display Article</a>\n" +
+			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayAll_article?role=" + "VISITOR" + "\">Display all the Article</a>\n" +
 	              "    <hr>\n" +
 	              "    <a class=\"link\" href=\"#\">Add Comment</a>\n" +
 	              "    <a class=\"link\" href=\"#\">Display Comment of an Article</a>\n" +
@@ -936,6 +936,245 @@ public class HtmlHandler {
 
 		    return htmlCode.toString();
 		}
+
+		///This is for the Display Article
+		public static String getIDS_DISPLAY_ARTICLE_HTML(ArrayList<String> ARTICLES_IDs, int ROLE_ID) {
+			
+			
+			
+			String h2;
+			if(ROLE_ID == 2)  { /// JOURNALIST
+				h2 = "<h2>Here you see the ids of the aricles that belong to you and also the aritcles that have state PUBLISHED (STATE_ID: 4)</h2>";
+			} else if(ROLE_ID == 3) {
+				h2 = "<h2>Here you see the ids of the aricles of all the users that have all the states possible</h2>";
+			} else {
+				h2 = "<h2>Here you see articles that have state PUBLISHED (STATE_ID: 4)</h2>";
+			}
+			
+			String frameHTML = "<div class=\"ids-frame\">";
+			
+			for (int i = 0; i < ARTICLES_IDs.size(); i++) {
+		        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/display_article/" + ARTICLES_IDs.get(i) + "?method=GET\">" + ARTICLES_IDs.get(i) + "</a> ";
+			}
+			
+			frameHTML += "</div>";
+			
+			String htmlCode = "<!DOCTYPE html>\n" +
+			        "<html>\n" +
+			        "<head>\n" +
+			        "    <title>Display Article</title>\n" +
+			        "    <style>\n" +
+			        "        body {\n" +
+			        "            display: flex;\n" +
+			        "            justify-content: center;\n" +
+			        "            align-items: center;\n" +
+			        "            height: 100vh;\n" +
+			        "        }\n" +
+			        "        .container {\n" +
+			        "            text-align: center;\n" +
+			        "        }\n" +
+			        "        .ids-frame {\n" +
+			        "            margin-bottom: 20px;\n" +
+			        "        }\n" +
+			        "        .ids-frame a {\n" +
+			        "            display: inline-block;\n" +
+			        "            margin-right: 5px;\n" +
+			        "            text-decoration: underline;\n" +
+			        "        }\n" +
+			        "    </style>\n" +
+			        "</head>\n" +
+			        "<body>\n" +
+			        "    <div class=\"container\">\n" +
+			        "        <h1>Display an Article. Choose ID of an article.</h1>\n" +
+			        h2 +
+	                "        " + frameHTML + "\n" +
+			        "    </div>\n" +
+			        "</body>\n" +
+			        "</html>";
+			return htmlCode;
+		}
+		public static String getDISPLAY_ARTICLE_HTML(String username, String role, String creator_username, String title, String topic, String content) {
+		    String htmlCode = "<!DOCTYPE html>\n" +
+		        "<html>\n" +
+		        "<head>\n" +
+		        "    <title>Display Article</title>\n" +
+		        "    <style>\n" +
+		        "        body {\n" +
+		        "            display: flex;\n" +
+		        "            justify-content: center;\n" +
+		        "            align-items: center;\n" +
+		        "            height: 100vh;\n" +
+		        "        }\n" +
+		        "        .container {\n" +
+		        "            text-align: center;\n" +
+		        "            display: flex;\n" +
+		        "            flex-direction: column;\n" +
+		        "            align-items: center;\n" +
+		        "        }\n" +
+		        "        .form-group {\n" +
+		        "            margin-bottom: 20px;\n" +
+		        "            display: flex;\n" +
+		        "            flex-direction: column;\n" +
+		        "            align-items: flex-start;\n" +
+		        "        }\n" +
+		        "        .form-group label {\n" +
+		        "            margin-bottom: 5px;\n" +
+		        "        }\n" +
+		        "        .form-group input[type=\"text\"],\n" +
+		        "        .form-group textarea {\n" +
+		        "            width: 300px;\n" +
+		        "        }\n" +
+		        "        .form-group button {\n" +
+		        "            margin-top: 10px;\n" +
+		        "        }\n" +
+		        "    </style>\n" +
+		        "</head>\n" +
+		        "<body>\n" +
+		        "    <div class=\"container\">\n" +
+		        "        <h1>Display an Article</h1>\n" +
+		        "        <h2>You cannot modify the article here</h2>\n" +
+		        "        <form id=\"submitForm\" method=\"put\">\n" +
+		        "            <div class=\"form-group\">\n" +
+		        "                <label for=\"creator_username\">Creator username:</label>\n" +
+		        "                <input type=\"text\" id=\"creator_username\" name=\"creator_username\" value=\"" + creator_username + "\" readonly>\n" +
+		        "            </div>\n" +
+		        "            <div class=\"form-group\">\n" +
+		        "                <label for=\"topic\">Topic:</label>\n" +
+		        "                <input type=\"text\" id=\"topic\" name=\"topic\" value=\"" + topic + "\" readonly>\n" +
+		        "            </div>\n" +
+		        "            <div class=\"form-group\">\n" +
+		        "                <label for=\"title\">Title:</label>\n" +
+		        "                <input type=\"text\" id=\"title\" name=\"title\" value=\"" + title + "\" readonly>\n" +
+		        "            </div>\n" +
+		        "            <div class=\"form-group\">\n" +
+		        "                <label for=\"content\">Content:</label>\n" +
+		        "                <textarea id=\"content\" name=\"content\" rows=\"10\" cols=\"30\" readonly>" + content + "</textarea>\n" +
+		        "            </div>\n" +
+		        "        </form>\n" +
+		        "        <div id=\"responseDiv\"></div>\n" +
+		        "    </div>\n" +
+		        "\n" +
+		        "</body>\n" +
+		        "</html>";
+
+		    return htmlCode;
+		}
+
+		///This is for the Display All the articles
+		/// This is the html code for the user to choose which, option wants. Sort by Date or Sort by State
+		public static String getStartOptionsHTML(String name, String role) {
+		    String htmlCode = "<!DOCTYPE html>\r\n"
+		            + "<html>\r\n"
+		            + "<head>\r\n"
+		            + "  <title>Display all the Articles</title>\r\n"
+		            + "  <style>\r\n"
+		            + "    body {\r\n"
+		            + "      display: flex;\r\n"
+		            + "      justify-content: center;\r\n"
+		            + "      align-items: center;\r\n"
+		            + "      flex-direction: column;\r\n"
+		            + "      height: 100vh;\r\n"
+		            + "    }\r\n"
+		            + "    form {\r\n"
+		            + "      text-align: center;\r\n"
+		            + "    }\r\n"
+		            + "  </style>\r\n"
+		            + "</head>\r\n"
+		            + "<body>\r\n"
+		            + "  <h1>Display all the Articles</h1>\r\n"
+		            + "  <h2>Choose only one option</h2>"
+		            + "  <h3>USERNAME: " + name + " - ROLE: " + role + "</h3>\r\n"
+		            + "  <form action=\"/RESTstart/rest/auth/auth_user/displayAll_article/displayAll\" method=\"post\">\r\n"
+		            + "    <label for=\"sortByState\">\r\n"
+		            + "      <input type=\"checkbox\" id=\"sortByState\" name=\"sortByState\" value=\"true\" onclick=\"handleCheckbox(this)\">\r\n"
+		            + "      Sort by State\r\n"
+		            + "    </label>\r\n"
+		            + "    <br>\r\n"
+		            + "    <label for=\"sortByDate\">\r\n"
+		            + "      <input type=\"checkbox\" id=\"sortByDate\" name=\"sortByDate\" value=\"true\" onclick=\"handleCheckbox(this)\">\r\n"
+		            + "      Sort by Date\r\n"
+		            + "    </label>\r\n"
+		            + "    <br>\r\n"
+		            + "    <input type=\"hidden\" id=\"name\" name=\"name\" value=\"" + name + "\">\r\n"
+		            + "    <input type=\"hidden\" id=\"role\" name=\"role\" value=\"" + role + "\">\r\n"
+		            + "    <input type=\"submit\" value=\"Submit\">\r\n"
+		            + "  </form>\r\n"
+		            + "</body>\r\n"
+		            + "</html>\r\n";
+
+		    return htmlCode;
+		}
+		public static String getArticlesFromSEARCH_ALL_ARTICLES(ArrayList<Article> GOAL_ARTICLES) {
+		    if (GOAL_ARTICLES.isEmpty()) {
+		        String htmlCode = "<!DOCTYPE html>\n"
+		                + "<html>\n"
+		                + "<head>\n"
+		                + "    <title>Articles Not Found</title>\n"
+		                + "</head>\n"
+		                + "<body>\n"
+		                + "    <h1>ARTICLES_NOT_FOUND</h1>\n"
+		                + "</body>\n"
+		                + "</html>";
+
+		        return htmlCode;
+		    }
+
+		    StringBuilder htmlCode = new StringBuilder();
+
+		    htmlCode.append("<!DOCTYPE html>\n");
+		    htmlCode.append("<html>\n");
+		    htmlCode.append("<head>\n");
+		    htmlCode.append("    <title>Articles</title>\n");
+		    htmlCode.append("    <style>\n");
+		    htmlCode.append("        .article {\n");
+		    htmlCode.append("            margin-bottom: 20px;\n");
+		    htmlCode.append("            padding: 10px;\n");
+		    htmlCode.append("            border: 1px solid #ccc;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("        .article h2 {\n");
+		    htmlCode.append("            margin-top: 0;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("        .article p {\n");
+		    htmlCode.append("            margin-bottom: 0;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("    </style>\n");
+		    htmlCode.append("</head>\n");
+		    htmlCode.append("<body>\n");
+		    htmlCode.append("    <div id=\"Filters\" style=\"border: 1px solid #ccc;\">\n");
+		    htmlCode.append("        <label for=\"state\">State of Article:</label>\n");
+		    htmlCode.append("        <input type=\"text\" id=\"state\" name=\"state\" list=\"stateOptions\">\n");
+		    htmlCode.append("        <datalist id=\"stateOptions\">\n");
+		    htmlCode.append("            <option value=\"1\">\n");
+		    htmlCode.append("            <option value=\"2\">\n");
+		    htmlCode.append("            <option value=\"3\">\n");
+		    htmlCode.append("            <option value=\"4\">\n");
+		    htmlCode.append("        </datalist>\n");
+		    htmlCode.append("        <label for=\"startDate\">Start date:</label>\n");
+		    htmlCode.append("        <input type=\"date\" id=\"startDate\" name=\"startDate\">\n");
+		    htmlCode.append("        <label for=\"endDate\">End date:</label>\n");
+		    htmlCode.append("        <input type=\"date\" id=\"endDate\" name=\"endDate\">\n");
+		    htmlCode.append("    	 <button type=\"submit\">Submit</button>\n");
+		    htmlCode.append("    </div>\n");
+		    htmlCode.append("    <p></p>");
+
+
+		    for (Article article : GOAL_ARTICLES) {
+		        htmlCode.append("    <div class=\"article\">\n");
+		        htmlCode.append("        <h2>ID: ").append(article.getId()).append("</h2>\n");
+		        htmlCode.append("        <p>Creator username: ").append(article.getCreator_username()).append("</p>\n");
+		        htmlCode.append("        <p>State ID: ").append(article.getState_id()).append("</p>\n");
+		        htmlCode.append("        <p>Date creation: ").append(article.getDate_creation()).append("</p>\n");
+		        htmlCode.append("        <p>Title: ").append(article.getTitle()).append("</p>\n");
+		        htmlCode.append("        <p style=\"font-size: 25px;\">Content: ").append(article.getContents()).append("</p>\n");
+		        htmlCode.append("    </div>\n");
+		    }
+
+		    htmlCode.append("</body>\n");
+		    htmlCode.append("</html>");
+
+		    return htmlCode.toString();
+		}
+
 
 		
 }

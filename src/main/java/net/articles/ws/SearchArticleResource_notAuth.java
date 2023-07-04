@@ -259,7 +259,7 @@ public class SearchArticleResource_notAuth {
 		            }
 		            if (connection != null && !connection.isClosed()) {
 		                connection.close();
-		                System.out.println("Disconnected from the database...\n");
+		                System.out.println("SERVER STATUS: Disconnected from the database...\n");
 		            }
 		        } catch (SQLException e) {
 		            e.printStackTrace();
