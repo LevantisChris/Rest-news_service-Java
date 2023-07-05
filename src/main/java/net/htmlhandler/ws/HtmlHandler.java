@@ -2,6 +2,11 @@ package net.htmlhandler.ws;
 
 import java.util.ArrayList;
 
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import net.articles.ws.manage_articles.Article;
 
 /* HERE WE ARE GOING TO HAVE ALL THE HTML CODES THAT WE WILL NEED IN OUR SERVICE */
@@ -1140,21 +1145,24 @@ public class HtmlHandler {
 		    htmlCode.append("    </style>\n");
 		    htmlCode.append("</head>\n");
 		    htmlCode.append("<body>\n");
-		    htmlCode.append("    <div id=\"Filters\" style=\"border: 1px solid #ccc;\">\n");
-		    htmlCode.append("        <label for=\"state\">State of Article:</label>\n");
-		    htmlCode.append("        <input type=\"text\" id=\"state\" name=\"state\" list=\"stateOptions\">\n");
-		    htmlCode.append("        <datalist id=\"stateOptions\">\n");
-		    htmlCode.append("            <option value=\"1\">\n");
-		    htmlCode.append("            <option value=\"2\">\n");
-		    htmlCode.append("            <option value=\"3\">\n");
-		    htmlCode.append("            <option value=\"4\">\n");
-		    htmlCode.append("        </datalist>\n");
-		    htmlCode.append("        <label for=\"startDate\">Start date:</label>\n");
-		    htmlCode.append("        <input type=\"date\" id=\"startDate\" name=\"startDate\">\n");
-		    htmlCode.append("        <label for=\"endDate\">End date:</label>\n");
-		    htmlCode.append("        <input type=\"date\" id=\"endDate\" name=\"endDate\">\n");
-		    htmlCode.append("    	 <button type=\"submit\">Submit</button>\n");
-		    htmlCode.append("    </div>\n");
+		    htmlCode.append("    <form method=\"POST\" action=\"/RESTstart/rest/auth/auth_user/displayAll_article/filAp\">\n");  
+		    htmlCode.append("        <div id=\"Filters\" style=\"border: 1px solid #ccc;\">\n");
+		    htmlCode.append("            <label for=\"state\">State of Article:</label>\n");
+		    htmlCode.append("            <input type=\"text\" id=\"state\" name=\"state\" list=\"stateOptions\">\n");
+		    htmlCode.append("            <datalist id=\"stateOptions\">\n");
+		    htmlCode.append("                <option value=\"1\">\n");
+		    htmlCode.append("                <option value=\"2\">\n");
+		    htmlCode.append("                <option value=\"3\">\n");
+		    htmlCode.append("                <option value=\"4\">\n");
+		    htmlCode.append("            </datalist>\n");
+		    htmlCode.append("            <label for=\"startDate\">Start date:</label>\n");
+		    htmlCode.append("            <input type=\"date\" id=\"startDate\" name=\"startDate\">\n");
+		    htmlCode.append("            <label for=\"endDate\">End date:</label>\n");
+		    htmlCode.append("            <input type=\"date\" id=\"endDate\" name=\"endDate\">\n");
+		    htmlCode.append("        </div>\n");
+		    htmlCode.append("        <p></p>\n");
+		    htmlCode.append("        <button type=\"submit\">Submit</button>\n");
+		    htmlCode.append("    </form>\n");
 		    htmlCode.append("    <p></p>");
 
 
@@ -1174,7 +1182,4 @@ public class HtmlHandler {
 
 		    return htmlCode.toString();
 		}
-
-
-		
 }

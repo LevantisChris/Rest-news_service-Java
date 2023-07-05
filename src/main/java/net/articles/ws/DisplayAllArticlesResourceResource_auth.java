@@ -1,6 +1,7 @@
 package net.articles.ws;
 
 import java.sql.Connection;
+
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,6 +24,8 @@ import net.htmlhandler.ws.HtmlHandler;
 @Path("/auth/auth_user/displayAll_article")
 public class DisplayAllArticlesResourceResource_auth {
 	
+	private static ArrayList<Article> DATE_GET;
+	
 	@GET
 	public Response handleKeyPhrasesAuthUserArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS: DISPLAY ALL ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
@@ -34,8 +37,6 @@ public class DisplayAllArticlesResourceResource_auth {
 			} else if(role.equals("JOURNALIST")) {
 				ROLE_ID = 2;
 				
-				//ArrayList<Article> DATA_ARTICLES = getArticlesAtStart();
-				
 				return Response.status(Response.Status.OK)
 		                .entity(HtmlHandler.getStartOptionsHTML(username, role))
 		                .type(MediaType.TEXT_HTML)
@@ -43,9 +44,7 @@ public class DisplayAllArticlesResourceResource_auth {
 				
 			} else if(role.equals("CURATOR")){
 				ROLE_ID = 3;
-				
-				//ArrayList<Article> DATA_ARTICLES = getArticlesAtStart();
-				
+
 				return Response.status(Response.Status.OK)
 		                .entity(HtmlHandler.getStartOptionsHTML(username, role))
 		                .type(MediaType.TEXT_HTML)
@@ -78,7 +77,7 @@ public class DisplayAllArticlesResourceResource_auth {
 	    if (sortByState) {
 	    	System.out.println("SERVER STATUS: Sort by state, Clicked");
 	    	
-	    	ArrayList<Article> DATE_GET = getArticlesAtStart("sortByState", name, role);
+	    	DATE_GET = getArticlesAtStart("sortByState", name, role);
 	    	printDateGet(DATE_GET);
 	    	return Response.status(Response.Status.OK)
 	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES(DATE_GET))
@@ -86,7 +85,7 @@ public class DisplayAllArticlesResourceResource_auth {
 	                .build();
 	    } else if (sortByDate) {
 	    	System.out.println("SERVER STATUS: Sort by date, Clicked");
-	    	ArrayList<Article> DATE_GET = getArticlesAtStart("sortByDate", name, role);
+	    	DATE_GET = getArticlesAtStart("sortByDate", name, role);
 	    	printDateGet(DATE_GET);
 	    	return Response.status(Response.Status.OK)
 	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES(DATE_GET))
@@ -97,7 +96,33 @@ public class DisplayAllArticlesResourceResource_auth {
 	    }
 	}
 
-
+	/* NOTE: Here we handle the submit button that is in the filters */
+	@POST
+	@Path("/filAp")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public Response handleFilters(@FormParam("state") String state, 
+								  @FormParam("startDate") String startDate, 
+								  @FormParam("endDate") String endDate) {
+		
+		System.out.println("STATE: " + state);
+		System.out.println("startDate: " + startDate);
+		System.out.println("endDate: " + endDate);
+		System.out.println("ARRAY: --> " + DATE_GET);
+		
+		if(startDate.isEmpty() && !endDate.isEmpty()) {
+			return Response.ok("ADD_START_DATE").build(); 
+		} else if(!startDate.isEmpty() && endDate.isEmpty()) {
+			return Response.ok("ADD_END_DATE").build(); 
+		} else if(!state.isEmpty() && startDate.isEmpty() && endDate.isEmpty()) { // if the user has only add the //state//
+			return Response.ok("ONLY STATE ADDED").build(); 
+		} else if(state.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()){ // the user has add both
+			return Response.ok("ONLY DATE ADDED").build(); 
+		} else if(!state.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()) {
+			return Response.ok("ALL ADDED").build(); 
+		} else {
+			return Response.ok("ERROR").build(); 
+		}
+	}
 	
 	/*----------------------------------------------------------------------------------------------------------------------------------------------*/
 	
