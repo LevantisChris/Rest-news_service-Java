@@ -1068,6 +1068,22 @@ public class HtmlHandler {
 		///This is for the Display All the articles
 		/// This is the html code for the user to choose which, option wants. Sort by Date or Sort by State
 		public static String getStartOptionsHTML(String name, String role) {
+			
+			String temp_intro, temp_link_action, temp_check_boxes;
+			if(!role.equals("VISITOR")) {
+				temp_intro = "  <h3>USERNAME: " + name + " - ROLE: " + role + "</h3>\r\n";
+				temp_link_action = "  <form action=\"/RESTstart/rest/auth/auth_user/displayAll_article/displayAll\" method=\"post\">\r\n";
+				temp_check_boxes = "    <label for=\"sortByState\">\r\n"
+			            + "      <input type=\"checkbox\" id=\"sortByState\" name=\"sortByState\" value=\"true\" onclick=\"handleCheckbox(this)\">\r\n"
+			            + "      Sort by State\r\n"
+			            + "    </label>\r\n"
+			            + "    <br>\r\n";
+			} else {
+				temp_intro = "  <h3>ROLE: " + role + "</h3>\r\n";
+				temp_link_action = "  <form action=\"/RESTstart/rest/auth/not_auth_user/displayAll_article/displayAll\" method=\"post\">\r\n";
+				temp_check_boxes = "";
+			}
+			
 		    String htmlCode = "<!DOCTYPE html>\r\n"
 		            + "<html>\r\n"
 		            + "<head>\r\n"
@@ -1088,13 +1104,9 @@ public class HtmlHandler {
 		            + "<body>\r\n"
 		            + "  <h1>Display all the Articles</h1>\r\n"
 		            + "  <h2>Choose only one option</h2>"
-		            + "  <h3>USERNAME: " + name + " - ROLE: " + role + "</h3>\r\n"
-		            + "  <form action=\"/RESTstart/rest/auth/auth_user/displayAll_article/displayAll\" method=\"post\">\r\n"
-		            + "    <label for=\"sortByState\">\r\n"
-		            + "      <input type=\"checkbox\" id=\"sortByState\" name=\"sortByState\" value=\"true\" onclick=\"handleCheckbox(this)\">\r\n"
-		            + "      Sort by State\r\n"
-		            + "    </label>\r\n"
-		            + "    <br>\r\n"
+		            + temp_intro
+		            + temp_link_action
+		            + temp_check_boxes
 		            + "    <label for=\"sortByDate\">\r\n"
 		            + "      <input type=\"checkbox\" id=\"sortByDate\" name=\"sortByDate\" value=\"true\" onclick=\"handleCheckbox(this)\">\r\n"
 		            + "      Sort by Date\r\n"
@@ -1109,7 +1121,7 @@ public class HtmlHandler {
 
 		    return htmlCode;
 		}
-		public static String getArticlesFromSEARCH_ALL_ARTICLES(ArrayList<Article> GOAL_ARTICLES) {
+		public static String getArticlesFromSEARCH_ALL_ARTICLES_auth(ArrayList<Article> GOAL_ARTICLES) {
 		    if (GOAL_ARTICLES.isEmpty()) {
 		        String htmlCode = "<!DOCTYPE html>\n"
 		                + "<html>\n"
@@ -1161,6 +1173,70 @@ public class HtmlHandler {
 		    htmlCode.append("            <input type=\"date\" id=\"endDate\" name=\"endDate\">\n");
 		    htmlCode.append("        </div>\n");
 		    htmlCode.append("        <p></p>\n");
+		    htmlCode.append("        <button type=\"submit\">Submit</button>\n");
+		    htmlCode.append("    </form>\n");
+		    htmlCode.append("    <p></p>");
+
+
+		    for (Article article : GOAL_ARTICLES) {
+		        htmlCode.append("    <div class=\"article\">\n");
+		        htmlCode.append("        <h2>ID: ").append(article.getId()).append("</h2>\n");
+		        htmlCode.append("        <p>Creator username: ").append(article.getCreator_username()).append("</p>\n");
+		        htmlCode.append("        <p>State ID: ").append(article.getState_id()).append("</p>\n");
+		        htmlCode.append("        <p>Date creation: ").append(article.getDate_creation()).append("</p>\n");
+		        htmlCode.append("        <p>Title: ").append(article.getTitle()).append("</p>\n");
+		        htmlCode.append("        <p style=\"font-size: 25px;\">Content: ").append(article.getContents()).append("</p>\n");
+		        htmlCode.append("    </div>\n");
+		    }
+
+		    htmlCode.append("</body>\n");
+		    htmlCode.append("</html>");
+
+		    return htmlCode.toString();
+		}
+		public static String getArticlesFromSEARCH_ALL_ARTICLES_not_auth(ArrayList<Article> GOAL_ARTICLES) {
+		    if (GOAL_ARTICLES.isEmpty()) {
+		        String htmlCode = "<!DOCTYPE html>\n"
+		                + "<html>\n"
+		                + "<head>\n"
+		                + "    <title>Articles Not Found</title>\n"
+		                + "</head>\n"
+		                + "<body>\n"
+		                + "    <h1>ARTICLES_NOT_FOUND</h1>\n"
+		                + "</body>\n"
+		                + "</html>";
+
+		        return htmlCode;
+		    }
+
+		    StringBuilder htmlCode = new StringBuilder();
+
+		    htmlCode.append("<!DOCTYPE html>\n");
+		    htmlCode.append("<html>\n");
+		    htmlCode.append("<head>\n");
+		    htmlCode.append("    <title>Articles</title>\n");
+		    htmlCode.append("    <style>\n");
+		    htmlCode.append("        .article {\n");
+		    htmlCode.append("            margin-bottom: 20px;\n");
+		    htmlCode.append("            padding: 10px;\n");
+		    htmlCode.append("            border: 1px solid #ccc;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("        .article h2 {\n");
+		    htmlCode.append("            margin-top: 0;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("        .article p {\n");
+		    htmlCode.append("            margin-bottom: 0;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("    </style>\n");
+		    htmlCode.append("</head>\n");
+		    htmlCode.append("<body>\n");
+		    htmlCode.append("    <form method=\"POST\" action=\"/RESTstart/rest/auth/not_auth_user/displayAll_article/filAp\">\n");  
+		    htmlCode.append("        <div id=\"Filters\" style=\"border: 1px solid #ccc;\">\n");
+		    htmlCode.append("            <label for=\"startDate\">Start date:</label>\n");
+		    htmlCode.append("            <input type=\"date\" id=\"startDate\" name=\"startDate\">\n");
+		    htmlCode.append("            <label for=\"endDate\">End date:</label>\n");
+		    htmlCode.append("            <input type=\"date\" id=\"endDate\" name=\"endDate\">\n");
+		    htmlCode.append("        </div>\n");
 		    htmlCode.append("        <button type=\"submit\">Submit</button>\n");
 		    htmlCode.append("    </form>\n");
 		    htmlCode.append("    <p></p>");

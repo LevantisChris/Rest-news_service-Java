@@ -6,8 +6,11 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import com.google.protobuf.TextFormat.ParseException;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
@@ -80,7 +83,7 @@ public class DisplayAllArticlesResourceResource_auth {
 	    	DATE_GET = getArticlesAtStart("sortByState", name, role);
 	    	printDateGet(DATE_GET);
 	    	return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES(DATE_GET))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(DATE_GET))
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 	    } else if (sortByDate) {
@@ -88,11 +91,11 @@ public class DisplayAllArticlesResourceResource_auth {
 	    	DATE_GET = getArticlesAtStart("sortByDate", name, role);
 	    	printDateGet(DATE_GET);
 	    	return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES(DATE_GET))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(DATE_GET))
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 	    } else {
-	    	 return Response.ok("NOTHING").build();
+	    	 return Response.ok("TRY_AGAIN").build();
 	    }
 	}
 
@@ -104,23 +107,36 @@ public class DisplayAllArticlesResourceResource_auth {
 								  @FormParam("startDate") String startDate, 
 								  @FormParam("endDate") String endDate) {
 		
-		System.out.println("STATE: " + state);
-		System.out.println("startDate: " + startDate);
-		System.out.println("endDate: " + endDate);
-		System.out.println("ARRAY: --> " + DATE_GET);
+		System.out.println("SERVER STATUS: Filters in Display all Articles (auth) PRESSED");
+		System.out.println("SERVER STATUS: state: " + state);
+		System.out.println("SERVER STATUS: startDate: " + startDate);
+		System.out.println("SERVER STATUS: endDate: " + endDate);
+		System.out.println("SERVER STATUS: ARRAY: --> " + DATE_GET);
 		
 		if(startDate.isEmpty() && !endDate.isEmpty()) {
 			return Response.ok("ADD_START_DATE").build(); 
 		} else if(!startDate.isEmpty() && endDate.isEmpty()) {
 			return Response.ok("ADD_END_DATE").build(); 
 		} else if(!state.isEmpty() && startDate.isEmpty() && endDate.isEmpty()) { // if the user has only add the //state//
-			return Response.ok("ONLY STATE ADDED").build(); 
-		} else if(state.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()){ // the user has add both
-			return Response.ok("ONLY DATE ADDED").build(); 
+			ArrayList<Article> filteredArray = filterByState(DATE_GET, Integer.parseInt(state));
+			return Response.status(Response.Status.OK)
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(filteredArray))
+	                .type(MediaType.TEXT_HTML)
+	                .build();
+		} else if(state.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()){ // the user has add only the two //dates//
+			ArrayList<Article> filteredArray = filterByDate(DATE_GET, stringToDate(startDate), stringToDate(endDate));
+			return Response.status(Response.Status.OK)
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(filteredArray))
+	                .type(MediaType.TEXT_HTML)
+	                .build(); 
 		} else if(!state.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()) {
-			return Response.ok("ALL ADDED").build(); 
+			ArrayList<Article> filteredArray = filterByStateAndDate(DATE_GET, Integer.parseInt(state), stringToDate(startDate), stringToDate(endDate));
+			return Response.status(Response.Status.OK)
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(filteredArray))
+	                .type(MediaType.TEXT_HTML)
+	                .build(); 
 		} else {
-			return Response.ok("ERROR").build(); 
+			return Response.ok("NOT_FILTERS_ADDED").build(); 
 		}
 	}
 	
@@ -200,5 +216,46 @@ public class DisplayAllArticlesResourceResource_auth {
 			System.out.println("ARTICLE: ID == " + DATA_GET.get(i).getId() + " TITLE == " + DATA_GET.get(i).getTitle());
 		}
 		System.out.println("----------------------------------------------------------------------------------------------");
+	}
+	
+	private ArrayList<Article> filterByState(ArrayList<Article> arrayToFilter, int state_filter) {
+		ArrayList<Article> filteredArray = new ArrayList<>();
+		for(int i = 0;i < arrayToFilter.size();i++) {
+			if(arrayToFilter.get(i).getState_id() == state_filter) {
+				filteredArray.add(arrayToFilter.get(i));
+			}
+		}
+		return filteredArray;
+	}
+	private ArrayList<Article> filterByDate(ArrayList<Article> arrayToFilter, Date date_start_filter, Date date_end_filter) {
+		ArrayList<Article> filteredArray = new ArrayList<>();
+		for(int i = 0;i < arrayToFilter.size();i++) {
+			if(arrayToFilter.get(i).getDate_creation().compareTo(date_end_filter) <= 0 && arrayToFilter.get(i).getDate_creation().compareTo(date_start_filter) >= 0) {
+				filteredArray.add(arrayToFilter.get(i));
+			}
+		}
+		return filteredArray;
+	}
+	/* This func is converting a String that represents a date to Date ... */
+	public Date stringToDate(String date_str) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date date = dateFormat.parse(date_str);
+            return date;
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+	private ArrayList<Article> filterByStateAndDate(ArrayList<Article> arrayToFilter, int state_filter, Date date_start_filter, Date date_end_filter) {
+		ArrayList<Article> filteredArray = new ArrayList<>();
+		for(int i = 0;i < arrayToFilter.size();i++) {
+			if(arrayToFilter.get(i).getDate_creation().compareTo(date_end_filter) <= 0 
+					&& arrayToFilter.get(i).getDate_creation().compareTo(date_start_filter) >= 0 
+					&& arrayToFilter.get(i).getState_id() == state_filter) {
+				filteredArray.add(arrayToFilter.get(i));
+			}
+		}
+		return filteredArray;
 	}
 }

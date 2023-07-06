@@ -10,7 +10,6 @@ net\articles\ws\CreateArticleResource.class
 net\authentication\ws\Authentication.class
 net\comments\ws\CommentResource.class
 net\htmlhandler\ws\HtmlHandler.class
-net\articles\ws\DisplayAllArticlesResourceResource_auth$1.class
 net\articles\ws\DisplayAllArticlesResourceResource_auth.class
 net\exceptions\ws\EmptyFields.class
 net\articles\ws\DisplayAllArticlesResourceResource_notAuth.class
