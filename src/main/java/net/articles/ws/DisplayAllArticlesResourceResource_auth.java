@@ -2,6 +2,7 @@ package net.articles.ws;
 
 import java.sql.Connection;
 
+
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,8 +10,6 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
-import com.google.protobuf.TextFormat.ParseException;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
@@ -21,13 +20,15 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.articles.ws.manage_articles.Article;
+import net.comments.ws.manage_comments.Comments;
 import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
 
 @Path("/auth/auth_user/displayAll_article")
 public class DisplayAllArticlesResourceResource_auth {
 	
-	private static ArrayList<Article> DATE_GET;
+	private static ArrayList<Article> DATE_GET_ARTICLES;
+	private static ArrayList<Comments> DATE_GET_COMMENTS;
 	
 	@GET
 	public Response handleKeyPhrasesAuthUserArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
@@ -80,18 +81,20 @@ public class DisplayAllArticlesResourceResource_auth {
 	    if (sortByState) {
 	    	System.out.println("SERVER STATUS: Sort by state, Clicked");
 	    	
-	    	DATE_GET = getArticlesAtStart("sortByState", name, role);
-	    	printDateGet(DATE_GET);
+	    	DATE_GET_ARTICLES = getArticlesAtStart("sortByState", name, role);
+	    	DATE_GET_COMMENTS = getCommentsAtStart();
+	    	printDateGet(DATE_GET_ARTICLES);
 	    	return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(DATE_GET))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(DATE_GET_ARTICLES, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 	    } else if (sortByDate) {
 	    	System.out.println("SERVER STATUS: Sort by date, Clicked");
-	    	DATE_GET = getArticlesAtStart("sortByDate", name, role);
-	    	printDateGet(DATE_GET);
+	    	DATE_GET_ARTICLES = getArticlesAtStart("sortByDate", name, role);
+	    	DATE_GET_COMMENTS = getCommentsAtStart();
+	    	printDateGet(DATE_GET_ARTICLES);
 	    	return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(DATE_GET))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(DATE_GET_ARTICLES, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 	    } else {
@@ -111,28 +114,28 @@ public class DisplayAllArticlesResourceResource_auth {
 		System.out.println("SERVER STATUS: state: " + state);
 		System.out.println("SERVER STATUS: startDate: " + startDate);
 		System.out.println("SERVER STATUS: endDate: " + endDate);
-		System.out.println("SERVER STATUS: ARRAY: --> " + DATE_GET);
+		System.out.println("SERVER STATUS: ARRAY: --> " + DATE_GET_ARTICLES);
 		
 		if(startDate.isEmpty() && !endDate.isEmpty()) {
 			return Response.ok("ADD_START_DATE").build(); 
 		} else if(!startDate.isEmpty() && endDate.isEmpty()) {
 			return Response.ok("ADD_END_DATE").build(); 
 		} else if(!state.isEmpty() && startDate.isEmpty() && endDate.isEmpty()) { // if the user has only add the //state//
-			ArrayList<Article> filteredArray = filterByState(DATE_GET, Integer.parseInt(state));
+			ArrayList<Article> filteredArray = filterByState(DATE_GET_ARTICLES, Integer.parseInt(state));
 			return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(filteredArray))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(filteredArray, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 		} else if(state.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()){ // the user has add only the two //dates//
-			ArrayList<Article> filteredArray = filterByDate(DATE_GET, stringToDate(startDate), stringToDate(endDate));
+			ArrayList<Article> filteredArray = filterByDate(DATE_GET_ARTICLES, stringToDate(startDate), stringToDate(endDate));
 			return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(filteredArray))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(filteredArray, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build(); 
 		} else if(!state.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()) {
-			ArrayList<Article> filteredArray = filterByStateAndDate(DATE_GET, Integer.parseInt(state), stringToDate(startDate), stringToDate(endDate));
+			ArrayList<Article> filteredArray = filterByStateAndDate(DATE_GET_ARTICLES, Integer.parseInt(state), stringToDate(startDate), stringToDate(endDate));
 			return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(filteredArray))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(filteredArray, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build(); 
 		} else {
@@ -192,6 +195,54 @@ public class DisplayAllArticlesResourceResource_auth {
 	        			article_StateId ,article_CreatorUsername));
 	        }
 		    return temp_list;
+	    } catch(SQLException e) {
+	    	e.printStackTrace();
+	    	return null;
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
+	private ArrayList<Comments> getCommentsAtStart() {
+		ArrayList<Comments> temp_list = new ArrayList<>();
+		
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    String selectQuery;
+	    Connection connection = null;
+	    PreparedStatement selectStatement = null;
+	    ResultSet resultSet;
+	    
+	    selectQuery = "SELECT * FROM comments;";
+	    
+	    try {
+	    	connection = DriverManager.getConnection(url, username_DB, passwd);
+	        System.out.println("\nSERVER STATUS: Connected to the database...");
+	        
+	    	selectStatement = connection.prepareStatement(selectQuery);
+	    	resultSet = selectStatement.executeQuery();
+	    	
+	    	while(resultSet.next()) {
+	        	int comment_Id = resultSet.getInt("ID");
+	        	String comment_Content = resultSet.getString("CONTENT");
+	        	Date comment_Date_creation = resultSet.getDate("DATE_CREATION");
+	        	int comment_Article_id = resultSet.getInt("ARTICLE_ID");
+	        	int comment_State_id = resultSet.getInt("STATE_ID");
+	        	String comment_Creator_username = resultSet.getString("CREATOR_USERNAME");
+	        	temp_list.add(new Comments(comment_Id, comment_Content, comment_Date_creation, comment_Article_id, comment_State_id, comment_Creator_username));
+	    	}
+	    	return temp_list;
 	    } catch(SQLException e) {
 	    	e.printStackTrace();
 	    	return null;

@@ -1,5 +1,6 @@
 net\authentication\ws\User.class
 net\articles\ws\PublishArticleResource.class
+net\comments\ws\manage_comments\Comments.class
 net\articles\ws\SearchArticleResource_notAuth.class
 net\exceptions\ws\NotIdentifiedRole.class
 net\articles\ws\ModifyArticleResource.class

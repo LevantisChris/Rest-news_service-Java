@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import net.articles.ws.manage_articles.Article;
+import net.comments.ws.manage_comments.Comments;
 
 /* HERE WE ARE GOING TO HAVE ALL THE HTML CODES THAT WE WILL NEED IN OUR SERVICE */
 
@@ -1121,7 +1122,7 @@ public class HtmlHandler {
 
 		    return htmlCode;
 		}
-		public static String getArticlesFromSEARCH_ALL_ARTICLES_auth(ArrayList<Article> GOAL_ARTICLES) {
+		public static String getArticlesFromSEARCH_ALL_ARTICLES_auth(ArrayList<Article> GOAL_ARTICLES, ArrayList<Comments> GOAL_COMMENTS) {
 		    if (GOAL_ARTICLES.isEmpty()) {
 		        String htmlCode = "<!DOCTYPE html>\n"
 		                + "<html>\n"
@@ -1186,6 +1187,14 @@ public class HtmlHandler {
 		        htmlCode.append("        <p>Date creation: ").append(article.getDate_creation()).append("</p>\n");
 		        htmlCode.append("        <p>Title: ").append(article.getTitle()).append("</p>\n");
 		        htmlCode.append("        <p style=\"font-size: 25px;\">Content: ").append(article.getContents()).append("</p>\n");
+		        
+		        /* Add each comment that this article has */
+		        for (Comments comment : GOAL_COMMENTS) {
+		            if (comment.getArticle_id() == article.getId()) {
+		            	htmlCode.append("        <p style=\"text-indent: 20px;\"><em>").append(comment.getContent()).append("</em></p>\n");
+		            }
+		        }
+		        
 		        htmlCode.append("    </div>\n");
 		    }
 
