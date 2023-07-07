@@ -8,6 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -85,7 +87,7 @@ public class DisplayAllArticlesResourceResource_auth {
 	    	DATE_GET_COMMENTS = getCommentsAtStart();
 	    	printDateGet(DATE_GET_ARTICLES);
 	    	return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(DATE_GET_ARTICLES, DATE_GET_COMMENTS))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(name, DATE_GET_ARTICLES, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 	    } else if (sortByDate) {
@@ -94,7 +96,7 @@ public class DisplayAllArticlesResourceResource_auth {
 	    	DATE_GET_COMMENTS = getCommentsAtStart();
 	    	printDateGet(DATE_GET_ARTICLES);
 	    	return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(DATE_GET_ARTICLES, DATE_GET_COMMENTS))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(name, DATE_GET_ARTICLES, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 	    } else {
@@ -106,11 +108,12 @@ public class DisplayAllArticlesResourceResource_auth {
 	@POST
 	@Path("/filAp")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public Response handleFilters(@FormParam("state") String state, 
+	public Response handleFilters(@FormParam("clickedByName") String clickedByName,
+								  @FormParam("state") String state, 
 								  @FormParam("startDate") String startDate, 
 								  @FormParam("endDate") String endDate) {
 		
-		System.out.println("SERVER STATUS: Filters in Display all Articles (auth) PRESSED");
+		System.out.println("SERVER STATUS: Filters in Display all Articles (auth) PRESSED BY //" + clickedByName + "//");
 		System.out.println("SERVER STATUS: state: " + state);
 		System.out.println("SERVER STATUS: startDate: " + startDate);
 		System.out.println("SERVER STATUS: endDate: " + endDate);
@@ -123,24 +126,43 @@ public class DisplayAllArticlesResourceResource_auth {
 		} else if(!state.isEmpty() && startDate.isEmpty() && endDate.isEmpty()) { // if the user has only add the //state//
 			ArrayList<Article> filteredArray = filterByState(DATE_GET_ARTICLES, Integer.parseInt(state));
 			return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(filteredArray, DATE_GET_COMMENTS))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(clickedByName, filteredArray, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 		} else if(state.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()){ // the user has add only the two //dates//
 			ArrayList<Article> filteredArray = filterByDate(DATE_GET_ARTICLES, stringToDate(startDate), stringToDate(endDate));
 			return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(filteredArray, DATE_GET_COMMENTS))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(clickedByName, filteredArray, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build(); 
 		} else if(!state.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()) {
 			ArrayList<Article> filteredArray = filterByStateAndDate(DATE_GET_ARTICLES, Integer.parseInt(state), stringToDate(startDate), stringToDate(endDate));
 			return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(filteredArray, DATE_GET_COMMENTS))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(clickedByName, filteredArray, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build(); 
 		} else {
 			return Response.ok("NOT_FILTERS_ADDED").build(); 
 		}
+	}
+	
+	@POST
+	@Path("/add_comment")
+	public Response handleAddComment(@FormParam("clickedByName") String clickedByName,
+									 @FormParam("articleId") String articleId,
+									 @FormParam("comment") String comment,
+									 @FormParam("commentVisibility") String commentVisibility) {
+		if(comment.isEmpty()) {
+			return Response.ok("ERROR_EMTPY_COMMENT").build();
+		}
+		System.out.println("SERVER STATUS: //"+ commentVisibility + "// COMMENT SUBMITED FROM //" + clickedByName + "// WITH CONTENTS //" + comment + "// AND ARTICLE ID //" + articleId + "//");
+		if(commentVisibility == null) {
+			return Response.notModified("SELECT_NAME_VISIBILITY").build();
+		}
+		if(saveComment(Integer.parseInt(articleId), comment, clickedByName, commentVisibility) == true) {
+			return Response.ok("COMMENT_ADDED").build();
+		} else 
+			return Response.ok("COMMENT_NOT_ADDED").build();
 	}
 	
 	/*----------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -308,5 +330,73 @@ public class DisplayAllArticlesResourceResource_auth {
 			}
 		}
 		return filteredArray;
+	}
+	
+	/* NOTE: In this function we will save the comment in the database */
+	private boolean saveComment(int articleId, String comment, String creator_username, String commentVisibility) {
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    String insertQuery;
+	    Connection connection = null;
+	    PreparedStatement selectStatement = null;
+	    int rowsAffected;
+	    
+	    try {
+	    	
+	    	if(commentVisibility.equals("withName")) { /// not anonymous comment
+		    	insertQuery = "INSERT INTO COMMENTS (CONTENT, DATE_CREATION, ARTICLE_ID, STATE_ID, CREATOR_USERNAME)\r\n"
+		    			+ "VALUES (?, ?, ?, 1, ?);"; /// when a comment is created we assign to it the state 1 (CREATED)
+		    	connection = DriverManager.getConnection(url, username_DB, passwd);
+		        System.out.println("\nSERVER STATUS: Connected to the database...");
+		        
+		    	selectStatement = connection.prepareStatement(insertQuery);
+		    	selectStatement.setString(1, comment);
+		    	
+		    	LocalDate currentDate = LocalDate.now();
+		        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		        String formattedDate = currentDate.format(formatter);
+		        selectStatement.setString(2, formattedDate);
+		        
+		    	selectStatement.setInt(3, articleId);
+		    	selectStatement.setString(4, creator_username);
+		    	rowsAffected = selectStatement.executeUpdate();
+	    	}
+		    else { /// anonymous comment (null value)
+		    	insertQuery = "INSERT INTO COMMENTS (CONTENT, DATE_CREATION, ARTICLE_ID, STATE_ID)\r\n"
+		    			+ "VALUES (?, ?, ?, 1);";
+		    	
+		    	connection = DriverManager.getConnection(url, username_DB, passwd);
+		        System.out.println("\nSERVER STATUS: Connected to the database...");
+		        
+		    	selectStatement = connection.prepareStatement(insertQuery);
+		    	selectStatement.setString(1, comment);
+		    	
+		    	LocalDate currentDate = LocalDate.now();
+		        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		        String formattedDate = currentDate.format(formatter);
+		        selectStatement.setString(2, formattedDate);
+		        
+		    	selectStatement.setInt(3, articleId);
+		    	rowsAffected = selectStatement.executeUpdate();
+		    }
+	    	return rowsAffected > 0;
+	    } catch(SQLException e) {
+	    	e.printStackTrace();
+	    	return false;
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
 	}
 }

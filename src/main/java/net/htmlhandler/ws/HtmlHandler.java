@@ -1122,7 +1122,7 @@ public class HtmlHandler {
 
 		    return htmlCode;
 		}
-		public static String getArticlesFromSEARCH_ALL_ARTICLES_auth(ArrayList<Article> GOAL_ARTICLES, ArrayList<Comments> GOAL_COMMENTS) {
+		public static String getArticlesFromSEARCH_ALL_ARTICLES_auth(String clickedByName, ArrayList<Article> GOAL_ARTICLES, ArrayList<Comments> GOAL_COMMENTS) {	
 		    if (GOAL_ARTICLES.isEmpty()) {
 		        String htmlCode = "<!DOCTYPE html>\n"
 		                + "<html>\n"
@@ -1160,6 +1160,7 @@ public class HtmlHandler {
 		    htmlCode.append("<body>\n");
 		    htmlCode.append("    <form method=\"POST\" action=\"/RESTstart/rest/auth/auth_user/displayAll_article/filAp\">\n");  
 		    htmlCode.append("        <div id=\"Filters\" style=\"border: 1px solid #ccc;\">\n");
+	        htmlCode.append("            <input type=\"hidden\" name=\"clickedByName\" value=\"").append(clickedByName).append("\">\n");
 		    htmlCode.append("            <label for=\"state\">State of Article:</label>\n");
 		    htmlCode.append("            <input type=\"text\" id=\"state\" name=\"state\" list=\"stateOptions\">\n");
 		    htmlCode.append("            <datalist id=\"stateOptions\">\n");
@@ -1177,7 +1178,7 @@ public class HtmlHandler {
 		    htmlCode.append("        <button type=\"submit\">Submit</button>\n");
 		    htmlCode.append("    </form>\n");
 		    htmlCode.append("    <p></p>");
-
+		    htmlCode.append("<div style=\"text-align: right; padding: 10px;\">Log in as: ").append(clickedByName).append("</div>\n");
 
 		    for (Article article : GOAL_ARTICLES) {
 		        htmlCode.append("    <div class=\"article\">\n");
@@ -1188,12 +1189,32 @@ public class HtmlHandler {
 		        htmlCode.append("        <p>Title: ").append(article.getTitle()).append("</p>\n");
 		        htmlCode.append("        <p style=\"font-size: 25px;\">Content: ").append(article.getContents()).append("</p>\n");
 		        
+		        htmlCode.append("<p>--------------------------------------------------------------------------------------------------------------</p>");
+		        htmlCode.append("<h4>Comments:</h4>");
 		        /* Add each comment that this article has */
 		        for (Comments comment : GOAL_COMMENTS) {
 		            if (comment.getArticle_id() == article.getId()) {
 		            	htmlCode.append("        <p style=\"text-indent: 20px;\"><em>").append(comment.getContent()).append("</em></p>\n");
 		            }
 		        }
+		        htmlCode.append("<p>--------------------------------------------------------------------------------------------------------------</p>");
+		        
+		        htmlCode.append("        <div>\n");
+		        htmlCode.append("            <form method=\"POST\" action=\"/RESTstart/rest/auth/auth_user/displayAll_article/add_comment\">\n");
+		        htmlCode.append("                <input type=\"hidden\" name=\"clickedByName\" value=\"").append(clickedByName).append("\">\n");
+		        htmlCode.append("                <input type=\"hidden\" name=\"articleId\" value=\"").append(article.getId()).append("\">\n");
+		        htmlCode.append("                <input type=\"hidden\" name=\"creator_username\" value=\"").append(article.getCreator_username()).append("\">\n");
+		        htmlCode.append("                    <input type=\"radio\" name=\"commentVisibility\" value=\"withName\" checked>\n");
+		        htmlCode.append("                    Add with name\n");
+		        htmlCode.append("                </label>\n");
+		        htmlCode.append("                <label>\n");
+		        htmlCode.append("                    <input type=\"radio\" name=\"commentVisibility\" value=\"anonymous\">\n");
+		        htmlCode.append("                    Add anonymously\n");
+		        htmlCode.append("                </label>\n");
+		        htmlCode.append("                <textarea name=\"comment\" placeholder=\"Add a comment...\"></textarea>\n");
+		        htmlCode.append("                <button type=\"submit\">Submit comment</button>\n");
+		        htmlCode.append("            </form>\n");
+		        htmlCode.append("        </div>\n");
 		        
 		        htmlCode.append("    </div>\n");
 		    }
@@ -1203,7 +1224,20 @@ public class HtmlHandler {
 
 		    return htmlCode.toString();
 		}
-		public static String getArticlesFromSEARCH_ALL_ARTICLES_not_auth(ArrayList<Article> GOAL_ARTICLES) {
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		public static String getArticlesFromSEARCH_ALL_ARTICLES_not_auth(ArrayList<Article> GOAL_ARTICLES, ArrayList<Comments> GOAL_COMMENTS) {
 		    if (GOAL_ARTICLES.isEmpty()) {
 		        String htmlCode = "<!DOCTYPE html>\n"
 		                + "<html>\n"
@@ -1241,6 +1275,7 @@ public class HtmlHandler {
 		    htmlCode.append("<body>\n");
 		    htmlCode.append("    <form method=\"POST\" action=\"/RESTstart/rest/auth/not_auth_user/displayAll_article/filAp\">\n");  
 		    htmlCode.append("        <div id=\"Filters\" style=\"border: 1px solid #ccc;\">\n");
+		    htmlCode.append("            <input type=\"hidden\" name=\"clickedByName\" value=\"").append("Visitor").append("\">\n");
 		    htmlCode.append("            <label for=\"startDate\">Start date:</label>\n");
 		    htmlCode.append("            <input type=\"date\" id=\"startDate\" name=\"startDate\">\n");
 		    htmlCode.append("            <label for=\"endDate\">End date:</label>\n");
@@ -1249,6 +1284,7 @@ public class HtmlHandler {
 		    htmlCode.append("        <button type=\"submit\">Submit</button>\n");
 		    htmlCode.append("    </form>\n");
 		    htmlCode.append("    <p></p>");
+		    htmlCode.append("<div style=\"text-align: right; padding: 10px;\">Log in as: ").append("Visitor").append("</div>\n");
 
 
 		    for (Article article : GOAL_ARTICLES) {
@@ -1259,8 +1295,47 @@ public class HtmlHandler {
 		        htmlCode.append("        <p>Date creation: ").append(article.getDate_creation()).append("</p>\n");
 		        htmlCode.append("        <p>Title: ").append(article.getTitle()).append("</p>\n");
 		        htmlCode.append("        <p style=\"font-size: 25px;\">Content: ").append(article.getContents()).append("</p>\n");
+
+		        htmlCode.append("<p>--------------------------------------------------------------------------------------------------------------</p>");
+		        htmlCode.append("<h4>Comments:</h4>");
+		        /* Add each comment that this article has */
+		        for (Comments comment : GOAL_COMMENTS) {
+		            if (comment.getArticle_id() == article.getId()) {
+		                htmlCode.append("        <p style=\"text-indent: 20px;\"><em>").append(comment.getContent()).append("</em></p>\n");
+		            }
+		        }
+		        htmlCode.append("<p>--------------------------------------------------------------------------------------------------------------</p>");
+
+		        htmlCode.append("        <div>\n");
+		        htmlCode.append("<form method=\"POST\" action=\"/RESTstart/rest/auth/not_auth_user/displayAll_article/add_comment\">\n");
+		        htmlCode.append("    <input type=\"hidden\" name=\"clickedByName\" value=\"").append("Visitor").append("\">\n");
+		        htmlCode.append("    <input type=\"hidden\" name=\"articleId\" value=\"").append(article.getId()).append("\">\n");
+		        htmlCode.append("    <input type=\"hidden\" name=\"creator_username\" value=\"").append(article.getCreator_username()).append("\">\n");
+		        htmlCode.append("    <input type=\"radio\" name=\"commentVisibility\" value=\"withName\" checked onclick=\"toggleNameField(").append(article.getId()).append(", true)\">\n");
+		        htmlCode.append("    Add with name\n");
+		        htmlCode.append("    <textarea id=\"name_visitor_").append(article.getId()).append("\" name=\"name_visitor\" placeholder=\"Add your name...\" style=\"display:none\"></textarea>\n");
+		        htmlCode.append("    <label>\n");
+		        htmlCode.append("        <input type=\"radio\" name=\"commentVisibility\" value=\"anonymous\" onclick=\"toggleNameField(").append(article.getId()).append(", false)\">\n");
+		        htmlCode.append("        Add anonymously\n");
+		        htmlCode.append("    </label>\n");
+		        htmlCode.append("    <textarea name=\"comment\" placeholder=\"Add a comment...\"></textarea>\n");
+		        htmlCode.append("    <button type=\"submit\">Submit comment</button>\n");
+		        htmlCode.append("</form>\n");
+		        htmlCode.append("<script>\n");
+		        htmlCode.append("    function toggleNameField(articleId, show) {\n");
+		        htmlCode.append("        var nameField = document.getElementById(\"name_visitor_\" + articleId);\n");
+		        htmlCode.append("        if (show) {\n");
+		        htmlCode.append("            nameField.style.display = \"block\";\n");
+		        htmlCode.append("        } else {\n");
+		        htmlCode.append("            nameField.style.display = \"none\";\n");
+		        htmlCode.append("        }\n");
+		        htmlCode.append("    }\n");
+		        htmlCode.append("</script>\n");
+		        htmlCode.append("        </div>\n");
+
 		        htmlCode.append("    </div>\n");
 		    }
+
 
 		    htmlCode.append("</body>\n");
 		    htmlCode.append("</html>");

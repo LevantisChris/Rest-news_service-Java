@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -18,12 +20,14 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.articles.ws.manage_articles.Article;
+import net.comments.ws.manage_comments.Comments;
 import net.htmlhandler.ws.HtmlHandler;
 
 @Path("/auth/not_auth_user/displayAll_article")
 public class DisplayAllArticlesResourceResource_notAuth {
 
-	private static ArrayList<Article> DATE_GET;
+	private static ArrayList<Article> DATE_GET_ARTICLES;
+	private static ArrayList<Comments> DATE_GET_COMMENTS;
 	
 	@GET
 	public Response handleKeyPhrasesNotAuthUserArticles(@QueryParam("role") String role) {
@@ -41,6 +45,7 @@ public class DisplayAllArticlesResourceResource_notAuth {
 			return Response.serverError().build();
 		}
 	}
+	
 	@POST
 	@Path("/displayAll")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -58,10 +63,11 @@ public class DisplayAllArticlesResourceResource_notAuth {
 	    // Process the selected values
 	    if (sortByDate) {
 	    	System.out.println("SERVER STATUS: Sort by date, Clicked");
-	    	DATE_GET = getArticlesAtStart("sortByDate", name, role);
-	    	printDateGet(DATE_GET);
+	    	DATE_GET_ARTICLES = getArticlesAtStart("sortByDate", name, role);
+	    	DATE_GET_COMMENTS = getCommentsAtStart();
+	    	printDateGet(DATE_GET_ARTICLES);
 	    	return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_not_auth(DATE_GET))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_not_auth(DATE_GET_ARTICLES, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 	    } else {
@@ -77,21 +83,46 @@ public class DisplayAllArticlesResourceResource_notAuth {
 		System.out.println("SERVER STATUS: Filters in Display all Articles (not_auth) PRESSED");
 		System.out.println("SERVER STATUS: startDate: " + startDate);
 		System.out.println("SERVER STATUS: endDate: " + endDate);
-		System.out.println("SERVER STATUS: ARRAY: --> " + DATE_GET);
+		System.out.println("SERVER STATUS: ARRAY: --> " + DATE_GET_ARTICLES);
 		
 		if(startDate.isEmpty() && !endDate.isEmpty()) {
 			return Response.ok("ADD_START_DATE").build();
 		} else if(!startDate.isEmpty() && endDate.isEmpty()) {
 			return Response.ok("ADD_END_DATE").build(); 
 		} else if(!startDate.isEmpty() && !endDate.isEmpty()){
-			ArrayList<Article> filteredArray = filterByDate(DATE_GET, stringToDate(startDate), stringToDate(endDate));
+			ArrayList<Article> filteredArray = filterByDate(DATE_GET_ARTICLES, stringToDate(startDate), stringToDate(endDate));
 			return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_not_auth(filteredArray))
+	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_not_auth(filteredArray, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build(); 
 		} else {
 			return Response.ok().build();
 		}
+	}
+	
+	@POST
+	@Path("/add_comment")
+	public Response handleAddComment(@FormParam("name_visitor") String name_visitor,
+									 @FormParam("articleId") String articleId,
+									 @FormParam("comment") String comment,
+									 @FormParam("commentVisibility") String commentVisibility) {
+		
+		if(comment.isEmpty()) {
+			return Response.ok("ERROR_EMTPY_COMMENT").build();
+		}
+		
+		if(name_visitor.isEmpty() && commentVisibility.equals("withName")) {
+			return Response.ok("ADD_NAME_OR_SELECT_ANONYMOUS_COMMENT").build();
+		}
+		if(commentVisibility == null) {
+			return Response.notModified("SELECT_NAME_VISIBILITY").build();
+		}
+		System.out.println("SERVER STATUS: //"+ commentVisibility + "// COMMENT SUBMITED FROM //" + name_visitor + "// WITH CONTENTS //" + comment + "// AND ARTICLE ID //" + articleId + "//");
+
+		if(saveComment(Integer.parseInt(articleId), comment, commentVisibility, name_visitor) == true) {
+			return Response.ok("COMMENT_ADDED").build();
+		} else 
+			return Response.ok("COMMENT_NOT_ADDED").build();
 	}
 	
 	/*--------------------------------------------------------------------------------------------------------*/
@@ -176,4 +207,120 @@ public class DisplayAllArticlesResourceResource_notAuth {
         }
         return null;
     }
+	
+	
+	private ArrayList<Comments> getCommentsAtStart() {
+		ArrayList<Comments> temp_list = new ArrayList<>();
+		
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    String selectQuery;
+	    Connection connection = null;
+	    PreparedStatement selectStatement = null;
+	    ResultSet resultSet;
+	    
+	    selectQuery = "SELECT * FROM comments;";
+	    
+	    try {
+	    	connection = DriverManager.getConnection(url, username_DB, passwd);
+	        System.out.println("\nSERVER STATUS: Connected to the database...");
+	        
+	    	selectStatement = connection.prepareStatement(selectQuery);
+	    	resultSet = selectStatement.executeQuery();
+	    	
+	    	while(resultSet.next()) {
+	        	int comment_Id = resultSet.getInt("ID");
+	        	String comment_Content = resultSet.getString("CONTENT");
+	        	Date comment_Date_creation = resultSet.getDate("DATE_CREATION");
+	        	int comment_Article_id = resultSet.getInt("ARTICLE_ID");
+	        	int comment_State_id = resultSet.getInt("STATE_ID");
+	        	String comment_Creator_username = resultSet.getString("CREATOR_USERNAME");
+	        	temp_list.add(new Comments(comment_Id, comment_Content, comment_Date_creation, comment_Article_id, comment_State_id, comment_Creator_username));
+	    	}
+	    	return temp_list;
+	    } catch(SQLException e) {
+	    	e.printStackTrace();
+	    	return null;
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
+	private boolean saveComment(int articleId, String comment, String commentVisibility, String name_visitor) {
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    String insertQuery;
+	    Connection connection = null;
+	    PreparedStatement selectStatement = null;
+	    int rowsAffected;
+	    
+	    try {
+	    	if(name_visitor.isEmpty() || commentVisibility.equals("anonymous")) {
+		    	/// anonymous comment (null value)
+			    insertQuery = "INSERT INTO COMMENTS (CONTENT, DATE_CREATION, ARTICLE_ID, STATE_ID)\r\n"
+			    		+ "VALUES (?, ?, ?, 1);";
+			    	
+			    connection = DriverManager.getConnection(url, username_DB, passwd);
+			    System.out.println("\nSERVER STATUS: Connected to the database...");
+			        
+			    selectStatement = connection.prepareStatement(insertQuery);
+			    selectStatement.setString(1, comment);
+			    	
+			    LocalDate currentDate = LocalDate.now();
+			    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			    String formattedDate = currentDate.format(formatter);
+			    selectStatement.setString(2, formattedDate);
+			        
+			    selectStatement.setInt(3, articleId);
+			    rowsAffected = selectStatement.executeUpdate();
+		    	return rowsAffected > 0;
+	    	} else {
+	    		insertQuery = "INSERT INTO COMMENTS (CONTENT, DATE_CREATION, ARTICLE_ID, STATE_ID, CREATOR_USERNAME)\r\n"
+		    			+ "VALUES (?, ?, ?, 1, ?);"; /// when a comment is created we assign to it the state 1 (CREATED)
+		    	connection = DriverManager.getConnection(url, username_DB, passwd);
+		        System.out.println("\nSERVER STATUS: Connected to the database...");
+		        
+		    	selectStatement = connection.prepareStatement(insertQuery);
+		    	selectStatement.setString(1, comment);
+		    	
+		    	LocalDate currentDate = LocalDate.now();
+		        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		        String formattedDate = currentDate.format(formatter);
+		        selectStatement.setString(2, formattedDate);
+		        
+		    	selectStatement.setInt(3, articleId);
+		    	selectStatement.setString(4, name_visitor);
+		    	rowsAffected = selectStatement.executeUpdate();
+		    	return rowsAffected > 0;
+	    	}
+	    } catch(SQLException e) {
+	    	e.printStackTrace();
+	    	return false;
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
 }
