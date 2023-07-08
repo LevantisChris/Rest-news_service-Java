@@ -117,7 +117,7 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article?username=" + username + "&role=" + "CURATOR" + "\">Display all the Articles</a>\n" +
 		        "    <hr>\n" +
 		        "    <a class=\"link\" href=\"#\">Add Comment</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Modify Comment</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_comment?username=" + username + "&role=" + "CURATOR" + "\">Modify Comment</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Accept Comment</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Decline Comment</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display Comment of an Article</a>\n" +
@@ -1224,19 +1224,6 @@ public class HtmlHandler {
 
 		    return htmlCode.toString();
 		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		public static String getArticlesFromSEARCH_ALL_ARTICLES_not_auth(ArrayList<Article> GOAL_ARTICLES, ArrayList<Comments> GOAL_COMMENTS) {
 		    if (GOAL_ARTICLES.isEmpty()) {
 		        String htmlCode = "<!DOCTYPE html>\n"
@@ -1342,4 +1329,104 @@ public class HtmlHandler {
 
 		    return htmlCode.toString();
 		}
+
+		
+		
+		/// This is for Modify Comment
+		public static String getCommentsFromMODIFY_ARTICLES_auth(ArrayList<Comments> COMMENTS_DATA, String username) {
+		    if (COMMENTS_DATA.isEmpty()) {
+		        String htmlCode = "<!DOCTYPE html>\n"
+		                + "<html>\n"
+		                + "<head>\n"
+		                + "    <title>Comments Not Found</title>\n"
+		                + "</head>\n"
+		                + "<body>\n"
+		                + "    <h1>COMMENTS_NOT_FOUND</h1>\n"
+		                + "</body>\n"
+		                + "</html>";
+
+		        return htmlCode;
+		    }
+
+		    StringBuilder htmlCode = new StringBuilder();
+		    htmlCode.append("<!DOCTYPE html>\n");
+		    htmlCode.append("<html>\n");
+		    htmlCode.append("<head>\n");
+		    htmlCode.append("    <title>Modify comments</title>\n");
+		    htmlCode.append("    <style>\n");
+		    htmlCode.append("        .comment-container {\n");
+		    htmlCode.append("            display: flex;\n");
+		    htmlCode.append("            flex-direction: column;\n");
+		    htmlCode.append("            align-items: center;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("        .comment {\n");
+		    htmlCode.append("            margin-bottom: 20px;\n");
+		    htmlCode.append("            padding: 10px;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("        .comment-content {\n");
+		    htmlCode.append("            font-size: 18px;\n");
+		    htmlCode.append("            width: 500px;\n");
+		    htmlCode.append("            height: 150px;\n");
+		    htmlCode.append("            resize: none;\n");
+		    htmlCode.append("            background-color: transparent;\n");
+		    htmlCode.append("            overflow: auto;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("    </style>\n");
+		    htmlCode.append("</head>\n");
+		    htmlCode.append("<body>\n");
+		    htmlCode.append("<div style=\"text-align: right;\">Log in as: ").append(username).append("</div>\n");
+		    htmlCode.append("<div class=\"comment-container\">\n");
+
+		    for (Comments comment : COMMENTS_DATA) {
+		        htmlCode.append("<div id=\"comment-").append(comment.getId()).append("\" class=\"comment\">\n");
+		        htmlCode.append("    <h2>Comment ID: ").append(comment.getId()).append("</h2>\n");
+		        htmlCode.append("    <p>Date Creation: ").append(comment.getDate_creation()).append("</p>\n");
+		        htmlCode.append("    <p>Article ID: ").append(comment.getArticle_id()).append("</p>\n");
+		        htmlCode.append("    <p>State ID: ").append(comment.getState_id()).append("</p>\n");
+		        htmlCode.append("    <p>Creator: ").append(comment.getCreator_username()).append("</p>\n");
+		        htmlCode.append("    <textarea class=\"comment-content\" name=\"new_contents\">").append(comment.getContent()).append("</textarea>\n");
+		        htmlCode.append("    <button type=\"submit\" onclick=\"modifyComment(").append(comment.getId()).append(")\">Modify</button>\n");
+		        htmlCode.append("</div>\n");
+		    }
+
+		    htmlCode.append("</div>\n");
+		    htmlCode.append("<script>\n");
+		    htmlCode.append("function modifyComment(commentId) {\n");
+		    htmlCode.append("        console.log('ID that the button clicked is: ', commentId);\n");
+		    htmlCode.append("    const textarea = document.querySelector(`#comment-${commentId} .comment-content`);\n");
+		    htmlCode.append("    const newContents = textarea.value;\n");
+		    htmlCode.append("    const data = {\n");
+		    htmlCode.append("        comment_id: commentId,\n");
+		    htmlCode.append("        new_contents: newContents\n");
+		    htmlCode.append("    };\n");
+		    htmlCode.append("    fetch('/RESTstart/rest/auth/auth_user/modify_comment', {\n");
+		    htmlCode.append("        method: 'POST',\n");
+		    htmlCode.append("        headers: {\n");
+		    htmlCode.append("            'Content-Type': 'application/json'\n");
+		    htmlCode.append("        },\n");
+		    htmlCode.append("        body: JSON.stringify(data)\n");
+		    htmlCode.append("    })\n");
+		    htmlCode.append("    .then(response => {\n");
+		    htmlCode.append("        if (response.ok) {\n");
+		    htmlCode.append("            console.log('Comment modified successfully');\n");
+		    htmlCode.append("			 return response.text();");
+		    htmlCode.append("        } else {\n");
+		    htmlCode.append("            console.log('Failed to modify comment');\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("    })\n");
+		    htmlCode.append("    .then(responseText => {\n");
+		    htmlCode.append("        console.log('Response:', responseText);\n");
+		    htmlCode.append("		 alert(responseText);");
+		    htmlCode.append("    })\n");
+		    htmlCode.append("    .catch(error => {\n");
+		    htmlCode.append("        console.log('An error occurred:', error);\n");
+		    htmlCode.append("    });\n");
+		    htmlCode.append("}\n");
+		    htmlCode.append("</script>\n");
+		    htmlCode.append("</body>\n");
+		    htmlCode.append("</html>");
+
+		    return htmlCode.toString();
+		}
+		
 }

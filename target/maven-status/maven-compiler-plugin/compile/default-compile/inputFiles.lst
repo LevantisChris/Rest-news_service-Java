@@ -9,6 +9,7 @@ C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\ar
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\exceptions\ws\EmptyFields.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\articles\ws\SubmitArticleResource.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\articles\ws\DeclineArticleResource.java
+C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\comments\ws\ModifyCommentResource.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\articles\ws\ApproveArticleResource.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\articles\ws\ModifyArticleResource.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\articles\ws\DisplayArticleResource_notAuth.java

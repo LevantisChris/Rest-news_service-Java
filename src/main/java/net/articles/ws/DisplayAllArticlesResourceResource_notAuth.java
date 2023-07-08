@@ -221,7 +221,7 @@ public class DisplayAllArticlesResourceResource_notAuth {
 	    PreparedStatement selectStatement = null;
 	    ResultSet resultSet;
 	    
-	    selectQuery = "SELECT * FROM comments;";
+	    selectQuery = "SELECT * FROM comments WHERE STATE_ID = 3;";
 	    
 	    try {
 	    	connection = DriverManager.getConnection(url, username_DB, passwd);
