@@ -33,7 +33,7 @@ public class ModifyCommentResource {
 			ArrayList<Comments> COMMENTS_DATA = getAllComments();
 			
 			return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getCommentsFromMODIFY_ARTICLES_auth(COMMENTS_DATA, username))
+	                .entity(HtmlHandler.getCommentsFromMODIFY_COMMENTS_auth(COMMENTS_DATA, username))
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 		} else {
@@ -42,6 +42,7 @@ public class ModifyCommentResource {
 	}
 	
 	@POST
+	@Path("/modify")
     @Consumes(MediaType.APPLICATION_JSON)
 	public Response handleModifyButton(String json) {
 		System.out.println("SERVER STATUS: THE JSON WE GET FROM CLIENT IS " + json);
