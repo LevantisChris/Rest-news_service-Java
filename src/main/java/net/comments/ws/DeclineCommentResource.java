@@ -1,6 +1,7 @@
 package net.comments.ws;
 
 import java.sql.Connection;
+
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,8 +12,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
@@ -20,11 +21,9 @@ import jakarta.ws.rs.core.Response;
 import net.comments.ws.manage_comments.Comments;
 import net.htmlhandler.ws.HtmlHandler;
 
-/// This function is only available for the Curator
+@Path("/auth/auth_user/decline_comment")
+public class DeclineCommentResource {
 
-@Path("/auth/auth_user/approve_comment")
-public class ApproveCommentResource {
-	
 	@GET
 	public Response handleDisplayAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS: A user with username //" + username + "// and role //" + role + "//");
@@ -33,7 +32,7 @@ public class ApproveCommentResource {
 			ArrayList<Comments> COMMENTS_DATA = getAllComments();
 			
 			return Response.status(Response.Status.OK)
-	                .entity(HtmlHandler.getCommentsFromAPPROVE_COMMENTS_auth(COMMENTS_DATA, username))
+	                .entity(HtmlHandler.getCommentsFromDECLINE_COMMENTS_auth(COMMENTS_DATA, username))
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 		} else {
@@ -41,8 +40,8 @@ public class ApproveCommentResource {
 		}
 	}
 	
-	@POST
-	@Path("/approve")
+	@DELETE
+	@Path("/decline")
     @Consumes(MediaType.APPLICATION_JSON)
 	public Response handleApproveButton(String json) {
 		System.out.println("SERVER STATUS: THE JSON WE GET FROM CLIENT IS " + json);
@@ -57,8 +56,8 @@ public class ApproveCommentResource {
 	        
 			System.out.println("SERVER STATUS: STRING EXTRACTED ARE " + commentId);
 	        
-	        if(changeState(commentId.intValue()) == true) {
-	        	return Response.ok("STATE_UPDATED_SUCESFULLY").build();
+	        if(deleteComment(commentId.intValue()) == true) {
+	        	return Response.ok("COMMENT_DELETED_SUCCESFULLY").build();
 	        } else {
 	        	return Response.serverError().build();
 	        }
@@ -69,7 +68,7 @@ public class ApproveCommentResource {
 	        return Response.serverError().build();
 	    }
 	}
-
+	
 	@GET
 	@Path("/filCom")
 	public Response handleFilters(@QueryParam("commentId") String commentId, 
@@ -92,8 +91,7 @@ public class ApproveCommentResource {
 		}
 	}
 	
-	/*-------------------------------------------------------------------------------------------------------------------------*/
-	
+	/*------------------------------------------------------------------------------------------------------------------*/
 	
 	private ArrayList<Comments> getAllComments() {
 		String url = "jdbc:mysql://localhost:3306/news_db";
@@ -105,7 +103,7 @@ public class ApproveCommentResource {
 	    Connection connection = null;
 	    PreparedStatement selectStatement = null;
 	    
-	    String selectQuery = "SELECT * FROM news_db.comments WHERE STATE_ID = 1;"; // only the comments that are in the CREATED state can be mofified (STATE_ID: 1)
+	    String selectQuery = "SELECT * FROM news_db.comments WHERE STATE_ID = 1;"; // only the comments that are in the CREATED state can be declined (STATE_ID: 1)
 	    
 	    try {
 	    	
@@ -232,39 +230,38 @@ public class ApproveCommentResource {
 	    }
 	}
 	
-	/* NOTE: Comments have two states created (STATE_ID: 1) and submitted (STATE_ID: 3) */
-	private boolean changeState(int commentId) {
+	public boolean deleteComment(int commentId) {
 		String url = "jdbc:mysql://localhost:3306/news_db";
 	    String username_DB = "root";
 	    String passwd = "kolos2020";
 	    
-	    int rowsAffected;
-	    
 	    Connection connection = null;
-	    PreparedStatement updateStatement = null;
+	    PreparedStatement deleteStatement = null;
+	    
+	    String deleteQuery = "DELETE FROM news_db.comments WHERE ID = ?;"; 
 	    
 	    try {
+	    	
 	    	connection = DriverManager.getConnection(url, username_DB, passwd);
-			System.out.println("\nSERVER STATUS: Connected to the database...");
-			
-		    String updateQuery = "UPDATE news_db.comments SET STATE_ID = 3 WHERE ID = ?;";
-		    updateStatement = connection.prepareStatement(updateQuery);
-		    updateStatement.setInt(1, commentId);
-	        rowsAffected = updateStatement.executeUpdate();
-	        if (rowsAffected > 0) {
-                System.out.println("SERVER STATUS: Update successful (IN APPROVE COMMENT:ID:" + commentId + ") " + rowsAffected + " rows affected.");
+	    	System.out.println("\nSERVER STATUS: Connected to the database...");
+	    	deleteStatement = connection.prepareStatement(deleteQuery);
+	    	deleteStatement.setInt(1, commentId);
+	    	int rowsAffected = deleteStatement.executeUpdate();
+	    	if (rowsAffected > 0) {
+                System.out.println("SERVER STATUS: DELETION of the comment with ID //" + commentId + "// DONE succesfully");
                 return true;
             } else {
-                System.out.println("SERVER STATUS: Update failed (IN APPROVE ARTICLE:ID: " + commentId + ") No rows affected.");
-                return false;
-            }
+            	System.out.println("SERVER STATUS: DELETION of the comment with ID //" + commentId + "// NOT DONE succesfully");
+            	return false;
+            }	    		
 	    } catch(SQLException e) {
+	    	System.out.println("SERVER STATUS: --ERROR-- occured in the getAllComents() in modify_comment");
 	    	e.printStackTrace();
 	    	return false;
 	    } finally {
 	        try {
-	            if (updateStatement != null) {
-	            	updateStatement.close();
+	            if (deleteStatement != null) {
+	            	deleteStatement.close();
 	            }
 	            if (connection != null && !connection.isClosed()) {
 	                connection.close();
@@ -273,7 +270,6 @@ public class ApproveCommentResource {
 	        } catch (SQLException e) {
 	            e.printStackTrace();
 	        }
-	    }     
+	    }
 	}
-	
 }

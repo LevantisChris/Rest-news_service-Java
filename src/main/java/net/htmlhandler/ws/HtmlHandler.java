@@ -1,11 +1,7 @@
 package net.htmlhandler.ws;
 
 import java.util.ArrayList;
-
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.HashSet;
 
 import net.articles.ws.manage_articles.Article;
 import net.comments.ws.manage_comments.Comments;
@@ -66,12 +62,11 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article?username=" + username + "&role=" + "JOURNALIST" + "\">Submit Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article?username=" + username + "&role=" + "JOURNALIST" + "\">Search Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_article?username=" + username + "&role=" + "JOURNALIST" + "\">Display Article</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article?username=" + username + "&role=" + "JOURNALIST" + "\">Display all the Articles</a>\n" +
-		        "    <hr>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article?username=" + username + "&role=" + "JOURNALIST" + "\">Display all the Articles</a>\n" +		        "    <hr>\n" +
 		        "    <a class=\"link\" href=\"#\">Add Comment</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Display Comments of an Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment?username=" + username + "&role=" + "JOURNALIST" + "\">Display Comments of an article</a>\n" +
 		        "    <hr>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display Topic</a>\n" +
+		        "	 <a class=\"link\" href=\"#" + username + "&role=" + "JOURNALIST" + "\">Display Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Search Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Create Topic</a>\n" +
@@ -118,9 +113,9 @@ public class HtmlHandler {
 		        "    <hr>\n" +
 		        "    <a class=\"link\" href=\"#\">Add Comment</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_comment?username=" + username + "&role=" + "CURATOR" + "\">Modify Comment</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_comment?username=" + username + "&role=" + "CURATOR" + "\">Accept Comment</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Decline Comment</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Display Comment of an Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_comment?username=" + username + "&role=" + "CURATOR" + "\">Approve Comment</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_comment?username=" + username + "&role=" + "CURATOR" + "\">Decline Comment</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment?username=" + username + "&role=" + "CURATOR" + "\">Display Comments of an article</a>\n" +
 		        "    <hr>\n" +
 		        "    <a class=\"link\" href=\"#\">Create Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Modify Topic</a>\n" +
@@ -1477,8 +1472,7 @@ public class HtmlHandler {
 		    htmlCode.append("    <label for=\"commentId\">Comment ID:</label>\n");
 		    htmlCode.append("    <input type=\"text\" id=\"commentId\" name=\"commentId\">\n");
 		    htmlCode.append("    <input type=\"hidden\" id=\"clickedByName\" name=\"clickedByName\" value=\"").append(username).append("\">\n");
-		    //htmlCode.append("    <button type=\"submit\" onclick=\"getFilteredData(document.getElementById('commentId').value, document.getElementById('articleId').value, document.getElementById('clickedByName').value)\">Submit</button>\n");
-	        htmlCode.append("    <button type=\"submit\">Submit comment</button>\n");
+	        htmlCode.append("    <button type=\"submit\">Submit filters</button>\n");
 	        htmlCode.append("</form>\n");
 		    htmlCode.append("</div>\n");
 		    htmlCode.append("<body>\n");
@@ -1493,7 +1487,7 @@ public class HtmlHandler {
 		        htmlCode.append("    <p>State ID: ").append(comment.getState_id()).append("</p>\n");
 		        htmlCode.append("    <p>Creator: ").append(comment.getCreator_username()).append("</p>\n");
 		        htmlCode.append("    <textarea readonly class=\"comment-content\" name=\"new_contents\">").append(comment.getContent()).append("</textarea>\n");
-		        htmlCode.append("    <button type=\"submit\" onclick=\"getFilteredData(").append(comment.getId()).append(")\">Approve</button>\n");
+		        htmlCode.append("    <button type=\"submit\" onclick=\"approveComment(").append(comment.getId()).append(")\">Approve</button>\n");
 		        htmlCode.append("</div>\n");
 		    }
 
@@ -1531,34 +1525,262 @@ public class HtmlHandler {
 		    htmlCode.append("        console.log('An error occurred:', error);\n");
 		    htmlCode.append("    });\n");
 		    htmlCode.append("}\n");
-		    
-		    /*htmlCode.append("function getFilteredData(commentID, articleId, username) {\n");
-		    htmlCode.append("    console.log('Comment ID is: ', commentID);\n");
-		    htmlCode.append("    console.log('Article ID is: ', articleId);\n");
-		    htmlCode.append("    console.log('Username is: ', username);\n");
-		    htmlCode.append("    fetch(`/RESTstart/rest/auth/auth_user/approve_comment/filCom?commentID=${commentID}&articleId=${articleId}&clickedByName=${username}`)\n");
-		    htmlCode.append("    .then(response => {\n");
-		    htmlCode.append("        if (response.ok) {\n");
-		    htmlCode.append("            console.log('Data retrieved successfully');\n");
-		    htmlCode.append("            return response.text();\n");
-		    htmlCode.append("        } else {\n");
-		    htmlCode.append("            console.log('Failed to retrieve data');\n");
-		    htmlCode.append("        }\n");
-		    htmlCode.append("    })\n");
-		    htmlCode.append("    .then(responseText => {\n");
-		    htmlCode.append("        console.log('Response:', responseText);\n");
-		    htmlCode.append("        document.getElementById('content').innerHTML = responseText;\n"); // Load the HTML response into the specified element
-		    htmlCode.append("    })\n");
-		    htmlCode.append("    .catch(error => {\n");
-		    htmlCode.append("        console.log('An error occurred:', error);\n");
-		    htmlCode.append("    });\n");
-		    htmlCode.append("}\n");*/
-
 		    htmlCode.append("</script>\n");
 		    htmlCode.append("</body>\n");
 		    htmlCode.append("</html>");
 
 		    return htmlCode.toString();
+		}
+		
+		
+		/// This is for decline comments
+		public static String getCommentsFromDECLINE_COMMENTS_auth(ArrayList<Comments> COMMENTS_DATA, String username) {
+		    if (COMMENTS_DATA.isEmpty()) {
+		        String htmlCode = "<!DOCTYPE html>\n"
+		                + "<html>\n"
+		                + "<head>\n"
+		                + "    <title>Comments Not Found</title>\n"
+		                + "</head>\n"
+		                + "<body>\n"
+		                + "    <h1>COMMENTS_NOT_FOUND</h1>\n"
+		                + "</body>\n"
+		                + "</html>";
+
+		        return htmlCode;
+		    }
+
+		    StringBuilder htmlCode = new StringBuilder();
+		    htmlCode.append("<!DOCTYPE html>\n");
+		    htmlCode.append("<html>\n");
+		    htmlCode.append("<head>\n");
+		    htmlCode.append("    <title>Decline comments</title>\n");
+		    htmlCode.append("    <style>\n");
+		    htmlCode.append("        .comment-container {\n");
+		    htmlCode.append("            display: flex;\n");
+		    htmlCode.append("            flex-direction: column;\n");
+		    htmlCode.append("            align-items: center;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("        .comment {\n");
+		    htmlCode.append("            margin-bottom: 20px;\n");
+		    htmlCode.append("            padding: 10px;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("        .comment-content {\n");
+		    htmlCode.append("            font-size: 18px;\n");
+		    htmlCode.append("            width: 500px;\n");
+		    htmlCode.append("            height: 150px;\n");
+		    htmlCode.append("            resize: none;\n");
+		    htmlCode.append("            background-color: transparent;\n");
+		    htmlCode.append("            overflow: auto;\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("    </style>\n");
+		    htmlCode.append("</head>\n");
+		    htmlCode.append("<div id=\"Filters\" style=\"border: 1px solid #ccc;\">\n");
+	        htmlCode.append("<form method=\"GET\" action=\"/RESTstart/rest/auth/auth_user/approve_comment/filCom\">\n");
+		    htmlCode.append("    <label for=\"articleId\">Article ID:</label>\n");
+		    htmlCode.append("    <input type=\"text\" id=\"articleId\" name=\"articleId\">\n");
+		    htmlCode.append("    <label for=\"commentId\">Comment ID:</label>\n");
+		    htmlCode.append("    <input type=\"text\" id=\"commentId\" name=\"commentId\">\n");
+		    htmlCode.append("    <input type=\"hidden\" id=\"clickedByName\" name=\"clickedByName\" value=\"").append(username).append("\">\n");
+	        htmlCode.append("    <button type=\"submit\">Submit filters</button>\n");
+	        htmlCode.append("</form>\n");
+		    htmlCode.append("</div>\n");
+		    htmlCode.append("<body>\n");
+		    htmlCode.append("<div style=\"text-align: right;\">Log in as: ").append(username).append("</div>\n");
+		    htmlCode.append("<div class=\"comment-container\">\n");
+
+		    for (Comments comment : COMMENTS_DATA) {
+		        htmlCode.append("<div id=\"comment-").append(comment.getId()).append("\" class=\"comment\">\n");
+		        htmlCode.append("    <h2>Comment ID: ").append(comment.getId()).append("</h2>\n");
+		        htmlCode.append("    <p>Date Creation: ").append(comment.getDate_creation()).append("</p>\n");
+		        htmlCode.append("    <p>Article ID: ").append(comment.getArticle_id()).append("</p>\n");
+		        htmlCode.append("    <p>State ID: ").append(comment.getState_id()).append("</p>\n");
+		        htmlCode.append("    <p>Creator: ").append(comment.getCreator_username()).append("</p>\n");
+		        htmlCode.append("    <textarea readonly class=\"comment-content\" name=\"new_contents\">").append(comment.getContent()).append("</textarea>\n");
+		        htmlCode.append("    <button type=\"submit\" onclick=\"declineComment(").append(comment.getId()).append(")\">Decline</button>\n");
+		        htmlCode.append("</div>\n");
+		    }
+
+		    htmlCode.append("</div>\n");
+		    htmlCode.append("<script>\n");
+		    
+		    htmlCode.append("function declineComment(commentId) {\n");
+		    htmlCode.append("        console.log('ID that the button clicked is: ', commentId);\n");
+		    htmlCode.append("    const textarea = document.querySelector(`#comment-${commentId} .comment-content`);\n");
+		    htmlCode.append("    const newContents = textarea.value;\n");
+		    htmlCode.append("    const data = {\n");
+		    htmlCode.append("        comment_id: commentId,\n");
+		    htmlCode.append("        new_contents: newContents\n");
+		    htmlCode.append("    };\n");
+		    htmlCode.append("    fetch('/RESTstart/rest/auth/auth_user/decline_comment/decline', {\n");
+		    htmlCode.append("        method: 'DELETE',\n");
+		    htmlCode.append("        headers: {\n");
+		    htmlCode.append("            'Content-Type': 'application/json'\n");
+		    htmlCode.append("        },\n");
+		    htmlCode.append("        body: JSON.stringify(data)\n");
+		    htmlCode.append("    })\n");
+		    htmlCode.append("    .then(response => {\n");
+		    htmlCode.append("        if (response.ok) {\n");
+		    htmlCode.append("            console.log('Comment modified successfully');\n");
+		    htmlCode.append("			 return response.text();");
+		    htmlCode.append("        } else {\n");
+		    htmlCode.append("            console.log('Failed to modify comment');\n");
+		    htmlCode.append("        }\n");
+		    htmlCode.append("    })\n");
+		    htmlCode.append("    .then(responseText => {\n");
+		    htmlCode.append("        console.log('Response:', responseText);\n");
+		    htmlCode.append("		 alert(responseText);");
+		    htmlCode.append("    })\n");
+		    htmlCode.append("    .catch(error => {\n");
+		    htmlCode.append("        console.log('An error occurred:', error);\n");
+		    htmlCode.append("    });\n");
+		    htmlCode.append("}\n");
+		    htmlCode.append("</script>\n");
+		    htmlCode.append("</body>\n");
+		    htmlCode.append("</html>");
+
+		    return htmlCode.toString();
+		}
+		
+		
+		
+		/// This is for Display Comments of an article
+		public static String getIDS_DISPLAY_COMMENTS_OF_ARTICLE_ARTICLE_HTML(HashSet<String> COMMENTS_ARTICLES_IDs, String username, String role) {
+		    String frameHTML = "<div class=\"ids-frame\">";
+
+		    for (String element : COMMENTS_ARTICLES_IDs) {
+		        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment/" + element + "?method=GET\">" + element + "</a> ";
+		    }
+
+		    frameHTML += "</div>";
+
+		    String htmlCode = "<!DOCTYPE html>\n" +
+		            "<html>\n" +
+		            "<head>\n" +
+		            "    <title>Display comments of an article</title>\n" +
+		            "    <style>\n" +
+		            "        body {\n" +
+		            "            display: flex;\n" +
+		            "            justify-content: center;\n" +
+		            "            align-items: center;\n" +
+		            "            height: 100vh;\n" +
+		            "        }\n" +
+		            "        .container {\n" +
+		            "            text-align: center;\n" +
+		            "        }\n" +
+		            "        .ids-frame {\n" +
+		            "            margin-bottom: 20px;\n" +
+		            "        }\n" +
+		            "        .ids-frame a {\n" +
+		            "            display: inline-block;\n" +
+		            "            margin-right: 5px;\n" +
+		            "            text-decoration: underline;\n" +
+		            "        }\n" +
+		            "        .login-info {\n" +
+		            "            position: absolute;\n" +
+		            "            top: 10px;\n" +
+		            "            right: 10px;\n" +
+		            "        }\n" +
+		            "    </style>\n" +
+		            "</head>\n" +
+		            "<body>\n" +
+		            "    <div class=\"login-info\">Log in as " + username + "</div>" +
+		            "    <div class=\"container\">\n" +
+		            "        <h1>The articles that appear have at least one comment in them.</h1>\n" +
+		            "        " + frameHTML + "\n" +
+		            "        <input type=\"hidden\" name=\"role\" value=\"" + role + "\">\n" +
+		            "    </div>\n" +
+		            "</body>\n" +
+		            "</html>";
+
+		    return htmlCode;
+		}
+
+		public static String getArticleComments() {
+			StringBuilder htmlCode = new StringBuilder();
+			htmlCode.append("<!DOCTYPE html>\n");
+			htmlCode.append("<html>\n");
+			htmlCode.append("<head>\n");
+			htmlCode.append("    <title>Article Page</title>\n");
+			htmlCode.append("    <style>\n");
+			htmlCode.append("        .container {\n");
+			htmlCode.append("            display: flex;\n");
+			htmlCode.append("            justify-content: center;\n");
+			htmlCode.append("            align-items: flex-start;\n");
+			htmlCode.append("            padding: 50px;\n");
+			htmlCode.append("        }\n");
+			htmlCode.append("        .article {\n");
+			htmlCode.append("            border: 1px solid #ccc;\n");
+			htmlCode.append("            padding: 10px;\n");
+			htmlCode.append("            margin-right: 20px;\n");
+			htmlCode.append("        }\n");
+			htmlCode.append("        .article-title {\n");
+			htmlCode.append("            font-size: 30px;\n");
+			htmlCode.append("            font-weight: bold;\n");
+			htmlCode.append("            margin-bottom: 10px;\n");
+			htmlCode.append("        }\n");
+			htmlCode.append("        .article-creator {\n");
+			htmlCode.append("            font-size: 14px;\n");
+			htmlCode.append("            margin-bottom: 5px;\n");
+			htmlCode.append("        }\n");
+			htmlCode.append("        .article-date {\n");
+			htmlCode.append("            font-size: 14px;\n");
+			htmlCode.append("            margin-bottom: 5px;\n");
+			htmlCode.append("        }\n");
+			htmlCode.append("        .article-id {\n");
+			htmlCode.append("            font-size: 14px;\n");
+			htmlCode.append("            margin-bottom: 10px;\n");
+			htmlCode.append("        }\n");
+			htmlCode.append("        .comments {\n");
+			htmlCode.append("            border: 1px solid #ccc;\n");
+			htmlCode.append("            padding: 10px;\n");
+			htmlCode.append("            flex-shrink: 0;\n");
+			htmlCode.append("            width: 750px;\n");
+			htmlCode.append("        }\n");
+			htmlCode.append("        .comment {\n");
+			htmlCode.append("            margin-bottom: 10px;\n");
+			htmlCode.append("        }\n");
+			htmlCode.append("        .comment-content {\n");
+			htmlCode.append("            font-size: 25px;\n");
+			htmlCode.append("            margin-bottom: 20px;\n");
+			htmlCode.append("            margin-top: 10px;\n");
+			htmlCode.append("        }\n");
+			htmlCode.append("        .comment-date {\n");
+			htmlCode.append("            font-size: 14px;\n");
+			htmlCode.append("            margin-bottom: 2px;\n");
+			htmlCode.append("            margin-top: 0;\n");
+			htmlCode.append("        }\n");
+			htmlCode.append("    </style>\n");
+			htmlCode.append("</head>\n");
+			htmlCode.append("<body>\n");
+			htmlCode.append("<div style=\"text-align: right;\">Log in as: Chris</div>\n");
+			htmlCode.append("<div class=\"container\">\n");
+			htmlCode.append("    <div class=\"article\">\n");
+			htmlCode.append("        <h1 class=\"article-title\">Article Title</h1>\n");
+			htmlCode.append("        <p class=\"article-creator\">Creator: John Doe</p>\n");
+			htmlCode.append("        <p class=\"article-date\">Date Creation: July 9, 2023</p>\n");
+			htmlCode.append("        <p class=\"article-id\">Article ID: 12345</p>\n");
+			htmlCode.append("        <h2 class=\"article-contents\">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</h2>\n");
+			htmlCode.append("    </div>\n");
+			htmlCode.append("    <div class=\"comments\">\n");
+			htmlCode.append("        <h1>Comments</h1>\n");
+			htmlCode.append("        <div class=\"comment\">\n");
+			htmlCode.append("            <h4 class=\"comment-date\">2023-06-13</h4>\n");
+			htmlCode.append("            <p class=\"comment-content\">This is the first comment.</p>\n");
+			htmlCode.append("        </div>\n");
+			htmlCode.append("        <div class=\"comment\">\n");
+			htmlCode.append("            <h4 class=\"comment-date\">2023-06-13</h4>\n");
+			htmlCode.append("            <p class=\"comment-content\">This is the second comment.</p>\n");
+			htmlCode.append("        </div>\n");
+			htmlCode.append("        <div class=\"comment\">\n");
+			htmlCode.append("            <h4 class=\"comment-date\">2023-06-13</h4>\n");
+			htmlCode.append("            <p class=\"comment-content\">This is the third comment.</p>\n");
+			htmlCode.append("        </div>\n");
+			htmlCode.append("    </div>\n");
+			htmlCode.append("</div>\n");
+			htmlCode.append("</body>\n");
+			htmlCode.append("</html>");
+			
+			return htmlCode.toString();
 		}
 		
 }
