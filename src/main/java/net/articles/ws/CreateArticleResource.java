@@ -32,7 +32,6 @@ public class CreateArticleResource {
 		
 		System.out.println("SERVER STATUS --> CREATE ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		int ROLE_ID;
-		try {
 			if(role.equals("JOURNALIST")) {
 				ROLE_ID = 2;
 				
@@ -53,11 +52,9 @@ public class CreateArticleResource {
                 .type(MediaType.TEXT_HTML)
                 .build();
 				
-			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
-		} catch(NotIdentifiedRole e) {
-			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
-		}
+			} else { 
+				return Response.serverError().build();
+			} 
 	}
 	
 	/// NOTE: WE USE POST BECAUSE WE WANT TO CREATE A NEW RESOURCE (AN ARTICLE)
@@ -181,7 +178,7 @@ public class CreateArticleResource {
 	        }
 	    } catch (SQLException e) {
 	        e.printStackTrace();
-	    }
+	    } 
 	    return topics;
 	}
 
