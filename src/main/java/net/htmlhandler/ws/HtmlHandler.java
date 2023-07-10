@@ -159,7 +159,7 @@ public class HtmlHandler {
 			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayAll_article?role=" + "VISITOR" + "\">Display all the Article</a>\n" +
 	              "    <hr>\n" +
 	              "    <a class=\"link\" href=\"#\">Add Comment</a>\n" +
-	              "    <a class=\"link\" href=\"#\">Display Comment of an Article</a>\n" +
+			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayCommentsOfArticle_comment?role=" + "VISITOR" + "\">Display commetns of an Article</a>\n" +
 	              "    <hr>\n" +
 	              "<a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?role=" + "VISITOR" + "\">Display Topic</a>\n" +
 	              "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
@@ -472,7 +472,7 @@ public class HtmlHandler {
 		String htmlCode = "<!DOCTYPE html>\n" +
 		        "<html>\n" +
 		        "<head>\n" +
-		        "    <title>Accept Article</title>\n" +
+		        "    <title>Approve Article</title>\n" +
 		        "    <style>\n" +
 		        "        body {\n" +
 		        "            display: flex;\n" +
@@ -1194,22 +1194,25 @@ public class HtmlHandler {
 		        }
 		        htmlCode.append("<p>--------------------------------------------------------------------------------------------------------------</p>");
 		        
-		        htmlCode.append("        <div>\n");
-		        htmlCode.append("            <form method=\"POST\" action=\"/RESTstart/rest/auth/auth_user/displayAll_article/add_comment\">\n");
-		        htmlCode.append("                <input type=\"hidden\" name=\"clickedByName\" value=\"").append(clickedByName).append("\">\n");
-		        htmlCode.append("                <input type=\"hidden\" name=\"articleId\" value=\"").append(article.getId()).append("\">\n");
-		        htmlCode.append("                <input type=\"hidden\" name=\"creator_username\" value=\"").append(article.getCreator_username()).append("\">\n");
-		        htmlCode.append("                    <input type=\"radio\" name=\"commentVisibility\" value=\"withName\" checked>\n");
-		        htmlCode.append("                    Add with name\n");
-		        htmlCode.append("                </label>\n");
-		        htmlCode.append("                <label>\n");
-		        htmlCode.append("                    <input type=\"radio\" name=\"commentVisibility\" value=\"anonymous\">\n");
-		        htmlCode.append("                    Add anonymously\n");
-		        htmlCode.append("                </label>\n");
-		        htmlCode.append("                <textarea name=\"comment\" placeholder=\"Add a comment...\"></textarea>\n");
-		        htmlCode.append("                <button type=\"submit\">Submit comment</button>\n");
-		        htmlCode.append("            </form>\n");
-		        htmlCode.append("        </div>\n");
+		        /* SOS!!! COMMENT CAN NOT BE ADDED IN A ARTICLE THAT HAS NOT STATE PUBLISHED == 4 */
+		        if(article.getState_id() == 4) {
+			        htmlCode.append("        <div>\n");
+			        htmlCode.append("            <form method=\"POST\" action=\"/RESTstart/rest/auth/auth_user/displayAll_article/add_comment\">\n");
+			        htmlCode.append("                <input type=\"hidden\" name=\"clickedByName\" value=\"").append(clickedByName).append("\">\n");
+			        htmlCode.append("                <input type=\"hidden\" name=\"articleId\" value=\"").append(article.getId()).append("\">\n");
+			        htmlCode.append("                <input type=\"hidden\" name=\"creator_username\" value=\"").append(article.getCreator_username()).append("\">\n");
+			        htmlCode.append("                    <input type=\"radio\" name=\"commentVisibility\" value=\"withName\" checked>\n");
+			        htmlCode.append("                    Add with name\n");
+			        htmlCode.append("                </label>\n");
+			        htmlCode.append("                <label>\n");
+			        htmlCode.append("                    <input type=\"radio\" name=\"commentVisibility\" value=\"anonymous\">\n");
+			        htmlCode.append("                    Add anonymously\n");
+			        htmlCode.append("                </label>\n");
+			        htmlCode.append("                <textarea name=\"comment\" placeholder=\"Add a comment...\"></textarea>\n");
+			        htmlCode.append("                <button type=\"submit\">Submit comment</button>\n");
+			        htmlCode.append("            </form>\n");
+			        htmlCode.append("        </div>\n");
+		        }
 		        
 		        htmlCode.append("    </div>\n");
 		    }
@@ -1648,11 +1651,27 @@ public class HtmlHandler {
 		    String frameHTML = "<div class=\"ids-frame\">";
 
 		    for (String element : COMMENTS_ARTICLES_IDs) {
-		        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment/" + element + "?method=GET\">" + element + "</a> ";
+		    	if(!role.equals("VISITOR"))
+		        	frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment/" + element + "?username=" + username + "&role=" + role + "&method=GET\">" + element + "</a> ";
+		    	else
+		        	frameHTML += "<a href=\"/RESTstart/rest/auth/not_auth_user/displayCommentsOfArticle_comment/" + element + "?username=" + username + "&role=" + role + "&method=GET\">" + element + "</a> ";		   
 		    }
-
 		    frameHTML += "</div>";
 
+		    String temp = "";
+		    if(role.equals("JOURNALIST")) {
+            	temp = "<h2>Here we display the articles ids that contains at least one comment and have state APPROVED and also<p>"
+            			+ "the articles that they correspond have state PUBLISHED</h2>"
+            			+ "<h3>If you want to see the articles that belong to you go (and also articles that have state PUBLISHED) to the function Display all the articles</h3>"; 
+            } else if(role.equals("CURATOR")) {
+            	temp = "<h2> You can see all the articles that have at least one comment in them</h2>";
+            } else if(role.equals("VISITOR")) {
+            	temp = "<h2>Here we display the articles ids that contains at least one comment and have state APPROVED and also<p>"
+            			+ "the articles that they correspond have state PUBLISHED</h2>"
+            			+ "<h3>If you want to see the articles that belong to you go (and also articles that have state PUBLISHED) to the function Display all the articles</h3>"; 
+            	username = "Visitor";
+            }
+		    
 		    String htmlCode = "<!DOCTYPE html>\n" +
 		            "<html>\n" +
 		            "<head>\n" +
@@ -1686,8 +1705,8 @@ public class HtmlHandler {
 		            "    <div class=\"login-info\">Log in as " + username + "</div>" +
 		            "    <div class=\"container\">\n" +
 		            "        <h1>The articles that appear have at least one comment in them.</h1>\n" +
+		             temp +
 		            "        " + frameHTML + "\n" +
-		            "        <input type=\"hidden\" name=\"role\" value=\"" + role + "\">\n" +
 		            "    </div>\n" +
 		            "</body>\n" +
 		            "</html>";
@@ -1695,7 +1714,8 @@ public class HtmlHandler {
 		    return htmlCode;
 		}
 
-		public static String getArticleComments() {
+		public static String getArticleComments(Article ARTICLE_SELECTED, ArrayList<Comments> COMMENTS_DATA, String username) {
+			
 			StringBuilder htmlCode = new StringBuilder();
 			htmlCode.append("<!DOCTYPE html>\n");
 			htmlCode.append("<html>\n");
@@ -1752,29 +1772,25 @@ public class HtmlHandler {
 			htmlCode.append("    </style>\n");
 			htmlCode.append("</head>\n");
 			htmlCode.append("<body>\n");
-			htmlCode.append("<div style=\"text-align: right;\">Log in as: Chris</div>\n");
+			htmlCode.append("<div style=\"text-align: right;\">Log in as: " + username + "</div>\n");
 			htmlCode.append("<div class=\"container\">\n");
 			htmlCode.append("    <div class=\"article\">\n");
-			htmlCode.append("        <h1 class=\"article-title\">Article Title</h1>\n");
-			htmlCode.append("        <p class=\"article-creator\">Creator: John Doe</p>\n");
-			htmlCode.append("        <p class=\"article-date\">Date Creation: July 9, 2023</p>\n");
-			htmlCode.append("        <p class=\"article-id\">Article ID: 12345</p>\n");
-			htmlCode.append("        <h2 class=\"article-contents\">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</h2>\n");
+			htmlCode.append("        <h1 class=\"article-title\">" + ARTICLE_SELECTED.getTitle()  + "</h1>\n");
+			htmlCode.append("        <p class=\"article-creator\">Creator username: " + ARTICLE_SELECTED.getCreator_username()  + "</p>\n");
+			htmlCode.append("        <p class=\"article-date\">Date creation: " + ARTICLE_SELECTED.getDate_creation() + "</p>\n");
+			htmlCode.append("        <p class=\"article-id\">ID: " + ARTICLE_SELECTED.getId() + "</p>\n");
+			htmlCode.append("        <h2 class=\"article-contents\">" + ARTICLE_SELECTED.getContents() + "</h2>\n");
 			htmlCode.append("    </div>\n");
 			htmlCode.append("    <div class=\"comments\">\n");
 			htmlCode.append("        <h1>Comments</h1>\n");
-			htmlCode.append("        <div class=\"comment\">\n");
-			htmlCode.append("            <h4 class=\"comment-date\">2023-06-13</h4>\n");
-			htmlCode.append("            <p class=\"comment-content\">This is the first comment.</p>\n");
-			htmlCode.append("        </div>\n");
-			htmlCode.append("        <div class=\"comment\">\n");
-			htmlCode.append("            <h4 class=\"comment-date\">2023-06-13</h4>\n");
-			htmlCode.append("            <p class=\"comment-content\">This is the second comment.</p>\n");
-			htmlCode.append("        </div>\n");
-			htmlCode.append("        <div class=\"comment\">\n");
-			htmlCode.append("            <h4 class=\"comment-date\">2023-06-13</h4>\n");
-			htmlCode.append("            <p class=\"comment-content\">This is the third comment.</p>\n");
-			htmlCode.append("        </div>\n");
+			
+			for(int i = 0;i < COMMENTS_DATA.size();i++) {
+				htmlCode.append("        <div class=\"comment" + COMMENTS_DATA.get(i).getArticle_id() + ">\n");
+				htmlCode.append("            <h4 class=\"comment-date\">" + COMMENTS_DATA.get(i).getDate_creation() + "</h4>\n");
+				htmlCode.append("            <p class=\"comment-content\">" + COMMENTS_DATA.get(i).getContent() + "</p>\n");
+				htmlCode.append("        </div>\n");
+			}
+			
 			htmlCode.append("    </div>\n");
 			htmlCode.append("</div>\n");
 			htmlCode.append("</body>\n");

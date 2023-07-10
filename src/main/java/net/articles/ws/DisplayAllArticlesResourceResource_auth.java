@@ -267,13 +267,12 @@ public class DisplayAllArticlesResourceResource_auth {
 		    	}
 		    	return temp_list;
 	    	} else { // Journalist
-	    		selectQuery = "SELECT * FROM comments WHERE STATE_ID = 3 OR CREATOR_USERNAME = ?;";
+	    		selectQuery = "SELECT * FROM comments WHERE STATE_ID = 3;";
 	    		
 	    		connection = DriverManager.getConnection(url, username_DB, passwd);
 		        System.out.println("\nSERVER STATUS: Connected to the database...");
 		        
 		    	selectStatement = connection.prepareStatement(selectQuery);
-		    	selectStatement.setString(1, name);
 		    	resultSet = selectStatement.executeQuery();
 	    		
 		    	while(resultSet.next()) {
