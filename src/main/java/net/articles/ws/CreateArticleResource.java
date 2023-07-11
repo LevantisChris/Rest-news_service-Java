@@ -169,7 +169,7 @@ public class CreateArticleResource {
 	    ArrayList<String> topics = new ArrayList<>();
 
 	    try (Connection connection = DriverManager.getConnection(url, username_DB, passwd);
-	         PreparedStatement statement = connection.prepareStatement("SELECT TITLE FROM TOPIC WHERE STATE_ID = 4");
+	         PreparedStatement statement = connection.prepareStatement("SELECT TITLE FROM TOPIC WHERE STATE_ID = 3");
 	         ResultSet resultSet = statement.executeQuery()) {
 
 	        while (resultSet.next()) {

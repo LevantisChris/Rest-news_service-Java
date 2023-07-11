@@ -62,10 +62,11 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article?username=" + username + "&role=" + "JOURNALIST" + "\">Submit Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article?username=" + username + "&role=" + "JOURNALIST" + "\">Search Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_article?username=" + username + "&role=" + "JOURNALIST" + "\">Display Article</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article?username=" + username + "&role=" + "JOURNALIST" + "\">Display all the Articles</a>\n" +		        "    <hr>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment?username=" + username + "&role=" + "JOURNALIST" + "\">Display Comments of an article/Add Comment</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article?username=" + username + "&role=" + "JOURNALIST" + "\">Display all the Articles/Add Comment</a>\n" +		        "    <hr>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment?username=" + username + "&role=" + "JOURNALIST" + "\">Display Comments of an article</a>\n" +
 		        "    <hr>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Create topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Modify topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Search Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Create Topic</a>\n" +
@@ -116,7 +117,7 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment?username=" + username + "&role=" + "CURATOR" + "\">Display Comments of an article</a>\n" +
 		        "    <hr>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_topic?username=" + username + "&role=" + "CURATOR" + "\">Create topic</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Modify Topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_topic?username=" + username + "&role=" + "CURATOR" + "\">Modify topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Accept Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Decline Topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "CURATOR" + "\">Display Topic</a>\n" +
@@ -156,7 +157,7 @@ public class HtmlHandler {
 			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/display_article?role=" + "VISITOR" + "\">Display Article</a>\n" +
 			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayAll_article?role=" + "VISITOR" + "\">Display all the Article/Add Comment</a>\n" +
 	              "    <hr>\n" +
-			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayCommentsOfArticle_comment?role=" + "VISITOR" + "\">Display commetns of an Article</a>\n" +
+			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayCommentsOfArticle_comment?role=" + "VISITOR" + "\">Display comments of an Article</a>\n" +
 	              "    <hr>\n" +
 	              "	   <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?role=" + "VISITOR" + "\">Display Topic</a>\n" +
 	              "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
@@ -1861,13 +1862,16 @@ public class HtmlHandler {
 		    
 		    htmlBuilder.append("            <option value=" + "Empty" + ">" + "Empty" + "</option>\n");
 		    for(int i = 0;i < TOPICS_LIST.size();i++) {
-		        htmlBuilder.append("            <option value=" + TOPICS_LIST.get(i) + ">" + TOPICS_LIST.get(i) + "</option>\n");
+		        htmlBuilder.append("            <option value='" + TOPICS_LIST.get(i) + "'>" + TOPICS_LIST.get(i) + "</option>\n");
 		    }
 		    
 		    htmlBuilder.append("        </select>\n");
 		    htmlBuilder.append("        <div class=\"div-button\">\n");
 		    htmlBuilder.append("            <button class=\"create-button\" onclick=\"createTopic()\">Create</button>\n");
 		    htmlBuilder.append("        </div>\n");
+		    htmlBuilder.append("    	<div class=\"response-div\">\n");
+		    htmlBuilder.append("        	<p id=\"text\"></p>\n");
+		    htmlBuilder.append("    	</div>\n");
 		    htmlBuilder.append("    </div>\n");
 		    
 		    htmlBuilder.append("    <script>\n");
@@ -1885,7 +1889,7 @@ public class HtmlHandler {
 		    htmlBuilder.append("            xhr.setRequestHeader('Content-Type', 'application/json');\n");
 		    htmlBuilder.append("            xhr.onreadystatechange = function() {\n");
 		    htmlBuilder.append("                if (xhr.readyState === 4 && xhr.status === 200) {\n");
-		    htmlBuilder.append("                    // Handle the response...\n");
+		    htmlBuilder.append("                    document.getElementById(\"text\").textContent = xhr.responseText;\n");
 		    htmlBuilder.append("                }\n");
 		    htmlBuilder.append("            };\n");
 		    htmlBuilder.append("            xhr.send(JSON.stringify(jsonData));\n");
@@ -1898,4 +1902,159 @@ public class HtmlHandler {
 		    return htmlBuilder.toString();
 		}
 		
+		
+		
+		///This is for the modify Topic
+		public static String getIDS_MODIFY_TOPIC_HTML(ArrayList<String> TOPICS_IDs, String username, String role) {
+			String frameHTML = "<div class=\"ids-frame\">";
+			
+			for (int i = 0; i < TOPICS_IDs.size(); i++) {
+		        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/modify_topic/" + TOPICS_IDs.get(i) + "?method=GET\">" + TOPICS_IDs.get(i) + "</a> ";
+			}
+			
+			frameHTML += "</div>";
+			
+			StringBuilder temp = new StringBuilder();
+			temp.append("        .login-info {\n");
+			temp.append("            position: absolute;\n");
+		    temp.append("            top: 20px;\n");
+		    temp.append("            right: 20px;\n");
+		    temp.append("        }\n");
+			
+			String htmlCode = "<!DOCTYPE html>\n" +
+			        "<html>\n" +
+			        "<head>\n" +
+			        "    <title>Modify Topic</title>\n" +
+			        "    <style>\n" +
+			        "        body {\n" +
+			        "            display: flex;\n" +
+			        "            justify-content: center;\n" +
+			        "            align-items: center;\n" +
+			        "            height: 100vh;\n" +
+			        "        }\n" +
+			        "        .container {\n" +
+			        "            text-align: center;\n" +
+			        "        }\n" +
+			        "        .ids-frame {\n" +
+			        "            margin-bottom: 20px;\n" +
+			        "        }\n" +
+			        "        .ids-frame a {\n" +
+			        "            display: inline-block;\n" +
+			        "            margin-right: 5px;\n" +
+			        "            text-decoration: underline;\n" +
+			        "        }\n" +
+			        temp.toString() +
+			        "    </style>\n" +
+			        "</head>\n" +
+			        "<body>\n" +
+			        "    <div class=\"login-info\">Log in as: " + username + " </div>\n" +
+			        "    <div class=\"container\">\n" +
+			        "        <h1>Modify a Topic. Choose ID of a topic.</h1>\n" +
+			        "        <h2>The Topic that you see, have state CREATED (STATE_ID: 1)<p></h2>\n" +
+	                "        " + frameHTML + "\n" +
+			        "    </div>\n" +
+			        "</body>\n" +
+			        "</html>";
+			return htmlCode;
+		}
+		
+		public static String getMODIFY_TOPIC_HTML(ArrayList<String> TOPICS_LIST, 
+												  String TITLE_FROM_DB, 
+												  String PARENT_TOPIC_FROM_DB,
+												  int TOPIC_CLICKED) {
+			StringBuilder htmlBuilder = new StringBuilder();
+
+		    htmlBuilder.append("<!DOCTYPE html>\n");
+		    htmlBuilder.append("<html>\n");
+		    htmlBuilder.append("<head>\n");
+		    htmlBuilder.append("    <title>Modify a topic</title>\n");
+		    htmlBuilder.append("    <style>\n");
+		    htmlBuilder.append("        body {\n");
+		    htmlBuilder.append("            display: flex;\n");
+		    htmlBuilder.append("            justify-content: center;\n");
+		    htmlBuilder.append("            align-items: center;\n");
+		    htmlBuilder.append("            height: 100vh;\n");
+		    htmlBuilder.append("            position: relative;\n");
+		    htmlBuilder.append("        }\n");
+		    htmlBuilder.append("        .container {\n");
+		    htmlBuilder.append("            display: flex;\n");
+		    htmlBuilder.append("            flex-direction: column;\n");
+		    htmlBuilder.append("            align-items: flex-start;\n");
+		    htmlBuilder.append("            padding: 20px;\n");
+		    htmlBuilder.append("        }\n");
+		    htmlBuilder.append("        .label {\n");
+		    htmlBuilder.append("            font-weight: bold;\n");
+		    htmlBuilder.append("            margin-bottom: 5px;\n");
+		    htmlBuilder.append("        }\n");
+		    htmlBuilder.append("        .text-input {\n");
+		    htmlBuilder.append("            resize: none;\n");
+		    htmlBuilder.append("            width: 300px;\n");
+		    htmlBuilder.append("            height: 15px;\n");
+		    htmlBuilder.append("            margin-bottom: 20px;\n");
+		    htmlBuilder.append("        }\n");
+		    htmlBuilder.append("        .div-button {\n");
+		    htmlBuilder.append("            margin: 0;\n");
+		    htmlBuilder.append("            position: absolute;\n");
+		    htmlBuilder.append("            top: 65%;\n");
+		    htmlBuilder.append("            left: 48%;\n");
+		    htmlBuilder.append("        }\n");
+		    htmlBuilder.append("        .create-button {\n");
+		    htmlBuilder.append("            m	argin-top: 20px;\n");
+		    htmlBuilder.append("        }\n");
+		    htmlBuilder.append("        .login-info {\n");
+		    htmlBuilder.append("            position: absolute;\n");
+		    htmlBuilder.append("            top: 20px;\n");
+		    htmlBuilder.append("            right: 20px;\n");
+		    htmlBuilder.append("        }\n");
+		    htmlBuilder.append("    </style>\n");
+		    htmlBuilder.append("</head>\n");
+		    htmlBuilder.append("<body>\n");
+		    htmlBuilder.append("    <div class=\"container\">\n");
+		    htmlBuilder.append("        <h1>Here you can modify the topic with id " + TOPIC_CLICKED + "</h1>\n");
+		    htmlBuilder.append("        <label class=\"label\">Title of the Topic:</label>\n");
+		    htmlBuilder.append("        <textarea id=\"title\" class=\"text-input\" placeholder=\"Enter topic title...\">" + TITLE_FROM_DB + "</textarea>\n");
+		    htmlBuilder.append("        <label class=\"label\">Parent Topic:</label>\n");
+		    htmlBuilder.append("        <select id=\"parentTopic\">\n");
+		    
+		    htmlBuilder.append("            <option value=" + PARENT_TOPIC_FROM_DB + ">" + PARENT_TOPIC_FROM_DB + "</option>\n");
+		    for(int i = 0;i < TOPICS_LIST.size();i++) {
+		    	if(!PARENT_TOPIC_FROM_DB.equals(TOPICS_LIST.get(i))) // we dont want to add two times the topic that already had picked
+		        	htmlBuilder.append("            <option value='" + TOPICS_LIST.get(i) + "'>" + TOPICS_LIST.get(i) + "</option>\n");
+		    }
+		    
+		    htmlBuilder.append("        </select>\n");
+		    htmlBuilder.append("        <div class=\"div-button\">\n");
+		    htmlBuilder.append("            <button class=\"create-button\" onclick=\"modifyTopic()\">Modify</button>\n");
+		    htmlBuilder.append("        </div>\n");
+		    htmlBuilder.append("    	<div class=\"response-div\">\n");
+		    htmlBuilder.append("        	<p id=\"text\"></p>\n");
+		    htmlBuilder.append("    	</div>\n");
+		    htmlBuilder.append("    </div>\n");
+		    
+		    htmlBuilder.append("    <script>\n");
+		    htmlBuilder.append("        function modifyTopic() {\n");
+		    htmlBuilder.append("            var title = document.getElementById('title').value;\n");
+		    htmlBuilder.append("            var parentTopic = document.getElementById('parentTopic').value;\n");
+		    htmlBuilder.append("            var jsonData = {\n");
+		    htmlBuilder.append("                title: title,\n");
+		    htmlBuilder.append("                parentTopic: parentTopic,\n");
+		    htmlBuilder.append("                topic_id_clicked: " + TOPIC_CLICKED +"\n");
+		    htmlBuilder.append("            };\n");
+		    htmlBuilder.append("            var xhr = new XMLHttpRequest();\n");
+		    htmlBuilder.append("            xhr.open('POST', '/RESTstart/rest/auth/auth_user/modify_topic/modify', true);\n");
+		    htmlBuilder.append("            xhr.setRequestHeader('Content-Type', 'application/json');\n");
+		    htmlBuilder.append("            xhr.onreadystatechange = function() {\n");
+		    htmlBuilder.append("                if (xhr.readyState === 4 && xhr.status === 200) {\n");
+		    htmlBuilder.append("                    document.getElementById(\"text\").textContent = xhr.responseText;\n");
+		    htmlBuilder.append("                }\n");
+		    htmlBuilder.append("            };\n");
+		    htmlBuilder.append("            xhr.send(JSON.stringify(jsonData));\n");
+		    htmlBuilder.append("        }\n");
+		    htmlBuilder.append("    </script>\n");
+		    
+		    htmlBuilder.append("</body>\n");
+		    htmlBuilder.append("</html>\n");
+
+		    return htmlBuilder.toString();
+		}
 }

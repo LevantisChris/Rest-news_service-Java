@@ -61,6 +61,10 @@ public class CreateTopicResource {
 					+ "\nCreator Username == " + creator_username
 					+ "\nParent topic String == " + parent_topic_STRING);
 	        
+			if(!topicExists(title) == true) {
+				return Response.ok("TOPIC_ALREADY_EXISTS").build();
+			}
+			
 			if(crateTopic(title, creator_username, parent_topic_STRING) == true) {
 				System.out.println("-------------------------------------");
 				System.out.println("SERVER STATUS: TOPIC CREATED IS: "
@@ -80,6 +84,58 @@ public class CreateTopicResource {
     }
 	
 	/*--------------------------------------------------------------------------------------------------------------*/
+	
+	/* NOTE: Check if the topic that the user want to create already exists 
+	 * 
+	 * SOSOSOS!!!! IN THE CREATION OF THE DATABASE I HAVE ALREADY ADD IN THE TITLE ATTRIBUTE THE CHARACTERISTIC --UNIQUE-- 
+	 * But with this function we double check it and handle it better */
+	private boolean topicExists(String title) {
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    Connection connection = null;
+	    PreparedStatement selectStatement = null;
+	    PreparedStatement insertStatement = null;
+	    
+	    String selectQuery = "SELECT TITLE FROM TOPIC WHERE TITLE = ?";
+	    
+	    try {
+	    	
+	    	connection = DriverManager.getConnection(url, username_DB, passwd);
+	        System.out.println("\nSERVER STATUS: Connected to the database...");
+	        
+	        selectStatement = connection.prepareStatement(selectQuery);
+	        selectStatement.setString(1, title);
+	        ResultSet resultSet = selectStatement.executeQuery();
+	        
+	        if (resultSet.next()) {
+	            System.out.println("SERVER STATUS: --ERROR-- The topic already exists");
+	            return false;
+	        } else {
+	        	return true;
+	        }
+	    } catch(SQLException e) {
+	    	System.out.println("SERVER STATUS: --ERROR-- in the check f the topic already exists");
+	    	e.printStackTrace();
+	    	return false;
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (insertStatement != null) {
+	                insertStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
 	
 	private boolean crateTopic(String title, String creator_username, String parent_topic_STRING) {
 		String url = "jdbc:mysql://localhost:3306/news_db";
@@ -157,6 +213,7 @@ public class CreateTopicResource {
 	        
 	    } catch(SQLException e) {
 	    	System.out.println("SERVER STATUS: --ERROR-- IN createTopic");
+	    	e.printStackTrace();
 	    	return false;
 	    } finally {
 	        try {
