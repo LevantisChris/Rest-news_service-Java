@@ -29,8 +29,6 @@ public class ApproveArticleResource {
 			if(role.equals("JOURNALIST")) {
 				ROLE_ID = 2;
 				
-				ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username);
-				
 				return Response.serverError().build(); // If for some reason we have a failure in out system and a JOURNALIST or some other access this function, we send a server error ... 
 				
 			} else if(role.equals("CURATOR")){
