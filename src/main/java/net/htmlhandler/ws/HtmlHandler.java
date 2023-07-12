@@ -67,6 +67,7 @@ public class HtmlHandler {
 		        "    <hr>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Create topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Modify topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Search Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Create Topic</a>\n" +
@@ -2358,6 +2359,146 @@ public class HtmlHandler {
 						htmlBuilder.append("</html>\n");
 						
 						return htmlBuilder.toString();
+				}
+				
+				
+				///This is for the Display of a Topic
+				public static String getIDS_DISPLAY_TOPIC_HTML(ArrayList<String> TOPICS_IDs, String username, String role) {
+					String frameHTML = "<div class=\"ids-frame\">";
+					
+					for (int i = 0; i < TOPICS_IDs.size(); i++) {
+				        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/display_topic/" + TOPICS_IDs.get(i) + "?method=GET\">" + TOPICS_IDs.get(i) + "</a> ";
+					}
+					
+					frameHTML += "</div>";
+					
+					String temp1;
+					if(role.equals("JOURNALIST"))
+						temp1 = "<h2>The Topics that you see here have state APPROVED (STATE_ID: 3), you also see the articles that belongs to you<p></h2>\n";
+					else // Curator
+						temp1 = "<h2>You can see all the topics<p></h2>";
+					
+					StringBuilder temp = new StringBuilder();
+					temp.append("        .login-info {\n");
+					temp.append("            position: absolute;\n");
+				    temp.append("            top: 20px;\n");
+				    temp.append("            right: 20px;\n");
+				    temp.append("        }\n");
+					
+					String htmlCode = "<!DOCTYPE html>\n" +
+					        "<html>\n" +
+					        "<head>\n" +
+					        "    <title>Display Topic</title>\n" +
+					        "    <style>\n" +
+					        "        body {\n" +
+					        "            display: flex;\n" +
+					        "            justify-content: center;\n" +
+					        "            align-items: center;\n" +
+					        "            height: 100vh;\n" +
+					        "        }\n" +
+					        "        .container {\n" +
+					        "            text-align: center;\n" +
+					        "        }\n" +
+					        "        .ids-frame {\n" +
+					        "            margin-bottom: 20px;\n" +
+					        "        }\n" +
+					        "        .ids-frame a {\n" +
+					        "            display: inline-block;\n" +
+					        "            margin-right: 5px;\n" +
+					        "            text-decoration: underline;\n" +
+					        "        }\n" +
+					        temp.toString() +
+					        "    </style>\n" +
+					        "</head>\n" +
+					        "<body>\n" +
+					        "    <div class=\"login-info\">Log in as: " + username + " </div>\n" +
+					        "    <div class=\"container\">\n" +
+					        "        <h1>Display a Topic. Choose ID of a topic.</h1>\n" + 
+					        temp1 +			   
+					        "        " + frameHTML + "\n" +
+					        "    </div>\n" +
+					        "</body>\n" +
+					        "</html>";
+					return htmlCode;
+				}	
+				
+				
+				public static String getDISPLAY_TOPIC_HTML(
+				        int ID_FROM_DB,
+				        String TITLE_FROM_DB,
+				        String PARENT_TOPIC_FROM_DB,
+				        ArrayList<String> KIDS_TOPICS_FROM_DB) {
+
+				    StringBuilder htmlBuilder = new StringBuilder();
+
+				    htmlBuilder.append("<!DOCTYPE html>\n");
+				    htmlBuilder.append("<html>\n");
+				    htmlBuilder.append("<head>\n");
+				    htmlBuilder.append("    <title>Display a topic</title>\n");
+				    htmlBuilder.append("    <style>\n");
+				    htmlBuilder.append("        body {\n");
+				    htmlBuilder.append("            display: flex;\n");
+				    htmlBuilder.append("            justify-content: center;\n");
+				    htmlBuilder.append("            align-items: center;\n");
+				    htmlBuilder.append("            height: 100vh;\n");
+				    htmlBuilder.append("        }\n");
+				    htmlBuilder.append("        .container {\n");
+				    htmlBuilder.append("            display: flex;\n");
+				    htmlBuilder.append("            flex-direction: column;\n");
+				    htmlBuilder.append("            align-items: center;\n");
+				    htmlBuilder.append("            padding: 20px;\n");
+				    htmlBuilder.append("            text-align: center;\n");
+				    htmlBuilder.append("        }\n");
+				    htmlBuilder.append("        .label {\n");
+				    htmlBuilder.append("            font-weight: bold;\n");
+				    htmlBuilder.append("            margin-bottom: 5px;\n");
+				    htmlBuilder.append("        }\n");
+				    htmlBuilder.append("        .text-input {\n");
+				    htmlBuilder.append("            resize: none;\n");
+				    htmlBuilder.append("            width: 300px;\n");
+				    htmlBuilder.append("            height: 15px;\n");
+				    htmlBuilder.append("            margin-bottom: 20px;\n");
+				    htmlBuilder.append("        }\n");
+				    htmlBuilder.append("        .div-button {\n");
+				    htmlBuilder.append("            margin: 0;\n");
+				    htmlBuilder.append("        }\n");
+				    htmlBuilder.append("        .create-button {\n");
+				    htmlBuilder.append("            margin-top: 20px;\n");
+				    htmlBuilder.append("        }\n");
+				    htmlBuilder.append("        .login-info {\n");
+				    htmlBuilder.append("            position: absolute;\n");
+				    htmlBuilder.append("            top: 20px;\n");
+				    htmlBuilder.append("            right: 20px;\n");
+				    htmlBuilder.append("        }\n");
+				    htmlBuilder.append("    </style>\n");
+				    htmlBuilder.append("</head>\n");
+				    htmlBuilder.append("<body>\n");
+				    htmlBuilder.append("    <div class=\"container\">\n");
+				    htmlBuilder.append("        <h1>Displaying the topic with ID " + ID_FROM_DB + "</h1>\n");
+
+				    htmlBuilder.append("        <label class=\"label\">ID of the Topic: " + ID_FROM_DB + "</label>\n");
+
+				    htmlBuilder.append("        <label class=\"label\">Title of the Topic:</label>\n");
+				    htmlBuilder.append("        <textarea id=\"title\" class=\"text-input\" placeholder=\"Enter topic title...\" readonly>" + TITLE_FROM_DB + "</textarea>\n");
+				    htmlBuilder.append("        <label class=\"label\">Parent Topic: " + PARENT_TOPIC_FROM_DB + "</label>\n");
+
+				    if (KIDS_TOPICS_FROM_DB != null) {
+				    	
+				    	if(KIDS_TOPICS_FROM_DB.isEmpty()){
+					        htmlBuilder.append("        <label class=\"label\">No children topics found</label>\n");
+					    } else {
+					        htmlBuilder.append("        <label class=\"label\">Children Topics:</label>\n");
+					        for (int i = 0; i < KIDS_TOPICS_FROM_DB.size(); i++) {
+					            htmlBuilder.append("        <label class=\"label\">Child Topic: " + KIDS_TOPICS_FROM_DB.get(i) + "</label>\n");
+					        }
+					    }
+				    }
+
+				    htmlBuilder.append("    </div>\n");
+				    htmlBuilder.append("</body>\n");
+				    htmlBuilder.append("</html>\n");
+
+				    return htmlBuilder.toString();
 				}
 		
 }
