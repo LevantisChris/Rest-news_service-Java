@@ -18,11 +18,11 @@ import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
 
 @Path("/auth/auth_user/display_topic")
-public class DisplayTopicResource {
+public class DisplayTopicResource_auth {
 
 	@GET
 	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
-		System.out.println("SERVER STATUS --> DISPLAY ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		System.out.println("SERVER STATUS --> DISPLAY TOPIC (auth) CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		String ID_CLICKED = null;
 		int ROLE_ID;
 		try {

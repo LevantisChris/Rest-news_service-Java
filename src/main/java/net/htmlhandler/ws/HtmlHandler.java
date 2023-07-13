@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import net.articles.ws.manage_articles.Article;
 import net.comments.ws.manage_comments.Comments;
+import net.topics.ws.manage_topics.Topic;
 
 /* HERE WE ARE GOING TO HAVE ALL THE HTML CODES THAT WE WILL NEED IN OUR SERVICE */
 
@@ -68,7 +69,7 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Create topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Modify topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display Topic</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display all the Topics</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Search Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Create Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Modify Topic</a>\n" +
@@ -122,7 +123,7 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_topic?username=" + username + "&role=" + "CURATOR" + "\">Approve topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_topic?username=" + username + "&role=" + "CURATOR" + "\">Decline topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "CURATOR" + "\">Display Topic</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_topic?username=" + username + "&role=" + "CURATOR" + "\">Display all the Topics</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Search Topics</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display Articles of a Topic</a>\n" +
 		        "  </div>\n" +
@@ -160,7 +161,7 @@ public class HtmlHandler {
 	              "    <hr>\n" +
 			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayCommentsOfArticle_comment?role=" + "VISITOR" + "\">Display comments of an Article</a>\n" +
 	              "    <hr>\n" +
-	              "	   <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?role=" + "VISITOR" + "\">Display Topic</a>\n" +
+			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/display_topic?role=" + "VISITOR" + "\">Display Topic</a>\n" +
 	              "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
 	              "    <a class=\"link\" href=\"#\">Search Topics</a>\n" +
 	              "  </div>\n" +
@@ -2367,7 +2368,10 @@ public class HtmlHandler {
 					String frameHTML = "<div class=\"ids-frame\">";
 					
 					for (int i = 0; i < TOPICS_IDs.size(); i++) {
-				        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/display_topic/" + TOPICS_IDs.get(i) + "?method=GET\">" + TOPICS_IDs.get(i) + "</a> ";
+						if(role.equals("VISITOR"))
+							frameHTML += "<a href=\"/RESTstart/rest/auth/not_auth_user/display_topic" + TOPICS_IDs.get(i) + "?method=GET\">" + TOPICS_IDs.get(i) + "</a> ";
+						else
+							frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/display_topic/" + TOPICS_IDs.get(i) + "?method=GET\">" + TOPICS_IDs.get(i) + "</a> ";
 					}
 					
 					frameHTML += "</div>";
@@ -2375,8 +2379,18 @@ public class HtmlHandler {
 					String temp1;
 					if(role.equals("JOURNALIST"))
 						temp1 = "<h2>The Topics that you see here have state APPROVED (STATE_ID: 3), you also see the articles that belongs to you<p></h2>\n";
-					else // Curator
+					else if(role.equals("CURATOR")) // Curator
 						temp1 = "<h2>You can see all the topics<p></h2>";
+					else { // Visitor
+						temp1 = "<h2>You can see topics that are in the state PUBLISHED<p></h2>";
+					}
+					
+					String logIn;
+			        if(role.equals("VISITOR")) {
+			        	logIn = "    <div class=\"login-info\">Log in as: " + "Visitor" + " </div>\n";
+			        } else {
+			        	logIn = "    <div class=\"login-info\">Log in as: " + username + " </div>\n";
+			        }
 					
 					StringBuilder temp = new StringBuilder();
 					temp.append("        .login-info {\n");
@@ -2411,7 +2425,7 @@ public class HtmlHandler {
 					        "    </style>\n" +
 					        "</head>\n" +
 					        "<body>\n" +
-					        "    <div class=\"login-info\">Log in as: " + username + " </div>\n" +
+					        logIn +
 					        "    <div class=\"container\">\n" +
 					        "        <h1>Display a Topic. Choose ID of a topic.</h1>\n" + 
 					        temp1 +			   
@@ -2501,4 +2515,133 @@ public class HtmlHandler {
 				    return htmlBuilder.toString();
 				}
 		
+				
+				
+				/// This is for the Display All the Topics 
+				public static String getStartOptionsHTML_topics(String name, String role) {
+		            
+		            String temp_intro, temp_link_action, temp_check_boxes;
+		            if(!role.equals("VISITOR")) {
+		                temp_intro = "  <h3>USERNAME: " + name + " - ROLE: " + role + "</h3>\r\n";
+		                temp_link_action = "  <form action=\"/RESTstart/rest/auth/auth_user/displayAll_topic/displayAll\" method=\"post\">\r\n";
+		                temp_check_boxes = "    <label for=\"sortByState\">\r\n"
+		                        + "      <input type=\"checkbox\" id=\"sortByState\" name=\"sortByState\" value=\"true\" onclick=\"handleCheckbox(this)\">\r\n"
+		                        + "      Sort by State\r\n"
+		                        + "    </label>\r\n"
+		                        + "    <br>\r\n";
+		            } else {
+		                temp_intro = "  <h3>ROLE: " + role + "</h3>\r\n";
+		                temp_link_action = "  <form action=\"/RESTstart/rest/auth/not_auth_user/displayAll_topic/displayAll\" method=\"post\">\r\n";
+		                temp_check_boxes = "";
+		            }
+		            
+		            String htmlCode = "<!DOCTYPE html>\r\n"
+		                    + "<html>\r\n"
+		                    + "<head>\r\n"
+		                    + "  <title>Display all the Topics</title>\r\n"
+		                    + "  <style>\r\n"
+		                    + "    body {\r\n"
+		                    + "      display: flex;\r\n"
+		                    + "      justify-content: center;\r\n"
+		                    + "      align-items: center;\r\n"
+		                    + "      flex-direction: column;\r\n"
+		                    + "      height: 100vh;\r\n"
+		                    + "    }\r\n"
+		                    + "    form {\r\n"
+		                    + "      text-align: center;\r\n"
+		                    + "    }\r\n"
+		                    + "  </style>\r\n"
+		                    + "</head>\r\n"
+		                    + "<body>\r\n"
+		                    + "  <h1>Display all the Topics</h1>\r\n"
+		                    + "  <h2>Choose only one option</h2>"
+		                    + temp_intro
+		                    + temp_link_action
+		                    + temp_check_boxes
+		                    + "    <label for=\"sortByName\">\r\n"
+		                    + "      <input type=\"checkbox\" id=\"sortByName\" name=\"sortByName\" value=\"true\" onclick=\"handleCheckbox(this)\">\r\n"
+		                    + "      Sort by Name\r\n"
+		                    + "    </label>\r\n"
+		                    + "    <br>\r\n"
+		                    + "    <input type=\"hidden\" id=\"name\" name=\"name\" value=\"" + name + "\">\r\n"
+		                    + "    <input type=\"hidden\" id=\"role\" name=\"role\" value=\"" + role + "\">\r\n"
+		                    + "    <input type=\"submit\" value=\"Submit\">\r\n"
+		                    + "  </form>\r\n"
+		                    + "</body>\r\n"
+		                    + "</html>\r\n";
+
+		            return htmlCode;
+		        }
+				
+				public static String getArticlesFromSEARCH_ALL_TOPICS_auth(String clickedByName, ArrayList<Topic> GOAL_TOPIC) {   
+		            if (GOAL_TOPIC.isEmpty()) {
+		                String htmlCode = "<!DOCTYPE html>\n"
+		                        + "<html>\n"
+		                        + "<head>\n"
+		                        + "    <title>Topics Not Found</title>\n"
+		                        + "</head>\n"
+		                        + "<body>\n"
+		                        + "    <h1>ARTICLES_NOT_FOUND</h1>\n"
+		                        + "</body>\n"
+		                        + "</html>";
+
+		                return htmlCode;
+		            }
+
+		            StringBuilder htmlCode = new StringBuilder();
+
+		            htmlCode.append("<!DOCTYPE html>\n");
+		            htmlCode.append("<html>\n");
+		            htmlCode.append("<head>\n");
+		            htmlCode.append("    <title>Topics</title>\n");
+		            htmlCode.append("    <style>\n");
+		            htmlCode.append("        .article {\n");
+		            htmlCode.append("            margin-bottom: 20px;\n");
+		            htmlCode.append("            padding: 10px;\n");
+		            htmlCode.append("            border: 1px solid #ccc;\n");
+		            htmlCode.append("        }\n");
+		            htmlCode.append("        .article h2 {\n");
+		            htmlCode.append("            margin-top: 0;\n");
+		            htmlCode.append("        }\n");
+		            htmlCode.append("        .article p {\n");
+		            htmlCode.append("            margin-bottom: 0;\n");
+		            htmlCode.append("        }\n");
+		            htmlCode.append("    </style>\n");
+		            htmlCode.append("</head>\n");
+		            htmlCode.append("<body>\n");
+		            htmlCode.append("    <form method=\"POST\" action=\"/RESTstart/rest/auth/auth_user/displayAll_article/filAp\">\n");  
+		            htmlCode.append("        <div id=\"Filters\" style=\"border: 1px solid #ccc;\">\n");
+		            htmlCode.append("            <input type=\"hidden\" name=\"clickedByName\" value=\"").append(clickedByName).append("\">\n");
+		            htmlCode.append("            <label for=\"state\">State of Topic:</label>\n");
+		            htmlCode.append("            <input type=\"text\" id=\"state\" name=\"state\" list=\"stateOptions\">\n");
+		            htmlCode.append("            <datalist id=\"stateOptions\">\n");
+		            htmlCode.append("                <option value=\"1\">\n");
+		            htmlCode.append("                <option value=\"2\">\n");
+		            htmlCode.append("                <option value=\"3\">\n");
+		            htmlCode.append("                <option value=\"4\">\n");
+		            htmlCode.append("            </datalist>\n");
+		            htmlCode.append("            <label for=\"startDate\">Start date:</label>\n");
+		            htmlCode.append("            <input type=\"date\" id=\"startDate\" name=\"startDate\">\n");
+		            htmlCode.append("            <label for=\"endDate\">End date:</label>\n");
+		            htmlCode.append("            <input type=\"date\" id=\"endDate\" name=\"endDate\">\n");
+		            htmlCode.append("        </div>\n");
+		            htmlCode.append("        <p></p>\n");
+		            htmlCode.append("        <button type=\"submit\">Submit</button>\n");
+		            htmlCode.append("    </form>\n");
+		            htmlCode.append("    <p></p>");
+		            htmlCode.append("<div style=\"text-align: right; padding: 10px;\">Log in as: ").append(clickedByName).append("</div>\n");
+
+		            for (Topic topic : GOAL_TOPIC) {
+		                htmlCode.append("    <div class=\"article\">\n");
+		                htmlCode.append("        <h2>ID: ").append(topic.getId()).append("</h2>\n");
+		                htmlCode.append("        <p>Creator username: ").append(topic.getCreator_username()).append("</p>\n");
+		                htmlCode.append("        <p>Date creation: ").append(topic.getDate_creation()).append("</p>\n");
+		                htmlCode.append("        <p>State ID: ").append(topic.getState_id()).append("</p>\n");
+		                htmlCode.append("        <p style=\"font-size: 25px;\">Title: ").append(topic.getTitle()).append("</p>\n");
+			            htmlCode.append("        </div>\n");
+		            }
+		            htmlCode.append("</body>\n");
+		            htmlCode.append("</html>");
+		            return htmlCode.toString();
+			}
 }
