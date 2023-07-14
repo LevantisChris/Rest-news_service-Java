@@ -3,6 +3,9 @@ package net.htmlhandler.ws;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import net.articles.ws.manage_articles.Article;
 import net.comments.ws.manage_comments.Comments;
 import net.topics.ws.manage_topics.Topic;
@@ -2573,75 +2576,120 @@ public class HtmlHandler {
 		            return htmlCode;
 		        }
 				
-				public static String getArticlesFromSEARCH_ALL_TOPICS_auth(String clickedByName, ArrayList<Topic> GOAL_TOPIC) {   
-		            if (GOAL_TOPIC.isEmpty()) {
-		                String htmlCode = "<!DOCTYPE html>\n"
-		                        + "<html>\n"
-		                        + "<head>\n"
-		                        + "    <title>Topics Not Found</title>\n"
-		                        + "</head>\n"
-		                        + "<body>\n"
-		                        + "    <h1>ARTICLES_NOT_FOUND</h1>\n"
-		                        + "</body>\n"
-		                        + "</html>";
+				public static String getArticlesFromSEARCH_ALL_TOPICS_auth(String clickedByName, String role, ArrayList<Topic> GOAL_TOPIC) {
+				    if (GOAL_TOPIC.isEmpty()) {
+				        String htmlCode = "<!DOCTYPE html>\n"
+				                + "<html>\n"
+				                + "<head>\n"
+				                + "    <title>Topics Not Found</title>\n"
+				                + "</head>\n"
+				                + "<body>\n"
+				                + "    <h1>ARTICLES_NOT_FOUND</h1>\n"
+				                + "</body>\n"
+				                + "</html>";
 
-		                return htmlCode;
-		            }
+				        return htmlCode;
+				    }
 
-		            StringBuilder htmlCode = new StringBuilder();
+				    // Convert GOAL_TOPIC ArrayList to JSON array
+				    JSONArray topicArray = new JSONArray();
+				    for (Topic topic : GOAL_TOPIC) {
+				        JSONObject topicObject = new JSONObject();
+				        topicObject.put("id", topic.getId());
+				        topicArray.add(topicObject);
+				    }
 
-		            htmlCode.append("<!DOCTYPE html>\n");
-		            htmlCode.append("<html>\n");
-		            htmlCode.append("<head>\n");
-		            htmlCode.append("    <title>Topics</title>\n");
-		            htmlCode.append("    <style>\n");
-		            htmlCode.append("        .article {\n");
-		            htmlCode.append("            margin-bottom: 20px;\n");
-		            htmlCode.append("            padding: 10px;\n");
-		            htmlCode.append("            border: 1px solid #ccc;\n");
-		            htmlCode.append("        }\n");
-		            htmlCode.append("        .article h2 {\n");
-		            htmlCode.append("            margin-top: 0;\n");
-		            htmlCode.append("        }\n");
-		            htmlCode.append("        .article p {\n");
-		            htmlCode.append("            margin-bottom: 0;\n");
-		            htmlCode.append("        }\n");
-		            htmlCode.append("    </style>\n");
-		            htmlCode.append("</head>\n");
-		            htmlCode.append("<body>\n");
-		            htmlCode.append("    <form method=\"POST\" action=\"/RESTstart/rest/auth/auth_user/displayAll_article/filAp\">\n");  
-		            htmlCode.append("        <div id=\"Filters\" style=\"border: 1px solid #ccc;\">\n");
-		            htmlCode.append("            <input type=\"hidden\" name=\"clickedByName\" value=\"").append(clickedByName).append("\">\n");
-		            htmlCode.append("            <label for=\"state\">State of Topic:</label>\n");
-		            htmlCode.append("            <input type=\"text\" id=\"state\" name=\"state\" list=\"stateOptions\">\n");
-		            htmlCode.append("            <datalist id=\"stateOptions\">\n");
-		            htmlCode.append("                <option value=\"1\">\n");
-		            htmlCode.append("                <option value=\"2\">\n");
-		            htmlCode.append("                <option value=\"3\">\n");
-		            htmlCode.append("                <option value=\"4\">\n");
-		            htmlCode.append("            </datalist>\n");
-		            htmlCode.append("            <label for=\"startDate\">Start date:</label>\n");
-		            htmlCode.append("            <input type=\"date\" id=\"startDate\" name=\"startDate\">\n");
-		            htmlCode.append("            <label for=\"endDate\">End date:</label>\n");
-		            htmlCode.append("            <input type=\"date\" id=\"endDate\" name=\"endDate\">\n");
-		            htmlCode.append("        </div>\n");
-		            htmlCode.append("        <p></p>\n");
-		            htmlCode.append("        <button type=\"submit\">Submit</button>\n");
-		            htmlCode.append("    </form>\n");
-		            htmlCode.append("    <p></p>");
-		            htmlCode.append("<div style=\"text-align: right; padding: 10px;\">Log in as: ").append(clickedByName).append("</div>\n");
+				    String script = "<script>\n"
+				            + "function filterTopics() {\n"
+				            + "    console.log('filterTopics CALLED')\n"
+				            + "    var clickedByName = document.getElementById('clickedByName').value;\n"
+				            + "    console.log('1 okk')\n"
+				            + "    var state = document.getElementById('state').value;\n"
+				            + "    console.log('2 okk')\n"
+				            + "    var startDate = document.getElementById('startDate').value;\n"
+				            + "    console.log('3 okk')\n"
+				            + "    var endDate = document.getElementById('endDate').value;\n"
+				            + "    console.log('4 okk')\n"
+				            + "    var jsonData = {\n"
+				            + "        clickedByName: clickedByName,\n"
+				            + "        role: '" + role + "',\n"
+				            + "        state: state,\n"
+				            + "        startDate: startDate,\n"
+				            + "        endDate: endDate,\n"
+				            + "        topics: " + topicArray.toString() + "\n"  // Include the topics JSON array
+				            + "    };\n"
+				            + "    var xhr = new XMLHttpRequest();\n"
+				            + "    xhr.open('POST', '/RESTstart/rest/auth/auth_user/displayAll_topic/filAp', true);\n"
+				            + "    xhr.setRequestHeader('Content-Type', 'application/json');\n"
+				            + "    xhr.onreadystatechange = function() {\n"
+				            + "        if (xhr.readyState === 4 && xhr.status === 200) {\n"
+				            /*+ "            document.getElementById('text').textContent = xhr.responseText;\n"*/
+				            + "				 alert(xhr.responseText)"			  
+				            + "        }\n"
+				            + "    };\n"
+				            + "    xhr.send(JSON.stringify(jsonData));\n"
+				            + "}\n"
+				            + "</script>";
 
-		            for (Topic topic : GOAL_TOPIC) {
-		                htmlCode.append("    <div class=\"article\">\n");
-		                htmlCode.append("        <h2>ID: ").append(topic.getId()).append("</h2>\n");
-		                htmlCode.append("        <p>Creator username: ").append(topic.getCreator_username()).append("</p>\n");
-		                htmlCode.append("        <p>Date creation: ").append(topic.getDate_creation()).append("</p>\n");
-		                htmlCode.append("        <p>State ID: ").append(topic.getState_id()).append("</p>\n");
-		                htmlCode.append("        <p style=\"font-size: 25px;\">Title: ").append(topic.getTitle()).append("</p>\n");
-			            htmlCode.append("        </div>\n");
-		            }
-		            htmlCode.append("</body>\n");
-		            htmlCode.append("</html>");
-		            return htmlCode.toString();
-			}
+				    StringBuilder htmlCode = new StringBuilder();
+
+				    htmlCode.append("<!DOCTYPE html>\n");
+				    htmlCode.append("<html>\n");
+				    htmlCode.append("<head>\n");
+				    htmlCode.append("    <title>Topics</title>\n");
+				    htmlCode.append("    <style>\n");
+				    htmlCode.append("        .article {\n");
+				    htmlCode.append("            margin-bottom: 20px;\n");
+				    htmlCode.append("            padding: 10px;\n");
+				    htmlCode.append("            border: 1px solid #ccc;\n");
+				    htmlCode.append("        }\n");
+				    htmlCode.append("        .article h2 {\n");
+				    htmlCode.append("            margin-top: 0;\n");
+				    htmlCode.append("        }\n");
+				    htmlCode.append("        .article p {\n");
+				    htmlCode.append("            margin-bottom: 0;\n");
+				    htmlCode.append("        }\n");
+				    htmlCode.append("    </style>\n");
+				    htmlCode.append("</head>\n");
+				    htmlCode.append("<body>\n");
+				    htmlCode.append("        <div id=\"Filters\" style=\"border: 1px solid #ccc;\">\n");
+				    htmlCode.append("            <input type=\"hidden\" id=\"clickedByName\" name=\"clickedByName\" value=\"").append(clickedByName).append("\">\n");
+				    htmlCode.append("            <input type=\"hidden\" id=\"role\" name=\"role\" value=\"").append(role).append("\">\n");
+				    htmlCode.append("            <label for=\"state\">State of Topic:</label>\n");
+				    htmlCode.append("            <input type=\"text\" id=\"state\" name=\"state\" list=\"stateOptions\">\n");
+				    htmlCode.append("            <datalist id=\"stateOptions\">\n");
+				    htmlCode.append("                <option value=\"1\">\n");
+				    htmlCode.append("                <option value=\"2\">\n");
+				    htmlCode.append("                <option value=\"3\">\n");
+				    htmlCode.append("                <option value=\"4\">\n");
+				    htmlCode.append("            </datalist>\n");
+				    htmlCode.append("            <label for=\"startDate\">Start date:</label>\n");
+				    htmlCode.append("            <input type=\"date\" id=\"startDate\" name=\"startDate\">\n");
+				    htmlCode.append("            <label for=\"endDate\">End date:</label>\n");
+				    htmlCode.append("            <input type=\"date\" id=\"endDate\" name=\"endDate\">\n");
+				    htmlCode.append("        </div>\n");
+				    htmlCode.append("        <p></p>\n");
+				    htmlCode.append("            <button class=\"submit-button\" onclick=\"filterTopics()\">Submit</button>\n");
+				    htmlCode.append("    <p></p>");
+				    htmlCode.append("	<div style=\"text-align: right; padding: 10px;\">Log in as: ").append(clickedByName).append("</div>\n");
+
+				    /*htmlCode.append("    	<div class=\"response-div\">\n");
+				    htmlCode.append("        	<p id=\"text\"></p>\n");
+				    htmlCode.append("    	</div>\n");*/
+				    
+				    for (Topic topic : GOAL_TOPIC) {
+				        htmlCode.append("    <div class=\"topic\">\n");
+				        htmlCode.append("        <h2>ID: ").append(topic.getId()).append("</h2>\n");
+				        htmlCode.append("        <p>Creator username: ").append(topic.getCreator_username()).append("</p>\n");
+				        htmlCode.append("        <p>Date creation: ").append(topic.getDate_creation()).append("</p>\n");
+				        htmlCode.append("        <p>State ID: ").append(topic.getState_id()).append("</p>\n");
+				        htmlCode.append("        <p style=\"font-size: 25px;\">Title: ").append(topic.getTitle()).append("</p>\n");
+				        htmlCode.append("    </div>\n");
+				    }
+				    htmlCode.append("</body>\n");
+				    htmlCode.append(script);
+				    htmlCode.append("</html>");
+				    return htmlCode.toString();
+				}
+
 }
