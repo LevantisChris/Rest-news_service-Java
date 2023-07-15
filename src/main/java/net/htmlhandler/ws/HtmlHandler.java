@@ -2563,7 +2563,7 @@ public class HtmlHandler {
 		                    + temp_check_boxes
 		                    + "    <label for=\"sortByName\">\r\n"
 		                    + "      <input type=\"checkbox\" id=\"sortByName\" name=\"sortByName\" value=\"true\" onclick=\"handleCheckbox(this)\">\r\n"
-		                    + "      Sort by Name\r\n"
+		                    + "      Sort by Title\r\n"
 		                    + "    </label>\r\n"
 		                    + "    <br>\r\n"
 		                    + "    <input type=\"hidden\" id=\"name\" name=\"name\" value=\"" + name + "\">\r\n"
@@ -2584,7 +2584,7 @@ public class HtmlHandler {
 				                + "    <title>Topics Not Found</title>\n"
 				                + "</head>\n"
 				                + "<body>\n"
-				                + "    <h1>ARTICLES_NOT_FOUND</h1>\n"
+				                + "    <h1>TOPICS_NOT_FOUND</h1>\n"
 				                + "</body>\n"
 				                + "</html>";
 
@@ -2616,15 +2616,14 @@ public class HtmlHandler {
 				            + "        state: state,\n"
 				            + "        startDate: startDate,\n"
 				            + "        endDate: endDate,\n"
-				            + "        topics: " + topicArray.toString() + "\n"  // Include the topics JSON array
+				            + "        topics: " + topicArray.toString() + "\n" 
 				            + "    };\n"
 				            + "    var xhr = new XMLHttpRequest();\n"
 				            + "    xhr.open('POST', '/RESTstart/rest/auth/auth_user/displayAll_topic/filAp', true);\n"
 				            + "    xhr.setRequestHeader('Content-Type', 'application/json');\n"
 				            + "    xhr.onreadystatechange = function() {\n"
 				            + "        if (xhr.readyState === 4 && xhr.status === 200) {\n"
-				            /*+ "            document.getElementById('text').textContent = xhr.responseText;\n"*/
-				            + "				 alert(xhr.responseText)"			  
+				            + "            document.body.innerHTML = xhr.responseText;\n" 	  
 				            + "        }\n"
 				            + "    };\n"
 				            + "    xhr.send(JSON.stringify(jsonData));\n"
@@ -2638,7 +2637,7 @@ public class HtmlHandler {
 				    htmlCode.append("<head>\n");
 				    htmlCode.append("    <title>Topics</title>\n");
 				    htmlCode.append("    <style>\n");
-				    htmlCode.append("        .article {\n");
+				    htmlCode.append("        .topic {\n");
 				    htmlCode.append("            margin-bottom: 20px;\n");
 				    htmlCode.append("            padding: 10px;\n");
 				    htmlCode.append("            border: 1px solid #ccc;\n");
@@ -2659,9 +2658,7 @@ public class HtmlHandler {
 				    htmlCode.append("            <input type=\"text\" id=\"state\" name=\"state\" list=\"stateOptions\">\n");
 				    htmlCode.append("            <datalist id=\"stateOptions\">\n");
 				    htmlCode.append("                <option value=\"1\">\n");
-				    htmlCode.append("                <option value=\"2\">\n");
 				    htmlCode.append("                <option value=\"3\">\n");
-				    htmlCode.append("                <option value=\"4\">\n");
 				    htmlCode.append("            </datalist>\n");
 				    htmlCode.append("            <label for=\"startDate\">Start date:</label>\n");
 				    htmlCode.append("            <input type=\"date\" id=\"startDate\" name=\"startDate\">\n");

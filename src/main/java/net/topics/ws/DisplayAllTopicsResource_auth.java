@@ -144,10 +144,32 @@ public class DisplayAllTopicsResource_auth {
 
 			/* Here we extract the numbers (IDs) */
 			topics = fixArrayList(topics);
-		
 			
-			
-	    	return Response.ok("OK!!!!!!").build();
+			if(startDate.isEmpty() && !endDate.isEmpty()) {
+				return Response.ok("ADD_START_DATE").build(); 
+			} else if(!startDate.isEmpty() && endDate.isEmpty()) {
+				return Response.ok("ADD_END_DATE").build(); 
+			} else if(!state.isEmpty() && startDate.isEmpty() && endDate.isEmpty()) { // if the user has only add the //state//
+				ArrayList<Topic> filtered_topics = filterArrayWithState(topics, Integer.parseInt(state));
+				return Response.status(Response.Status.OK)
+		                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_TOPICS_auth(clickedByName, role, filtered_topics))
+		                .type(MediaType.TEXT_HTML)
+		                .build();
+			} else if(state.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()){ // the user has add only the two //dates//
+				ArrayList<Topic> filtered_topics = filterArrayWithDate(topics, startDate, endDate);
+				return Response.status(Response.Status.OK)
+		                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_TOPICS_auth(clickedByName, role, filtered_topics))
+		                .type(MediaType.TEXT_HTML)
+		                .build();
+			} else if(!state.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()) {
+				ArrayList<Topic> filtered_topics = filterArrayWithStateAndDate(topics, Integer.parseInt(state), startDate, endDate);
+				return Response.status(Response.Status.OK)
+		                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_TOPICS_auth(clickedByName, role, filtered_topics))
+		                .type(MediaType.TEXT_HTML)
+		                .build();
+			} else {
+				return Response.ok("NOT_FILTERS_ADDED").build(); 
+			}
 		} catch (Exception e) {
 	        System.out.println("SERVER STATUS: --ERROR-- in parsing JSON");
 	        e.printStackTrace();
@@ -156,6 +178,185 @@ public class DisplayAllTopicsResource_auth {
 	}
 
 	/*-------------------------------------------------------------------------------------------------*/
+
+	private ArrayList<Topic> filterArrayWithStateAndDate(ArrayList<String> topics, int state, String startDate, String endDate) {
+		ArrayList<Topic> filtered_topics = new ArrayList<>();
+		
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    String selectQuery;
+	    Connection connection = null;
+	    PreparedStatement selectStatement = null;
+	    ResultSet resultSet = null;
+	    
+	    selectQuery = "SELECT ID, TITLE, DATE_CREATION, STATE_ID, CREATOR_USERNAME, PARENT_TOPIC_ID FROM news_db.topic WHERE ID = ? AND STATE_ID = ? AND DATE_CREATION >= ? AND DATE_CREATION <= ?;";
+	    
+	    try {
+	    	
+	    	connection = DriverManager.getConnection(url, username_DB, passwd);
+	        System.out.println("\nSERVER STATUS: Connected to the database...");
+		    
+	        for(int i = 0;i < topics.size();i++) {
+	        	selectStatement = connection.prepareStatement(selectQuery);
+		    	selectStatement.setInt(1, Integer.parseInt(topics.get(i)));
+		    	selectStatement.setInt(2, state);
+		    	selectStatement.setString(3, startDate);
+		    	selectStatement.setString(4, endDate);
+		    	resultSet = selectStatement.executeQuery();
+		    	if(resultSet != null) {
+			        while(resultSet.next()) {
+			        	int topic_Id = resultSet.getInt("ID");
+			        	String topic_Title = resultSet.getString("TITLE");
+			        	Date topic_DateCreation = resultSet.getDate("DATE_CREATION");
+			        	int topic_StateId = resultSet.getInt("STATE_ID");
+			        	String topic_CreatorUsername = resultSet.getString("CREATOR_USERNAME");
+			        	int topic_Parent_topic_id = resultSet.getInt("PARENT_TOPIC_ID");
+			        	filtered_topics.add(new Topic(topic_Id, topic_Title, 
+			        			topic_DateCreation, topic_StateId, 
+			        			topic_CreatorUsername ,topic_Parent_topic_id));
+			        }
+		    	}
+	        }
+		    	return filtered_topics;
+	    } catch(SQLException e) {
+	    	System.out.println("SERVER STATUS: --ERROR-- IN THE filterArrayWithStateAndDate");
+	    	e.printStackTrace();
+	    	return null;
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
+	
+	private ArrayList<Topic> filterArrayWithDate(ArrayList<String> topics, String startDate, String endDate) {
+		ArrayList<Topic> filtered_topics = new ArrayList<>();
+		
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    String selectQuery;
+	    Connection connection = null;
+	    PreparedStatement selectStatement = null;
+	    ResultSet resultSet = null;
+	    
+	    selectQuery = "SELECT ID, TITLE, DATE_CREATION, STATE_ID, CREATOR_USERNAME, PARENT_TOPIC_ID FROM news_db.topic WHERE ID = ? AND DATE_CREATION >= ? AND DATE_CREATION <= ?;";
+	    
+	    try {
+	    	
+	    	connection = DriverManager.getConnection(url, username_DB, passwd);
+	        System.out.println("\nSERVER STATUS: Connected to the database...");
+		    
+	        for(int i = 0;i < topics.size();i++) {
+	        	selectStatement = connection.prepareStatement(selectQuery);
+		    	selectStatement.setInt(1, Integer.parseInt(topics.get(i)));
+		    	selectStatement.setString(2, startDate);
+		    	selectStatement.setString(3, endDate);
+		    	resultSet = selectStatement.executeQuery();
+		    	if(resultSet != null) {
+			        while(resultSet.next()) {
+			        	int topic_Id = resultSet.getInt("ID");
+			        	String topic_Title = resultSet.getString("TITLE");
+			        	Date topic_DateCreation = resultSet.getDate("DATE_CREATION");
+			        	int topic_StateId = resultSet.getInt("STATE_ID");
+			        	String topic_CreatorUsername = resultSet.getString("CREATOR_USERNAME");
+			        	int topic_Parent_topic_id = resultSet.getInt("PARENT_TOPIC_ID");
+			        	filtered_topics.add(new Topic(topic_Id, topic_Title, 
+			        			topic_DateCreation, topic_StateId, 
+			        			topic_CreatorUsername ,topic_Parent_topic_id));
+			        }
+		    	}
+	        }
+		    	return filtered_topics;
+	    } catch(SQLException e) {
+	    	System.out.println("SERVER STATUS: --ERROR-- IN THE filterArrayWithDate");
+	    	e.printStackTrace();
+	    	return null;
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
+	
+	/* NOTE: Here we filtered the array based on the STATE the user provided. We don't need to further do a categorization between the roles that called the function
+	 * because the list we get is already filtered */
+	private ArrayList<Topic> filterArrayWithState(ArrayList<String> topics, int state) {
+		ArrayList<Topic> filtered_topics = new ArrayList<>();
+		
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    String selectQuery;
+	    Connection connection = null;
+	    PreparedStatement selectStatement = null;
+	    ResultSet resultSet = null;
+	    
+	    selectQuery = "SELECT ID, TITLE, DATE_CREATION, STATE_ID, CREATOR_USERNAME, PARENT_TOPIC_ID FROM news_db.topic WHERE ID = ? AND STATE_ID = ?;";
+	    
+	    try {
+	    	
+	    	connection = DriverManager.getConnection(url, username_DB, passwd);
+	        System.out.println("\nSERVER STATUS: Connected to the database...");
+		    
+	        for(int i = 0;i < topics.size();i++) {
+	        	selectStatement = connection.prepareStatement(selectQuery);
+		    	selectStatement.setInt(1, Integer.parseInt(topics.get(i)));
+		    	selectStatement.setInt(2, state);
+		    	resultSet = selectStatement.executeQuery();
+		    	if(resultSet != null) {
+			        while(resultSet.next()) {
+			        	int topic_Id = resultSet.getInt("ID");
+			        	String topic_Title = resultSet.getString("TITLE");
+			        	Date topic_DateCreation = resultSet.getDate("DATE_CREATION");
+			        	int topic_StateId = resultSet.getInt("STATE_ID");
+			        	String topic_CreatorUsername = resultSet.getString("CREATOR_USERNAME");
+			        	int topic_Parent_topic_id = resultSet.getInt("PARENT_TOPIC_ID");
+			        	filtered_topics.add(new Topic(topic_Id, topic_Title, 
+			        			topic_DateCreation, topic_StateId, 
+			        			topic_CreatorUsername ,topic_Parent_topic_id));
+			        }
+		    	}
+	        }
+		    	return filtered_topics;
+	    } catch(SQLException e) {
+	    	System.out.println("SERVER STATUS: --ERROR-- IN THE filterArrayWithState");
+	    	e.printStackTrace();
+	    	return null;
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
 	
 	/* NOTE: The arraylist contains Strings like this {"id":14} we want to get only the number */
 	private ArrayList<String> fixArrayList(ArrayList<String> topics) {
@@ -209,18 +410,18 @@ public class DisplayAllTopicsResource_auth {
 		    
 	        if(role.equals("JOURNALIST")) { // is JOURNALIST
 	        	if(CLICKED.equals("sortByState"))
-	        		selectQuery = "SELECT ID, TITLE, DATE_CREATION, STATE_ID, CREATOR_USERNAME, PARENT_TOPIC_ID FROM news_db.topic WHERE STATE_ID = 3 OR CREATOR_USERNAME = ? ORDER BY STATE_ID;";
+	        		selectQuery = "SELECT ID, TITLE, DATE_CREATION, STATE_ID, CREATOR_USERNAME, PARENT_TOPIC_ID FROM news_db.topic WHERE STATE_ID = 3 OR CREATOR_USERNAME = ? ORDER BY STATE_ID DESC;";
 	        	else 
-	        		selectQuery = "SELECT ID, TITLE, DATE_CREATION, STATE_ID, CREATOR_USERNAME, PARENT_TOPIC_ID FROM news_db.topic WHERE STATE_ID = 3 OR CREATOR_USERNAME = ? ORDER BY TITLE;";
+	        		selectQuery = "SELECT ID, TITLE, DATE_CREATION, STATE_ID, CREATOR_USERNAME, PARENT_TOPIC_ID FROM news_db.topic WHERE STATE_ID = 3 OR CREATOR_USERNAME = ? ORDER BY TITLE DESC;";
 	        	
 	        	selectStatement = connection.prepareStatement(selectQuery);
 		    	selectStatement.setString(1, username);
 		    	resultSet = selectStatement.executeQuery();
 	        } else { // is a Curator	
 	        	if(CLICKED.equals("sortByState"))
-	        		selectQuery = "SELECT ID, TITLE, DATE_CREATION, STATE_ID, CREATOR_USERNAME, PARENT_TOPIC_ID FROM news_db.topic ORDER BY STATE_ID;"; // can see everything
+	        		selectQuery = "SELECT ID, TITLE, DATE_CREATION, STATE_ID, CREATOR_USERNAME, PARENT_TOPIC_ID FROM news_db.topic ORDER BY STATE_ID DESC;"; // can see everything
 	        	else 
-	        		selectQuery = "SELECT ID, TITLE, DATE_CREATION, STATE_ID, CREATOR_USERNAME, PARENT_TOPIC_ID FROM news_db.topic ORDER BY TITLE;"; // can see everything
+	        		selectQuery = "SELECT ID, TITLE, DATE_CREATION, STATE_ID, CREATOR_USERNAME, PARENT_TOPIC_ID FROM news_db.topic ORDER BY TITLE DESC;"; // can see everything
 	        	selectStatement = connection.prepareStatement(selectQuery);
 		    	resultSet = selectStatement.executeQuery();
 	        }
@@ -241,6 +442,18 @@ public class DisplayAllTopicsResource_auth {
 	    	System.out.println("SERVER STATUS: --ERROR-- IN THE getTopicsAtStart");
 	    	e.printStackTrace();
 	    	return null;
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
 	    }
 		
 	}
