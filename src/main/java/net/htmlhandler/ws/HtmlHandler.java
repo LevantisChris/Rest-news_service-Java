@@ -165,7 +165,7 @@ public class HtmlHandler {
 			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayCommentsOfArticle_comment?role=" + "VISITOR" + "\">Display comments of an Article</a>\n" +
 	              "    <hr>\n" +
 			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/display_topic?role=" + "VISITOR" + "\">Display Topic</a>\n" +
-	              "    <a class=\"link\" href=\"#\">Display all the Topics</a>\n" +
+			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayAll_topic?role=" + "VISITOR" + "\">Display all the Topics</a>\n" +
 	              "    <a class=\"link\" href=\"#\">Search Topics</a>\n" +
 	              "  </div>\n" +
 	              "</body>\n" +
@@ -2599,36 +2599,60 @@ public class HtmlHandler {
 				        topicArray.add(topicObject);
 				    }
 
-				    String script = "<script>\n"
-				            + "function filterTopics() {\n"
-				            + "    console.log('filterTopics CALLED')\n"
-				            + "    var clickedByName = document.getElementById('clickedByName').value;\n"
-				            + "    console.log('1 okk')\n"
-				            + "    var state = document.getElementById('state').value;\n"
-				            + "    console.log('2 okk')\n"
-				            + "    var startDate = document.getElementById('startDate').value;\n"
-				            + "    console.log('3 okk')\n"
-				            + "    var endDate = document.getElementById('endDate').value;\n"
-				            + "    console.log('4 okk')\n"
-				            + "    var jsonData = {\n"
-				            + "        clickedByName: clickedByName,\n"
-				            + "        role: '" + role + "',\n"
-				            + "        state: state,\n"
-				            + "        startDate: startDate,\n"
-				            + "        endDate: endDate,\n"
-				            + "        topics: " + topicArray.toString() + "\n" 
-				            + "    };\n"
-				            + "    var xhr = new XMLHttpRequest();\n"
-				            + "    xhr.open('POST', '/RESTstart/rest/auth/auth_user/displayAll_topic/filAp', true);\n"
-				            + "    xhr.setRequestHeader('Content-Type', 'application/json');\n"
-				            + "    xhr.onreadystatechange = function() {\n"
-				            + "        if (xhr.readyState === 4 && xhr.status === 200) {\n"
-				            + "            document.body.innerHTML = xhr.responseText;\n" 	  
-				            + "        }\n"
-				            + "    };\n"
-				            + "    xhr.send(JSON.stringify(jsonData));\n"
-				            + "}\n"
-				            + "</script>";
+				    String script;
+				    if(!role.equals("VISITOR")) {
+				    	script = "<script>\n"
+					            + "function filterTopics() {\n"
+					            + "    console.log('filterTopics CALLED')\n"
+					            + "    var clickedByName = document.getElementById('clickedByName').value;\n"
+					            + "    var state = document.getElementById('state').value;\n"
+					            + "    var startDate = document.getElementById('startDate').value;\n"
+					            + "    var endDate = document.getElementById('endDate').value;\n"
+					            + "    var jsonData = {\n"
+					            + "        clickedByName: clickedByName,\n"
+					            + "        role: '" + role + "',\n"
+					            + "        state: state,\n"
+					            + "        startDate: startDate,\n"
+					            + "        endDate: endDate,\n"
+					            + "        topics: " + topicArray.toString() + "\n" 
+					            + "    };\n"
+					            + "    var xhr = new XMLHttpRequest();\n"
+					            + "    xhr.open('POST', '/RESTstart/rest/auth/auth_user/displayAll_topic/filAp', true);\n"
+					            + "    xhr.setRequestHeader('Content-Type', 'application/json');\n"
+					            + "    xhr.onreadystatechange = function() {\n"
+					            + "        if (xhr.readyState === 4 && xhr.status === 200) {\n"
+					            + "            document.body.innerHTML = xhr.responseText;\n" 	  
+					            + "        }\n"
+					            + "    };\n"
+					            + "    xhr.send(JSON.stringify(jsonData));\n"
+					            + "}\n"
+					            + "</script>";
+				    } else {
+				    	script = "<script>\n"
+					            + "function filterTopics() {\n"
+					            + "    console.log('filterTopics CALLED')\n"
+					            + "    var clickedByName = document.getElementById('clickedByName').value;\n"
+					            + "    var startDate = document.getElementById('startDate').value;\n"
+					            + "    var endDate = document.getElementById('endDate').value;\n"
+					            + "    var jsonData = {\n"
+					            + "        clickedByName: clickedByName,\n"
+					            + "        role: '" + role + "',\n"
+					            + "        startDate: startDate,\n"
+					            + "        endDate: endDate,\n"
+					            + "        topics: " + topicArray.toString() + "\n" 
+					            + "    };\n"
+					            + "    var xhr = new XMLHttpRequest();\n"
+					            + "    xhr.open('POST', '/RESTstart/rest/auth/not_auth_user/displayAll_topic/filAp', true);\n"
+					            + "    xhr.setRequestHeader('Content-Type', 'application/json');\n"
+					            + "    xhr.onreadystatechange = function() {\n"
+					            + "        if (xhr.readyState === 4 && xhr.status === 200) {\n"
+					            + "            document.body.innerHTML = xhr.responseText;\n" 	  
+					            + "        }\n"
+					            + "    };\n"
+					            + "    xhr.send(JSON.stringify(jsonData));\n"
+					            + "}\n"
+					            + "</script>";
+				    }                 
 
 				    StringBuilder htmlCode = new StringBuilder();
 
@@ -2654,12 +2678,14 @@ public class HtmlHandler {
 				    htmlCode.append("        <div id=\"Filters\" style=\"border: 1px solid #ccc;\">\n");
 				    htmlCode.append("            <input type=\"hidden\" id=\"clickedByName\" name=\"clickedByName\" value=\"").append(clickedByName).append("\">\n");
 				    htmlCode.append("            <input type=\"hidden\" id=\"role\" name=\"role\" value=\"").append(role).append("\">\n");
-				    htmlCode.append("            <label for=\"state\">State of Topic:</label>\n");
-				    htmlCode.append("            <input type=\"text\" id=\"state\" name=\"state\" list=\"stateOptions\">\n");
-				    htmlCode.append("            <datalist id=\"stateOptions\">\n");
-				    htmlCode.append("                <option value=\"1\">\n");
-				    htmlCode.append("                <option value=\"3\">\n");
-				    htmlCode.append("            </datalist>\n");
+				    if(!role.equals("VISITOR") ) {
+					    htmlCode.append("            <label for=\"state\">State of Topic:</label>\n");
+					    htmlCode.append("            <input type=\"text\" id=\"state\" name=\"state\" list=\"stateOptions\">\n");
+					    htmlCode.append("            <datalist id=\"stateOptions\">\n");
+					    htmlCode.append("                <option value=\"1\">\n");
+					    htmlCode.append("                <option value=\"3\">\n");
+					    htmlCode.append("            </datalist>\n");
+				    }
 				    htmlCode.append("            <label for=\"startDate\">Start date:</label>\n");
 				    htmlCode.append("            <input type=\"date\" id=\"startDate\" name=\"startDate\">\n");
 				    htmlCode.append("            <label for=\"endDate\">End date:</label>\n");
@@ -2668,7 +2694,10 @@ public class HtmlHandler {
 				    htmlCode.append("        <p></p>\n");
 				    htmlCode.append("            <button class=\"submit-button\" onclick=\"filterTopics()\">Submit</button>\n");
 				    htmlCode.append("    <p></p>");
-				    htmlCode.append("	<div style=\"text-align: right; padding: 10px;\">Log in as: ").append(clickedByName).append("</div>\n");
+				    if(!role.equals("VISITOR"))
+				    	htmlCode.append("	<div style=\"text-align: right; padding: 10px;\">Log in as: ").append(clickedByName).append("</div>\n");
+				    else 
+				    	htmlCode.append("	<div style=\"text-align: right; padding: 10px;\">Log in as: ").append("Visitor").append("</div>\n");
 
 				    /*htmlCode.append("    	<div class=\"response-div\">\n");
 				    htmlCode.append("        	<p id=\"text\"></p>\n");

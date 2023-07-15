@@ -35,12 +35,10 @@ public class DisplayAllArticlesResourceResource_notAuth {
 		int ROLE_ID;
 		if(role.equals("VISITOR")) {
 			ROLE_ID = 1;
-			
 			return Response.status(Response.Status.OK)
 	                .entity(HtmlHandler.getStartOptionsHTML("null", role))
 	                .type(MediaType.TEXT_HTML)
-	                .build();
-			
+	                .build();			
 		} else { // if someone else get here we have a problem ...
 			return Response.serverError().build();
 		}
@@ -143,10 +141,7 @@ public class DisplayAllArticlesResourceResource_notAuth {
 	    	connection = DriverManager.getConnection(url, username_DB, passwd);
 	        System.out.println("\nSERVER STATUS: Connected to the database...");
 		   
-	        if(CLICKED.equals("sortByState"))
-        		selectQuery = "SELECT ID, TITLE, CONTENT, DATE_CREATION, STATE_ID, CREATOR_USERNAME FROM articles WHERE STATE_ID = 4 ORDER BY STATE_ID;";
-        	else 
-        		selectQuery = "SELECT ID, TITLE, CONTENT, DATE_CREATION, STATE_ID, CREATOR_USERNAME FROM articles WHERE STATE_ID = 4 ORDER BY DATE_CREATION;";
+        	selectQuery = "SELECT ID, TITLE, CONTENT, DATE_CREATION, STATE_ID, CREATOR_USERNAME FROM articles WHERE STATE_ID = 4 ORDER BY DATE_CREATION DESC;";
 	        
 	        selectStatement = connection.prepareStatement(selectQuery);
 	    	resultSet = selectStatement.executeQuery();

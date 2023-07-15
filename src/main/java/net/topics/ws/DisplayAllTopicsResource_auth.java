@@ -2,6 +2,7 @@ package net.topics.ws;
 
 import net.topics.ws.manage_topics.Topic;
 
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -23,7 +24,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.articles.ws.manage_articles.Article;
 import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
 
@@ -33,7 +33,7 @@ public class DisplayAllTopicsResource_auth {
 	@GET
 	@Consumes(MediaType.TEXT_PLAIN)
 	public Response handleKeyPhrasesAuthUserArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
-		System.out.println("SERVER STATUS: DISPLAY ALL TOPICS CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		System.out.println("SERVER STATUS: DISPLAY ALL TOPICS (auth_user) CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		int ROLE_ID;
 		try {
 			if(role.equals("VISITOR")) { // if a visitor gets here we have a problem ...
@@ -73,7 +73,7 @@ public class DisplayAllTopicsResource_auth {
 	) {
 		System.out.println("PRINT BY NAME --> " + name);
 		System.out.println("PRINT BY role --> " + role);
-	    if(sortByState == true && sortByName == true) {
+	    if(sortByState == false && sortByName == false) {
 	    	return Response.ok("CLICK_ONLY_ONE_CHECKBOX").build();
 	    }
 
@@ -111,7 +111,7 @@ public class DisplayAllTopicsResource_auth {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response handleFilters(String JSON) {
 		
-		System.out.println("SERVER STTUS: IN handleFilters in TOPICS JSON RECEIVED --> " + JSON);
+		System.out.println("SERVER STTUS: IN handleFilters (auth_user) in TOPICS JSON RECEIVED --> " + JSON);
 		String clickedByName = null;
 		String role = null;
 		String state = null;
