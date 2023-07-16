@@ -166,7 +166,7 @@ public class HtmlHandler {
 	              "    <hr>\n" +
 			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/display_topic?role=" + "VISITOR" + "\">Display Topic</a>\n" +
 			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayAll_topic?role=" + "VISITOR" + "\">Display all the Topics</a>\n" +
-	              "    <a class=\"link\" href=\"#\">Search Topics</a>\n" +
+			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/search_topic?role=" + "VISITOR" + "\">Search topics</a>\n" +
 	              "  </div>\n" +
 	              "</body>\n" +
 	              "</html>";
@@ -2892,7 +2892,7 @@ public class HtmlHandler {
                 + "         <h2>Enter the key phrase for the title of the topic/topics you want to search</h2>"   
                 + temp_username
                 + "\n"
-                + "            <label for=\"titleKeyPhrases\">Title Key Phrases:</label>\n"
+                + "            <label for=\"titleKeyPhrases\"><p>Title Key Phrases:</label>\n"
                 + "            <br>\n"
                 + "            <textarea id=\"titleKeyPhrases\" name=\"titleKeyPhrases\" rows=\"5\" cols=\"30\"></textarea>\n"
                 + "            <br>\n"
@@ -2912,10 +2912,10 @@ public class HtmlHandler {
                 String htmlCode = "<!DOCTYPE html>\n"
                         + "<html>\n"
                         + "<head>\n"
-                        + "    <title>Articles Not Found</title>\n"
+                        + "    <title>Topics Not Found</title>\n"
                         + "</head>\n"
                         + "<body>\n"
-                        + "    <h1>ARTICLES_NOT_FOUND</h1>\n"
+                        + "    <h1>TOPICS_NOT_FOUND</h1>\n"
                         + "</body>\n"
                         + "</html>";
 
@@ -2927,9 +2927,9 @@ public class HtmlHandler {
             htmlCode.append("<!DOCTYPE html>\n");
             htmlCode.append("<html>\n");
             htmlCode.append("<head>\n");
-            htmlCode.append("    <title>Articles</title>\n");
+            htmlCode.append("    <title>Topics</title>\n");
             htmlCode.append("    <style>\n");
-            htmlCode.append("        .article {\n");
+            htmlCode.append("        .topic {\n");
             htmlCode.append("            margin-bottom: 20px;\n");
             htmlCode.append("            padding: 10px;\n");
             htmlCode.append("            border: 1px solid #ccc;\n");
@@ -2945,11 +2945,12 @@ public class HtmlHandler {
             htmlCode.append("<body>\n");
 
             for (Topic topic : GOAL_TOPICS) {
-                /*htmlCode.append("    <div class=\"article\">\n");
+                htmlCode.append("    <div class=\"topic\">\n");
                 htmlCode.append("        <h2>ID: ").append(topic.getId()).append("</h2>\n");
-                htmlCode.append("        <p>Title: ").append(article.getTitle()).append("</p>\n");
-                htmlCode.append("        <p>Content: ").append(article.getContents()).append("</p>\n");
-                htmlCode.append("    </div>\n");*/
+                htmlCode.append("        <p>State ID: ").append(topic.getState_id()).append("</p>\n");
+                htmlCode.append("        <p>Cretor username: ").append(topic.getCreator_username()).append("</p>\n");
+                htmlCode.append("        <p>Title: ").append(topic.getTitle()).append("</p>\n");
+                htmlCode.append("    </div>\n");
             }
 
             htmlCode.append("</body>\n");

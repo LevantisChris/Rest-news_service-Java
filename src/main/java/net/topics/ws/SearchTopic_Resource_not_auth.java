@@ -14,43 +14,24 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
 import net.topics.ws.manage_topics.Topic;
 
-@Path("/auth/auth_user/search_topic")
-public class SearchTopicResource_auth {
-
+@Path("/auth/not_auth_user/search_topic")
+public class SearchTopic_Resource_not_auth {
+	
 	@GET
-	public Response handleKeyPhrasesAuthUserArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
-		System.out.println("SERVER STATUS: SEARCH TOPIC (auth_user) CALLED BY USERNAME == " + username + " - ROLE == " + role);
+	public Response handleKeyPhrasesNotAuthUserArticles(@QueryParam("role") String role) {
+		System.out.println("SERVER STATUS: SEARCH TOPIC (not_auth) CALLED BY USERNAME == " + "--NULL--" + " - ROLE == " + role);
 		int ROLE_ID;
-		try {
-			if(role.equals("VISITOR")) { // if a visitor gets here we have a problem ...
-				ROLE_ID = 1;
-				return Response.serverError().build();
-			} else if(role.equals("JOURNALIST")) {
-				System.out.println("SERVER STATUS: ROLE: --JOURNALIST-- IN THE SEARCH TOPIC");
-				ROLE_ID = 2;
-				
-				return Response.status(Response.Status.OK)
-                .entity(HtmlHandler.getSEARCH_TOPIC_KEY_PHRASES_HTML(username, role, ROLE_ID))
-                .type(MediaType.TEXT_HTML)
-                .build();
-				
-			} else if(role.equals("CURATOR")){
-				System.out.println("SERVER STATUS: ROLE: --CURATOR-- IN THE SEARCH TOPIC");
-				ROLE_ID = 3;
-				
-				return Response.status(Response.Status.OK)
-		                .entity(HtmlHandler.getSEARCH_TOPIC_KEY_PHRASES_HTML(username, role, ROLE_ID))
-		                .type(MediaType.TEXT_HTML)
-		                .build();
-				
-			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
-		} catch(NotIdentifiedRole e) {
-			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+		if(role.equals("VISITOR")) {
+			ROLE_ID = 1;
+			return Response.status(Response.Status.OK)
+	                .entity(HtmlHandler.getSEARCH_TOPIC_KEY_PHRASES_HTML("Visitor", role, ROLE_ID))
+	                .type(MediaType.TEXT_HTML)
+	                .build();
+		} else { // if someone else get here we have a problem ...
+			return Response.serverError().build();
 		}
 	}
 	
@@ -63,13 +44,13 @@ public class SearchTopicResource_auth {
 	    System.out.println("role --> " + role);
 	    System.out.println("titleKeyPhrases --> " + titleKeyPhrases);
 
-	    if(username == null || role == null || titleKeyPhrases == null) { // If something is null return error
+	    if(role == null || titleKeyPhrases == null) { // If something is null return error
 	    	return Response.serverError().build();
 	    } else if(titleKeyPhrases.isEmpty()) { // if the key is empty we can not proceed
 	    	return Response.ok("KEY_IS_EMPTY").build();
 	    } else { 
 	    	if(hasWords(titleKeyPhrases) == false) {
-	    		ArrayList<Topic> GOAL_TOPICS = searchOneWord(username, role, titleKeyPhrases);
+	    		ArrayList<Topic> GOAL_TOPICS = searchOneWord(titleKeyPhrases);
 	    		printTopicsGet(GOAL_TOPICS);
 	    		return Response.status(Response.Status.OK)
 		                .entity(HtmlHandler.getTopicsFromSEARCH_ARTICLES(GOAL_TOPICS))
@@ -77,7 +58,7 @@ public class SearchTopicResource_auth {
 		                .build();
 	    	} else if(hasWords(titleKeyPhrases) == true) {
 	    		ArrayList<String> titleKeyPhrasesArray = splitStrings(titleKeyPhrases);
-	    		ArrayList<Topic> GOAL_TOPICS = searchTwoWord(username, role, titleKeyPhrasesArray);
+	    		ArrayList<Topic> GOAL_TOPICS = searchTwoWord(username, role, titleKeyPhrasesArray);		
 	    		printTopicsGet(GOAL_TOPICS);
 	    		return Response.status(Response.Status.OK)
 		                .entity(HtmlHandler.getTopicsFromSEARCH_ARTICLES(GOAL_TOPICS))
@@ -88,9 +69,8 @@ public class SearchTopicResource_auth {
 	    	}
 	    }
 	}
-
 	
-	/*---------------------------------------------------------------------------------------------------------------------------------------*/
+	/*------------------------------------------------------------------------------------------------------------------------*/
 	
 	private void printTopicsGet(ArrayList<Topic> topics) {
 		System.out.println("------------------------------------------------");
@@ -117,42 +97,21 @@ public class SearchTopicResource_auth {
 	    	connection = DriverManager.getConnection(url, username_DB, passwd);
     		System.out.println("\nSERVER STATUS: Connected to the database...");
 	    	
-	    	if(role.equals("JOURNALIST")) {
-	    	    selectQuery = "SELECT ID, TITLE, DATE_CREATION, "
-		    	    		+ "STATE_ID, CREATOR_USERNAME, "
-		    	    		+ "PARENT_TOPIC_ID "
-		    	    		+ "FROM news_db.topic "
-		    	    		+ "WHERE (STATE_ID = 3 OR CREATOR_USERNAME = ?)";
-	    	    
-	    	    for(int i = 0;i < titleKeyPhrasesArray.size();i++) {
-	    	    	selectQuery = selectQuery + " AND TITLE LIKE ?";
-	    	    }
-	    	    
-	    	    selectStatement = connection.prepareStatement(selectQuery);
-		    	selectStatement.setString(1, username);
-		    	for(int i = 0;i < titleKeyPhrasesArray.size();i++) {
-		    		selectStatement.setString(i + 2, "%" + titleKeyPhrasesArray.get(i) + "%");
-		    	}
-		    	resultSet = selectStatement.executeQuery();
-	    	} else if(role.equals("CURATOR")) {
-	    		selectQuery = "SELECT ID, TITLE, DATE_CREATION, "
-	    	    		+ "STATE_ID, CREATOR_USERNAME, "
-	    	    		+ "PARENT_TOPIC_ID "
-	    	    		+ "FROM news_db.topic "
-	    	    		+ "WHERE "; // The curator can see everything
-	    		selectQuery = selectQuery + " TITLE LIKE ?";
-	    	    for(int i = 1;i < titleKeyPhrasesArray.size();i++) {
-	    	    	selectQuery = selectQuery + " AND TITLE LIKE ?";
-	    	    }
-	    		
-	    	    selectStatement = connection.prepareStatement(selectQuery);
-	    	    for(int i = 0;i < titleKeyPhrasesArray.size();i++) {
-	    	    	selectStatement.setString(i + 1, "%" + titleKeyPhrasesArray.get(i) + "%");
-	    	    }
-		    	resultSet = selectStatement.executeQuery();
-	    	} else {
-	    		return null;
-	    	}
+    		selectQuery = "SELECT ID, TITLE, DATE_CREATION, "
+    	    		+ "STATE_ID, CREATOR_USERNAME, "
+    	    		+ "PARENT_TOPIC_ID "
+    	    		+ "FROM news_db.topic "
+    	    		+ "WHERE "; // The curator can see everything
+    		selectQuery = selectQuery + " TITLE LIKE ?";
+    	    for(int i = 1;i < titleKeyPhrasesArray.size();i++) {
+    	    	selectQuery = selectQuery + " AND TITLE LIKE ?";
+    	    }
+    		
+    	    selectStatement = connection.prepareStatement(selectQuery);
+    	    for(int i = 0;i < titleKeyPhrasesArray.size();i++) {
+    	    	selectStatement.setString(i + 1, "%" + titleKeyPhrasesArray.get(i) + "%");
+    	    }
+	    	resultSet = selectStatement.executeQuery();
 	    	
 	    	if(resultSet != null) {
 		        while(resultSet.next()) {
@@ -198,7 +157,7 @@ public class SearchTopicResource_auth {
 		return wordList;
 	}
 	
-	private ArrayList<Topic> searchOneWord(String username, String role, String keyPhrase) {
+	private ArrayList<Topic> searchOneWord(String keyPhrase) {
 		ArrayList<Topic> GOAL_TOPICS = new ArrayList<>();
 		
 		String url = "jdbc:mysql://localhost:3306/news_db";
@@ -214,31 +173,16 @@ public class SearchTopicResource_auth {
 	    	
 	    	connection = DriverManager.getConnection(url, username_DB, passwd);
     		System.out.println("\nSERVER STATUS: Connected to the database...");
-	    	
-	    	if(role.equals("JOURNALIST")) {
-	    	    selectQuery = "SELECT ID, TITLE, DATE_CREATION, "
-	    	    		+ "STATE_ID, CREATOR_USERNAME, "
-	    	    		+ "PARENT_TOPIC_ID "
-	    	    		+ "FROM news_db.topic "
-	    	    		+ "WHERE (STATE_ID = 3 OR CREATOR_USERNAME = ?) AND TITLE LIKE ?;";
-	    	    
-	    	    selectStatement = connection.prepareStatement(selectQuery);
-		    	selectStatement.setString(1, username);
-		    	selectStatement.setString(2, "%" + keyPhrase + "%");
-		    	resultSet = selectStatement.executeQuery();
-	    	} else if(role.equals("CURATOR")) {
-	    		selectQuery = "SELECT ID, TITLE, DATE_CREATION, "
-	    	    		+ "STATE_ID, CREATOR_USERNAME, "
-	    	    		+ "PARENT_TOPIC_ID "
-	    	    		+ "FROM news_db.topic "
-	    	    		+ "WHERE TITLE LIKE ?;"; // The curator can see everything
-	    	    
-	    	    selectStatement = connection.prepareStatement(selectQuery);
-		    	selectStatement.setString(1, "%" + keyPhrase + "%");
-		    	resultSet = selectStatement.executeQuery();
-	    	} else {
-	    		return null;
-	    	}
+    		
+	    	selectQuery = "SELECT ID, TITLE, DATE_CREATION, "
+    	    		+ "STATE_ID, CREATOR_USERNAME, "
+    	    		+ "PARENT_TOPIC_ID "
+    	    		+ "FROM news_db.topic "
+    	    		+ "WHERE STATE_ID = 3 AND TITLE LIKE ?;";
+    	    
+    	    selectStatement = connection.prepareStatement(selectQuery);
+	    	selectStatement.setString(1, "%" + keyPhrase + "%");
+	    	resultSet = selectStatement.executeQuery();
 	    	
 	    	if(resultSet != null) {
 		        while(resultSet.next()) {
@@ -284,4 +228,6 @@ public class SearchTopicResource_auth {
 			return true; // it has more than one word
 		}
 	}
+
+	
 }
