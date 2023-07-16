@@ -73,7 +73,7 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Modify topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display Topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display all the Topics</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Search Topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Search topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Create Topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Modify Topic</a>\n" +
 		        "  </div>\n" +
@@ -127,7 +127,7 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_topic?username=" + username + "&role=" + "CURATOR" + "\">Decline topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "CURATOR" + "\">Display Topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_topic?username=" + username + "&role=" + "CURATOR" + "\">Display all the Topics</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Search Topics</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_topic?username=" + username + "&role=" + "CURATOR" + "\">Search topic</a>\n" +
 		        "    <a class=\"link\" href=\"#\">Display Articles of a Topic</a>\n" +
 		        "  </div>\n" +
 		        "</body>\n" +
@@ -862,6 +862,12 @@ public class HtmlHandler {
 		        + "        form {\n"
 		        + "            margin-top: 20px;\n"
 		        + "        }\n"
+		        + "        textarea {\n"
+                + "            resize: none;\n"
+                + "            overflow: auto;\n"
+                + "            height: 150px;\n"
+                + "            width: 300px;\n"
+                + "        }\n"
 		        + "    </style>\n"
 		        + "</head>\n"
 		        + "<body>\n"
@@ -2718,4 +2724,237 @@ public class HtmlHandler {
 				    return htmlCode.toString();
 				}
 
+				
+		///This is for the search Topics
+		/*public static String getSEARCH_TOPIC_KEY_PHRASES_HTML(String username, int USER_ROLE_ID)	{
+			String temp_str, temp_username, temp_input;
+            if (USER_ROLE_ID == 1) {
+                 temp_str = "        <form action=\"/RESTstart/rest/auth/not_auth_user/search_topic/search\" method=\"get\">\n";
+                 temp_username = "<h2>The topics you see have state APPROVED (STATE_ID: 3)";
+                 temp_input = "";
+            } else if(USER_ROLE_ID == 2){ // Journalist can not see all the articles 
+                 temp_str = "        <form action=\"/RESTstart/rest/auth/auth_user/search_topic/search\" method=\"get\">\n";
+                 temp_username =  "        <h2>The topics you see belongs to " + username + " OR have state APPROVED (STATE_ID: 3)";
+                 temp_input = "    <input type=\"hidden\" name=\"username\" value=\"" + username + "\">\n";
+            } else { // Curator can see all the articles 
+                 temp_str = "        <form action=\"/RESTstart/rest/auth/auth_user/search_topic/search\" method=\"get\">\n";
+                 temp_username =  "        <h2>The topics you see belongs to " + username + " and have have all the states possible";
+                 temp_input = "    <input type=\"hidden\" name=\"username\" value=\"" + username + "\">\n";
+            }
+            String html_code = "<!DOCTYPE html>\n"
+                + "<html>\n"
+                + "<head>\n"
+                + "    <title>Search Topic</title>\n"
+                + "    <style>\n"
+                + "        body {\n"
+                + "            display: flex;\n"
+                + "            justify-content: center;\n"
+                + "            align-items: center;\n"
+                + "            height: 100vh;\n"
+                + "        }\n"
+                + "        .container {\n"
+                + "            text-align: center;\n"
+                + "        }\n"
+                + "        form {\n"
+                + "            margin-top: 20px;\n"
+                + "        }\n"
+                + "        textarea {\n"
+                + "            resize: none;\n"
+                + "            overflow: auto;\n"
+                + "            height: 150px;\n"
+                + "            width: 300px;\n"
+                + "        }\n"
+                + "    </style>\n"
+                + "</head>\n"
+                + "<body>\n"
+                + "    <div class=\"container\">\n"
+                + "        <h1>Search Topic</h1>\n"
+                + "         <h2>Enter the key phrase for the title of the topic/topics you want to search</h2>"   
+                + temp_username
+                + "\n"
+                + temp_str
+                + "            <label for=\"titleKeyPhrases\">Title Key Phrases:</label>\n"
+                + "            <br>\n"
+                + "            <textarea id=\"titleKeyPhrases\" name=\"titleKeyPhrases\" rows=\"5\" cols=\"30\"></textarea>\n"
+                + "            <br>\n"
+                + "\n"
+                + temp_input
+                + "            <button type=\"submit\">Search</button>\n"
+                + "        </form>\n"
+                + "    </div>\n"
+                + "</body>\n"
+                + "</html>";
+            return html_code;
+		}*/	
+		public static String getSEARCH_TOPIC_KEY_PHRASES_HTML(String username, String role, int USER_ROLE_ID)	{
+			String script_str, temp_username, temp_input;
+            if (USER_ROLE_ID == 1) { // Visitor
+            	script_str = "<script>"
+                        + "function searchTopic() {\r\n"
+                        + "    console.log('filterTopics CALLED');\r\n"
+                        + "    var titleKeyPhrases_ = document.getElementById('titleKeyPhrases').value;\r\n"
+                        + "\r\n"
+                        + "    var url = '/RESTstart/rest/auth/not_auth_user/search_topic/search?search?username=" + username + "&role=" + role + "&titleKeyPhrases=' + encodeURIComponent(titleKeyPhrases_);\r\n"
+                        + "\r\n"
+                        + "    var newWindow = window.open();"
+                        + "    var xhr = new XMLHttpRequest();\r\n"
+                        + "    xhr.open('GET', url, true);\r\n"
+                        + "    xhr.setRequestHeader('Content-Type', 'application/json');\r\n"
+                        + "    xhr.onreadystatechange = function() {\r\n"
+                        + "        if (xhr.readyState === 4 && xhr.status === 200) {\r\n"
+                        + "            newWindow.document.open();\r\n"
+                        + "            newWindow.document.write(xhr.responseText);\r\n"
+                        + "            newWindow.document.close();"
+                        + "        }\r\n"
+                        + "    };\r\n"
+                        + "    xhr.send();\r\n"
+                        + "}\r\n"
+                        + "</script>";
+                 temp_username = "<h2>The topics you see have state APPROVED (STATE_ID: 3)";
+                 temp_input = "";
+            } else if(USER_ROLE_ID == 2){ // Journalist can not see all the articles 
+            	script_str = "<script>"
+                        + "function searchTopic() {\r\n"
+                        + "    console.log('filterTopics CALLED');\r\n"
+                        + "    var titleKeyPhrases_ = document.getElementById('titleKeyPhrases').value;\r\n"
+                        + "\r\n"
+                        + "    var url = '/RESTstart/rest/auth/auth_user/search_topic/search?username=" + username + "&role=" + role + "&titleKeyPhrases=' + encodeURIComponent(titleKeyPhrases_);\r\n"
+                        + "\r\n"
+                        + "    var newWindow = window.open();"
+                        + "    var xhr = new XMLHttpRequest();\r\n"
+                        + "    xhr.open('GET', url, true);\r\n"
+                        + "    xhr.setRequestHeader('Content-Type', 'application/json');\r\n"
+                        + "    xhr.onreadystatechange = function() {\r\n"
+                        + "        if (xhr.readyState === 4 && xhr.status === 200) {\r\n"
+                        + "            newWindow.document.open();\r\n"
+                        + "            newWindow.document.write(xhr.responseText);\r\n"
+                        + "            newWindow.document.close();"
+                        + "        }\r\n"
+                        + "    };\r\n"
+                        + "    xhr.send();\r\n"
+                        + "}\r\n"
+                        + "</script>";
+                 temp_username =  "        <h2>The topics you see belongs to " + username + " OR have state APPROVED (STATE_ID: 3)";
+                 temp_input = "    <input type=\"hidden\" name=\"username\" value=\"" + username + "\">\n";
+            } else { // Curator can see all the articles 
+            	script_str = "<script>"
+                        + "function searchTopic() {\r\n"
+                        + "    console.log('filterTopics CALLED');\r\n"
+                        + "    var titleKeyPhrases_ = document.getElementById('titleKeyPhrases').value;\r\n"
+                        + "\r\n"
+                        + "    var url = '/RESTstart/rest/auth/auth_user/search_topic/search?username=" + username + "&role=" + role + "&titleKeyPhrases=' + encodeURIComponent(titleKeyPhrases_);\r\n"
+                        + "\r\n"
+                        + "    var newWindow = window.open();"
+                        + "    var xhr = new XMLHttpRequest();\r\n"
+                        + "    xhr.open('GET', url, true);\r\n"
+                        + "    xhr.setRequestHeader('Content-Type', 'application/json');\r\n"
+                        + "    xhr.onreadystatechange = function() {\r\n"
+                        + "        if (xhr.readyState === 4 && xhr.status === 200) {\r\n"
+                        + "            newWindow.document.open();\r\n"
+                        + "            newWindow.document.write(xhr.responseText);\r\n"
+                        + "            newWindow.document.close();"
+                        + "        }\r\n"
+                        + "    };\r\n"
+                        + "    xhr.send();\r\n"
+                        + "}\r\n"
+                        + "</script>";
+                 temp_username =  "        <h2>The topics you see belongs to " + username + " and have have all the states possible";
+                 temp_input = "    <input type=\"hidden\" name=\"username\" value=\"" + username + "\">\n";
+            }
+            String html_code = "<!DOCTYPE html>\n"
+                + "<html>\n"
+                + "<head>\n"
+                + "    <title>Search Topic</title>\n"
+                + "    <style>\n"
+                + "        body {\n"
+                + "            display: flex;\n"
+                + "            justify-content: center;\n"
+                + "            align-items: center;\n"
+                + "            height: 100vh;\n"
+                + "        }\n"
+                + "        .container {\n"
+                + "            text-align: center;\n"
+                + "        }\n"
+                + "        form {\n"
+                + "            margin-top: 20px;\n"
+                + "        }\n"
+                + "        textarea {\n"
+                + "            resize: none;\n"
+                + "            overflow: auto;\n"
+                + "            height: 150px;\n"
+                + "            width: 300px;\n"
+                + "        }\n"
+                + "    </style>\n"
+                + "</head>\n"
+                + "<body>\n"
+                + "    <div class=\"container\">\n"
+                + "        <h1>Search Topic</h1>\n"
+                + "         <h2>Enter the key phrase for the title of the topic/topics you want to search</h2>"   
+                + temp_username
+                + "\n"
+                + "            <label for=\"titleKeyPhrases\">Title Key Phrases:</label>\n"
+                + "            <br>\n"
+                + "            <textarea id=\"titleKeyPhrases\" name=\"titleKeyPhrases\" rows=\"5\" cols=\"30\"></textarea>\n"
+                + "            <br>\n"
+                + "\n"
+                + temp_input
+                + "            <button class=\"submit\" onclick=\"searchTopic()\">Search</button>\n"
+                + "    </div>\n"
+                + script_str
+                + "</body>\n"
+                + "</html>";
+            return html_code;
+		}
+		
+        public static String getTopicsFromSEARCH_ARTICLES(ArrayList<Topic> GOAL_TOPICS) {
+            
+            if(GOAL_TOPICS.isEmpty()) {
+                String htmlCode = "<!DOCTYPE html>\n"
+                        + "<html>\n"
+                        + "<head>\n"
+                        + "    <title>Articles Not Found</title>\n"
+                        + "</head>\n"
+                        + "<body>\n"
+                        + "    <h1>ARTICLES_NOT_FOUND</h1>\n"
+                        + "</body>\n"
+                        + "</html>";
+
+                return htmlCode;
+            }
+            
+            StringBuilder htmlCode = new StringBuilder();
+
+            htmlCode.append("<!DOCTYPE html>\n");
+            htmlCode.append("<html>\n");
+            htmlCode.append("<head>\n");
+            htmlCode.append("    <title>Articles</title>\n");
+            htmlCode.append("    <style>\n");
+            htmlCode.append("        .article {\n");
+            htmlCode.append("            margin-bottom: 20px;\n");
+            htmlCode.append("            padding: 10px;\n");
+            htmlCode.append("            border: 1px solid #ccc;\n");
+            htmlCode.append("        }\n");
+            htmlCode.append("        .article h2 {\n");
+            htmlCode.append("            margin-top: 0;\n");
+            htmlCode.append("        }\n");
+            htmlCode.append("        .article p {\n");
+            htmlCode.append("            margin-bottom: 0;\n");
+            htmlCode.append("        }\n");
+            htmlCode.append("    </style>\n");
+            htmlCode.append("</head>\n");
+            htmlCode.append("<body>\n");
+
+            for (Topic topic : GOAL_TOPICS) {
+                /*htmlCode.append("    <div class=\"article\">\n");
+                htmlCode.append("        <h2>ID: ").append(topic.getId()).append("</h2>\n");
+                htmlCode.append("        <p>Title: ").append(article.getTitle()).append("</p>\n");
+                htmlCode.append("        <p>Content: ").append(article.getContents()).append("</p>\n");
+                htmlCode.append("    </div>\n");*/
+            }
+
+            htmlCode.append("</body>\n");
+            htmlCode.append("</html>");
+
+            return htmlCode.toString();
+        }
 }

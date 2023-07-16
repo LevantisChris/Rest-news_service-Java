@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
@@ -28,6 +29,7 @@ public class SearchArticleResource_auth {
 	private ArrayList<Article> GOAL_ARTICLES; // the articles that satisfy all the criteria ...
 	
 	@GET
+	@Consumes(MediaType.TEXT_PLAIN)
 	public Response handleKeyPhrasesAuthUserArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS: SEARCH ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		try {
@@ -60,6 +62,7 @@ public class SearchArticleResource_auth {
 	/* NOTE: We have to do different "movements" in the case the user adds two words in a field of an article and different if the user add only one word */
 	@GET
 	@Path("/search")
+	@Consumes(MediaType.TEXT_PLAIN)
 	public Response sendData(@QueryParam("username") String username, @QueryParam("titleKeyPhrases") String titleKeyPhrases, @QueryParam("contentKeyPhrases") String contentKeyPhrases) {
 		titleKeyPhrases = titleKeyPhrases.replace("\\s", ""); // remove \n
 		contentKeyPhrases = contentKeyPhrases.replace("\\s", ""); // remove \n
