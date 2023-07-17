@@ -1373,16 +1373,17 @@ public class HtmlHandler {
 		        }
 		        htmlCode.append("<p>--------------------------------------------------------------------------------------------------------------</p>");
 
+
 		        htmlCode.append("        <div>\n");
 		        htmlCode.append("<form method=\"POST\" action=\"/RESTstart/rest/auth/not_auth_user/displayAll_article/add_comment\">\n");
 		        htmlCode.append("    <input type=\"hidden\" name=\"clickedByName\" value=\"").append("Visitor").append("\">\n");
 		        htmlCode.append("    <input type=\"hidden\" name=\"articleId\" value=\"").append(article.getId()).append("\">\n");
 		        htmlCode.append("    <input type=\"hidden\" name=\"creator_username\" value=\"").append(article.getCreator_username()).append("\">\n");
-		        htmlCode.append("    <input type=\"radio\" name=\"commentVisibility\" value=\"withName\" checked onclick=\"toggleNameField(").append(article.getId()).append(", true)\">\n");
+		        htmlCode.append("    <input type=\"radio\" name=\"commentVisibility\" value=\"withName\" onclick=\"toggleNameField(").append(article.getId()).append(", true)\">\n");
 		        htmlCode.append("    Add with name\n");
 		        htmlCode.append("    <textarea id=\"name_visitor_").append(article.getId()).append("\" name=\"name_visitor\" placeholder=\"Add your name...\" style=\"display:none\"></textarea>\n");
 		        htmlCode.append("    <label>\n");
-		        htmlCode.append("        <input type=\"radio\" name=\"commentVisibility\" value=\"anonymous\" onclick=\"toggleNameField(").append(article.getId()).append(", false)\">\n");
+		        htmlCode.append("        <input type=\"radio\" name=\"commentVisibility\" value=\"anonymous\" checked onclick=\"toggleNameField(").append(article.getId()).append(", false)\">\n");
 		        htmlCode.append("        Add anonymously\n");
 		        htmlCode.append("    </label>\n");
 		        htmlCode.append("    <textarea name=\"comment\" placeholder=\"Add a comment...\"></textarea>\n");
