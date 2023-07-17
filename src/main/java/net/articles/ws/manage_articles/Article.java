@@ -16,6 +16,7 @@ public class Article {
 	private String creator_username ;
 	
 	public Article() {}
+
 	
 	public Article(int id, String title, String contents) {
 		this.id = id;

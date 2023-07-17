@@ -74,8 +74,7 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display Topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display all the Topics</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Search topic</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Create Topic</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Modify Topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayArticlesOfTopic_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display articles of a topic</a>\n" +
 		        "  </div>\n" +
 		        "</body>\n" +
 		        "</html>";
@@ -128,7 +127,7 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "CURATOR" + "\">Display Topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_topic?username=" + username + "&role=" + "CURATOR" + "\">Display all the Topics</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_topic?username=" + username + "&role=" + "CURATOR" + "\">Search topic</a>\n" +
-		        "    <a class=\"link\" href=\"#\">Display Articles of a Topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayArticlesOfTopic_topic?username=" + username + "&role=" + "CURATOR" + "\">Display articles of a topic</a>\n" +
 		        "  </div>\n" +
 		        "</body>\n" +
 		        "</html>";
@@ -167,10 +166,84 @@ public class HtmlHandler {
 			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/display_topic?role=" + "VISITOR" + "\">Display Topic</a>\n" +
 			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayAll_topic?role=" + "VISITOR" + "\">Display all the Topics</a>\n" +
 			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/search_topic?role=" + "VISITOR" + "\">Search topics</a>\n" +
-	              "  </div>\n" +
+			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayArticlesOfTopic_topic?role=" + "VISITOR" + "\">Display articles of a topic</a>\n" +
+			      "  </div>\n" +
 	              "</body>\n" +
 	              "</html>";
 	}
+	/*public static String getVISITOR_HTML() {
+
+	    String script_str = "<script>"
+	            + "function func_buttons(requested_func) {\r\n"
+	            + "    console.log('filterTopics CALLED');\r\n"
+	            + "\r\n"
+	            + "    var url = '/RESTstart/rest/auth/not_auth_user/search_topic/' + requested_func + '?role=VISITOR';\r\n"
+	            + "\r\n"
+	            + "    var newWindow = window.open();"
+	            + "    var xhr = new XMLHttpRequest();\r\n"
+	            + "    xhr.open('GET', url, true);\r\n"
+	            + "    xhr.setRequestHeader('Content-Type', 'application/json');\r\n"
+	            + "    xhr.onreadystatechange = function() {\r\n"
+	            + "            document.body.innerHTML = xhr.responseText;\n" 	  
+	            + "    };\r\n"
+	            + "    xhr.send();\r\n"
+	            + "}\r\n"
+	            + "</script>";
+
+	    return "<!DOCTYPE html>\n" +
+	            "<html>\n" +
+	            "<head>\n" +
+	            "  <title>Visitor Control Center</title>\n" +
+	            "  <style>\n" +
+	            "    body {\n" +
+	            "      text-align: center;\n" +
+	            "    }\n" +
+	            "    .center {\n" +
+	            "      display: flex;\n" +
+	            "      flex-direction: column;\n" +
+	            "      justify-content: center;\n" +
+	            "      align-items: center;\n" +
+	            "      height: 100vh;\n" +
+	            "    }\n" +
+	            "    .link {\n" +
+	            "      margin-bottom: 10px;\n" +
+	            "    }\n" +
+	            "    .btn {\n" +
+	            "      display: inline-block;\n" +
+	            "      padding: 12px 24px;\n" +
+	            "      font-size: 16px;\n" +
+	            "      text-align: center;\n" +
+	            "      text-decoration: none;\n" +
+	            "      background-color: #4CAF50;\n" +
+	            "      color: white;\n" +
+	            "      border: none;\n" +
+	            "      border-radius: 4px;\n" +
+	            "      transition: background-color 0.3s;\n" +
+	            "    }\n" +
+	            "    .btn:hover {\n" +
+	            "      background-color: #45a049;\n" +
+	            "    }\n" +
+	            "  </style>\n" +
+	            "</head>\n" +
+	            "<body>\n" +
+	            "  <div class=\"center\">\n" +
+	            "    <h1>Welcome - Role: " + "VISITOR" + "</h1>\n" +
+	            "    <button class=\"btn link\" onclick=\"func_buttons('search_article')\">Search Article</button>\n" +
+	            "    <button class=\"btn link\" onclick=\"func_buttons('display_article')\">Display Article</button>\n" +
+	            "    <button class=\"btn link\" onclick=\"func_buttons('displayAll_article')\">Display all the Article/Add Comment</button>\n" +
+	            "    <hr>\n" +
+	            "    <button class=\"btn link\" onclick=\"func_buttons('displayCommentsOfArticle_comment')\">Display comments of an Article</button>\n" +
+	            "    <hr>\n" +
+	            "    <button class=\"btn link\" onclick=\"func_buttons('display_topic')\">Display Topic</button>\n" +
+	            "    <button class=\"btn link\" onclick=\"func_buttons('displayAll_topic')\">Display all the Topics</button>\n" +
+	            "    <button class=\"btn link\" onclick=\"func_buttons('search_topic')\">Search topics</button>\n" +
+	            "  </div>\n" +
+	            script_str +
+	            "</body>\n" +
+	            "</html>";
+	}*/
+
+
 	
 	
 	/// NOTE: In this HTML code in the POST I also include the username (hidden) because later in the 
@@ -2726,66 +2799,6 @@ public class HtmlHandler {
 
 				
 		///This is for the search Topics
-		/*public static String getSEARCH_TOPIC_KEY_PHRASES_HTML(String username, int USER_ROLE_ID)	{
-			String temp_str, temp_username, temp_input;
-            if (USER_ROLE_ID == 1) {
-                 temp_str = "        <form action=\"/RESTstart/rest/auth/not_auth_user/search_topic/search\" method=\"get\">\n";
-                 temp_username = "<h2>The topics you see have state APPROVED (STATE_ID: 3)";
-                 temp_input = "";
-            } else if(USER_ROLE_ID == 2){ // Journalist can not see all the articles 
-                 temp_str = "        <form action=\"/RESTstart/rest/auth/auth_user/search_topic/search\" method=\"get\">\n";
-                 temp_username =  "        <h2>The topics you see belongs to " + username + " OR have state APPROVED (STATE_ID: 3)";
-                 temp_input = "    <input type=\"hidden\" name=\"username\" value=\"" + username + "\">\n";
-            } else { // Curator can see all the articles 
-                 temp_str = "        <form action=\"/RESTstart/rest/auth/auth_user/search_topic/search\" method=\"get\">\n";
-                 temp_username =  "        <h2>The topics you see belongs to " + username + " and have have all the states possible";
-                 temp_input = "    <input type=\"hidden\" name=\"username\" value=\"" + username + "\">\n";
-            }
-            String html_code = "<!DOCTYPE html>\n"
-                + "<html>\n"
-                + "<head>\n"
-                + "    <title>Search Topic</title>\n"
-                + "    <style>\n"
-                + "        body {\n"
-                + "            display: flex;\n"
-                + "            justify-content: center;\n"
-                + "            align-items: center;\n"
-                + "            height: 100vh;\n"
-                + "        }\n"
-                + "        .container {\n"
-                + "            text-align: center;\n"
-                + "        }\n"
-                + "        form {\n"
-                + "            margin-top: 20px;\n"
-                + "        }\n"
-                + "        textarea {\n"
-                + "            resize: none;\n"
-                + "            overflow: auto;\n"
-                + "            height: 150px;\n"
-                + "            width: 300px;\n"
-                + "        }\n"
-                + "    </style>\n"
-                + "</head>\n"
-                + "<body>\n"
-                + "    <div class=\"container\">\n"
-                + "        <h1>Search Topic</h1>\n"
-                + "         <h2>Enter the key phrase for the title of the topic/topics you want to search</h2>"   
-                + temp_username
-                + "\n"
-                + temp_str
-                + "            <label for=\"titleKeyPhrases\">Title Key Phrases:</label>\n"
-                + "            <br>\n"
-                + "            <textarea id=\"titleKeyPhrases\" name=\"titleKeyPhrases\" rows=\"5\" cols=\"30\"></textarea>\n"
-                + "            <br>\n"
-                + "\n"
-                + temp_input
-                + "            <button type=\"submit\">Search</button>\n"
-                + "        </form>\n"
-                + "    </div>\n"
-                + "</body>\n"
-                + "</html>";
-            return html_code;
-		}*/	
 		public static String getSEARCH_TOPIC_KEY_PHRASES_HTML(String username, String role, int USER_ROLE_ID)	{
 			String script_str, temp_username, temp_input;
             if (USER_ROLE_ID == 1) { // Visitor
@@ -2957,5 +2970,142 @@ public class HtmlHandler {
             htmlCode.append("</html>");
 
             return htmlCode.toString();
+        }
+        
+        
+        
+        ///This is for the Display Articles of a Topic
+        public static String getDISPLAY_ARTICLES_OF_A_TOPIC_START_CODE(ArrayList<String> TOPICS_DB, String username, String role) {
+        	
+        	String script;
+        	if(!role.equals("VISITOR")) {
+	        	script = "<script>function getArticles(topic_clicked) {\r\n"
+	        			+ "    console.log('getArticles CALLED');\r\n"
+	        			+ "\r\n"
+	        			+ "    var url = '/RESTstart/rest/auth/auth_user/displayArticlesOfTopic_topic/display?username=" + username + "&role=" + role + "&topic_clicked=' + encodeURIComponent(topic_clicked);\r\n"
+	        			+ "    var xhr = new XMLHttpRequest();\r\n"
+	        			+ "    xhr.open('GET', url, true);\r\n"
+	        			+ "    // Remove or set Content-Type to application/json\r\n"
+	        			+ "    xhr.setRequestHeader('Content-Type', 'application/json');\r\n"
+	        			+ "    xhr.onreadystatechange = function() {\r\n"
+	        			+ "        if (xhr.readyState === 4 && xhr.status === 200) {\r\n"
+	        			+ "			   document.querySelector('.articles').innerHTML = xhr.responseText;"
+	        			+ "        }\r\n"
+	        			+ "    };\r\n"
+	        			+ "    xhr.send();\r\n"
+	        			+ "}</script>";
+        	} else {
+        		script = "<script>function getArticles(topic_clicked) {\r\n"
+	        			+ "    console.log('getArticles CALLED');\r\n"
+	        			+ "\r\n"
+	        			+ "    var url = '/RESTstart/rest/auth/not_auth_user/displayArticlesOfTopic_topic/display?username=" + username + "&role=" + role + "&topic_clicked=' + encodeURIComponent(topic_clicked);\r\n"
+	        			+ "    var xhr = new XMLHttpRequest();\r\n"
+	        			+ "    xhr.open('GET', url, true);\r\n"
+	        			+ "    // Remove or set Content-Type to application/json\r\n"
+	        			+ "    xhr.setRequestHeader('Content-Type', 'application/json');\r\n"
+	        			+ "    xhr.onreadystatechange = function() {\r\n"
+	        			+ "        if (xhr.readyState === 4 && xhr.status === 200) {\r\n"
+	        			+ "			   document.querySelector('.articles').innerHTML = xhr.responseText;"
+	        			+ "        }\r\n"
+	        			+ "    };\r\n"
+	        			+ "    xhr.send();\r\n"
+	        			+ "}</script>";
+        	}
+        	
+        	StringBuilder htmlBuilder = new StringBuilder();
+        	htmlBuilder.append("<!DOCTYPE html>\r\n");
+        	htmlBuilder.append("<html lang=\"en\">\r\n");
+        	htmlBuilder.append("<head>\r\n");
+        	htmlBuilder.append("    <meta charset=\"UTF-8\">\r\n");
+        	htmlBuilder.append("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n");
+        	htmlBuilder.append("    <title>News App</title>\r\n");
+        	htmlBuilder.append("    <style>\r\n");
+        	htmlBuilder.append("        body {\r\n");
+        	htmlBuilder.append("            font-family: Arial, sans-serif;\r\n");
+        	htmlBuilder.append("            margin: 0;\r\n");
+        	htmlBuilder.append("            padding: 0;\r\n");
+        	htmlBuilder.append("        }\r\n");
+        	htmlBuilder.append("\r\n");
+        	htmlBuilder.append("        /* Top bar for login */\r\n");
+        	htmlBuilder.append("        .login-bar {\r\n");
+        	htmlBuilder.append("            background-color: #333;\r\n");
+        	htmlBuilder.append("            color: #fff;\r\n");
+        	htmlBuilder.append("            padding: 10px;\r\n");
+        	htmlBuilder.append("            display: flex;\r\n");
+        	htmlBuilder.append("            justify-content: space-between;\r\n");
+        	htmlBuilder.append("        }\r\n");
+        	htmlBuilder.append("\r\n");
+        	htmlBuilder.append("        /* Top bar for topics */\r\n");
+        	htmlBuilder.append("        .top-bar {\r\n");
+        	htmlBuilder.append("            background-color: #333;\r\n");
+        	htmlBuilder.append("            color: #fff;\r\n");
+        	htmlBuilder.append("            padding: 10px;\r\n");
+        	htmlBuilder.append("            width: 100%;\r\n");
+        	htmlBuilder.append("            z-index: 9999;\r\n");
+        	htmlBuilder.append("            overflow-x: auto;\r\n");
+        	htmlBuilder.append("            white-space: nowrap;\r\n");
+        	htmlBuilder.append("        }\r\n");
+        	htmlBuilder.append("\r\n");
+        	htmlBuilder.append("        .topics {\r\n");
+        	htmlBuilder.append("            list-style: none;\r\n");
+        	htmlBuilder.append("            margin: 0;\r\n");
+        	htmlBuilder.append("            padding: 0;\r\n");
+        	htmlBuilder.append("            display: inline-block;\r\n");
+        	htmlBuilder.append("        }\r\n");
+        	htmlBuilder.append("\r\n");
+        	htmlBuilder.append("        .topics li {\r\n");
+        	htmlBuilder.append("            display: inline-block;\r\n");
+        	htmlBuilder.append("            cursor: pointer;\r\n");
+        	htmlBuilder.append("            padding: 10px;\r\n");
+        	htmlBuilder.append("            border-right: 1px solid #fff;\r\n");
+        	htmlBuilder.append("        }\r\n");
+        	htmlBuilder.append("\r\n");
+        	htmlBuilder.append("        .topics li:last-child {\r\n");
+        	htmlBuilder.append("            border-right: none;\r\n");
+        	htmlBuilder.append("        }\r\n");
+        	htmlBuilder.append("\r\n");
+        	htmlBuilder.append("        /* Main content */\r\n");
+        	htmlBuilder.append("        .content {\r\n");
+        	htmlBuilder.append("            padding-top: 50px; /* To give space for the fixed top bar */\r\n");
+        	htmlBuilder.append("        }\r\n");
+        	htmlBuilder.append("\r\n");
+        	htmlBuilder.append("        .articles {\r\n");
+        	htmlBuilder.append("            list-style: none;\r\n");
+        	htmlBuilder.append("            padding: 0;\r\n");
+        	htmlBuilder.append("        }\r\n");
+        	htmlBuilder.append("\r\n");
+        	htmlBuilder.append("        .articles li {\r\n");
+        	htmlBuilder.append("            margin-bottom: 10px;\r\n");
+        	htmlBuilder.append("        }\r\n");
+        	htmlBuilder.append("    </style>\r\n");
+        	htmlBuilder.append("</head>\r\n");
+        	htmlBuilder.append("<body>\r\n");
+        	htmlBuilder.append("    <div class=\"login-bar\">\r\n");
+        	if (!role.equals("VISITOR"))
+        	    htmlBuilder.append("        <div style=\"padding: 10px;\">Log in as: ").append(username).append("</div>\n");
+        	else
+        	    htmlBuilder.append("        <div style=\"padding: 10px;\">Log in as: ").append("Visitor").append("</div>\n");
+        	htmlBuilder.append("    </div>\r\n");
+        	htmlBuilder.append("    <div class=\"top-bar\">\r\n");
+        	htmlBuilder.append("        <ul class=\"topics\">\r\n");
+
+        	for (int i = 0; i < TOPICS_DB.size(); i++) {
+        	    htmlBuilder.append("<li onclick=\"getArticles('").append(TOPICS_DB.get(i)).append("')\">")
+                .append(TOPICS_DB.get(i)).append("</li>");
+        	}
+
+        	htmlBuilder.append("        </ul>\r\n");
+        	htmlBuilder.append("    </div>\r\n");
+        	htmlBuilder.append("\r\n");
+        	htmlBuilder.append("    <div class=\"articles\">\r\n");
+        	
+        	htmlBuilder.append("    </div>\r\n");
+        	htmlBuilder.append("</body>\r\n");
+        	htmlBuilder.append(script);
+        	htmlBuilder.append("</html>\r\n");
+
+        	String html_str = htmlBuilder.toString();
+        	return html_str;
+
         }
 }
