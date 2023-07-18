@@ -22,7 +22,9 @@ public class ApproveArticleResource {
 	
 	@GET
 	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
-		System.out.println("SERVER STATUS --> ACCEPT ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		if(role == null || role.isEmpty()) {
+			return Response.serverError().build();
+		}
 		ID_CLICKED = null;
 		int ROLE_ID;
 		try {
@@ -41,18 +43,23 @@ public class ApproveArticleResource {
 		                .type(MediaType.TEXT_HTML)
 		                .build();
 				
-			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
+			} else { 
+				throw new NotIdentifiedRole("ROLE_NOT_IDENTIFIED");
+			}
 		} catch(NotIdentifiedRole e) {
+			System.out.println("TESTT");
 			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
 		}
 	}
 	
 	@GET
     @Path("/{id}")
-    public Response getArticle(@PathParam("id") String id, @PathParam("username") String username, @PathParam("role") String role, @PathParam("title") String title, @PathParam("topic") String topic, @PathParam("content") String content) {
-		if(id == null || id.isEmpty() || id.isBlank()) {
-			Response.status(Response.Status.NOT_FOUND)
+    public Response getArticle(@PathParam("id") String id, 
+    						   @PathParam("username") String username, 
+    						   @PathParam("role") String role) {
+		if(id == null || id.isEmpty()) {
+			return Response.status(Response.Status.NOT_FOUND)
     		.entity("SELECT_ID")
     		.build();
 		}
@@ -90,6 +97,11 @@ public class ApproveArticleResource {
 	
 	/*-------------------------------------------------------------------------------------------------------------------------------------*/
 	private ArrayList<String> getAllArticleIDS(String username) {
+		
+		if(username== null || username.isEmpty()) {
+			return null;
+		}
+		
 		String url = "jdbc:mysql://localhost:3306/news_db";
 	    String username_DB = "root";
 	    String passwd = "kolos2020";
