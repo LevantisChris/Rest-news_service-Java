@@ -53,7 +53,10 @@ public class CreateArticleResource {
                 .build();
 				
 			} else { 
-				return Response.serverError().build();
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+		    			.entity("ROLE_NOT_IDENTIFIED")
+		    		    .type(MediaType.TEXT_HTML)
+		                .build();
 			} 
 	}
 	
@@ -70,9 +73,14 @@ public class CreateArticleResource {
         System.out.println("TOPIC --> " + topic);
         System.out.println("-------------------------------------");
         
+        if(username == null || title == null || content == null || topic == null) {
+        	System.out.println("SERVER ERROR: CREATION --CANCELED--");
+        	return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        
         ///We see if the fields are empty if one is empty then we send back an error ...
-	    if(title.isEmpty() || content.isEmpty() || topic.isEmpty()) {
-	    	  
+	    if(username.isEmpty() || title.isEmpty() || content.isEmpty() || topic.isEmpty()) {
+	    	System.out.println("SERVER ERROR: CREATION CAN NOT CONTINUE FURTHER (EMPTY FIELDS) ...");
 	    	 return Response.status(Response.Status.NOT_FOUND)
 	    			.entity("EMPTY_FIELDS")
 	    		    .type(MediaType.TEXT_HTML)
@@ -94,7 +102,7 @@ public class CreateArticleResource {
 	/// TOPIC (title) exists, if the title does not exists we will return false. We understand this by see if the ResultSet
 	/// is empty or not.
 	/// if the title exists we can execute the insertion and insert in the topic_id field the output of the select query.
-	public String addInTheDB(String username, String title, String content, String topic) {
+	private String addInTheDB(String username, String title, String content, String topic) {
 	    String url = "jdbc:mysql://localhost:3306/news_db";
 	    String username_DB = "root";
 	    String passwd = "kolos2020";

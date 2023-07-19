@@ -47,7 +47,6 @@ public class ApproveArticleResource {
 				throw new NotIdentifiedRole("ROLE_NOT_IDENTIFIED");
 			}
 		} catch(NotIdentifiedRole e) {
-			System.out.println("TESTT");
 			System.out.print(e.getMessage());
 			return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
 		}

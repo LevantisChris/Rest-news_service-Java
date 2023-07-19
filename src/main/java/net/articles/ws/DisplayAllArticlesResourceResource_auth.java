@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -33,8 +34,12 @@ public class DisplayAllArticlesResourceResource_auth {
 	private static ArrayList<Comments> DATE_GET_COMMENTS;
 	
 	@GET
-	public Response handleKeyPhrasesAuthUserArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleKeyPhrasesAuthUserArticles(@QueryParam("username") String username, 
+													 @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS: DISPLAY ALL ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		if(role == null) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
 		int ROLE_ID;
 		try {
 			if(role.equals("VISITOR")) { // if a visitor gets here we have a problem ...
@@ -59,13 +64,11 @@ public class DisplayAllArticlesResourceResource_auth {
 			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
 		} catch(NotIdentifiedRole e) {
 			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
 		}
 	}
 	
 	/* NOTE: Here we handle the checkBox clicks */
-	@POST
-	@Path("/displayAll")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response handleSort(
 			@FormParam("sortByState") boolean sortByState,
@@ -75,9 +78,15 @@ public class DisplayAllArticlesResourceResource_auth {
 	) {
 		System.out.println("PRINT BY NAME --> " + name);
 		System.out.println("PRINT BY role --> " + role);
+		if(name == null || name.isEmpty() || role == null || role.isEmpty()) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
 	    if(sortByState == true && sortByDate == true) {
 	    	return Response.ok("CLICK_ONLY_ONE_CHECKBOX").build();
 	    }
+		if(!role.equals("CURATOR") && !role.equals("JOURNALIST")) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
 
 	    // Process the selected values
 	    if (sortByState) {
@@ -119,6 +128,14 @@ public class DisplayAllArticlesResourceResource_auth {
 		System.out.println("SERVER STATUS: endDate: " + endDate);
 		System.out.println("SERVER STATUS: ARRAY: --> " + DATE_GET_ARTICLES);
 		
+		
+		if(clickedByName == null ||
+		   state == null ||
+		   startDate == null || 
+		   endDate == null) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+        
 		if(startDate.isEmpty() && !endDate.isEmpty()) {
 			return Response.ok("ADD_START_DATE").build(); 
 		} else if(!startDate.isEmpty() && endDate.isEmpty()) {
@@ -145,6 +162,16 @@ public class DisplayAllArticlesResourceResource_auth {
 			return Response.ok("NOT_FILTERS_ADDED").build(); 
 		}
 	}
+	
+	private static Date parseDate(String dateString) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            return dateFormat.parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 	
 	@POST
 	@Path("/add_comment")

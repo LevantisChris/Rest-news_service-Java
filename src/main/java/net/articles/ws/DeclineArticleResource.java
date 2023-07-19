@@ -29,6 +29,8 @@ public class DeclineArticleResource {
 	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS --> DECLINE ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		ID_CLICKED = null;
+		
+		
 		int ROLE_ID;
 		try {
 			if(role.equals("JOURNALIST")) {
@@ -48,32 +50,38 @@ public class DeclineArticleResource {
 		                .type(MediaType.TEXT_HTML)
 		                .build();
 				
-			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
+			} else { throw new NotIdentifiedRole("ROLE_NOT_IDENTIFIED");}
 		} catch(NotIdentifiedRole e) {
 			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
 		}
 	}
 	
 	@GET
     @Path("/{id}")
-    public Response getArticle(@PathParam("id") String id, @PathParam("username") String username, @PathParam("role") String role, @PathParam("title") String title, @PathParam("topic") String topic, @PathParam("content") String content) {
-		if(id == null || id.isEmpty() || id.isBlank()) {
-			Response.status(Response.Status.NOT_FOUND)
+    public Response getArticle(@PathParam("id") String id, 
+    						   @PathParam("username") String username, 
+    						   @PathParam("role") String role) {
+		if(id == null || id.isEmpty()) {
+			return Response.status(Response.Status.NOT_FOUND)
     		.entity("SELECT_ID")
     		.build();
 		}
 		
 		String TITLE_FROM_DB = getTitleArticle_DB(id); 
 		if(TITLE_FROM_DB == null) {
+			System.out.println("SERVER STATUS: --ERROR-- in the TITLE_FROM_DB in getArticle in the class DeclineArticleResource ");
 			return Response.serverError().build(); // if is null that means the query failed to execute, we must not run the other code ...
 		}
 		String TOPIC_TITLE_FROM_DB = getTopicArticle_DB(id);
 		if(TOPIC_TITLE_FROM_DB == null) {
+			System.out.println("SERVER STATUS: --ERROR-- in the TOPIC_TITLE_FROM_DB in getArticle in the class DeclineArticleResource ");
+
 			return Response.serverError().build();
 		}
 		String CONTENTS_FROM_DB = getContents_DB(id);
 		if(CONTENTS_FROM_DB == null) {
+			System.out.println("SERVER STATUS: --ERROR-- in the CONTENTS_FROM_DB in getArticle in the class DeclineArticleResource ");
 			return Response.serverError().build();
 		}
 		ID_CLICKED = id;
@@ -86,9 +94,14 @@ public class DeclineArticleResource {
 	
 	@Path("/decline")
 	@PUT
-	public Response submitArticle(@QueryParam("cause") String cause) {
+	public Response declineArticle(@QueryParam("cause") String cause) {
 		System.out.println("SERVER STATUS: ARTICLE THAT CLICKED FOR CHANGING STATE TO --CREATED-- //BECAUSE OF --DECLINED--// IS WITH THE ID == " + ID_CLICKED);
-		if(cause.isBlank()) {
+		if(cause == null) {
+			return Response.status(Response.Status.NOT_FOUND)
+		    		.entity("SELECT_ID")
+		    		.build();
+		}
+		if(cause.isEmpty()) {
 			return Response.notModified("ADD_CAUSE_NOW").build();
 		}
 		if(changeState() == true && setCause(cause) == true) {
