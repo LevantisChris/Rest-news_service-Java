@@ -3,6 +3,7 @@ package net.articles.ws;
 import java.sql.Connection;
 
 
+
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -69,6 +70,8 @@ public class DisplayAllArticlesResourceResource_auth {
 	}
 	
 	/* NOTE: Here we handle the checkBox clicks */
+	@POST
+	@Path("/displayAll")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response handleSort(
 			@FormParam("sortByState") boolean sortByState,
@@ -135,24 +138,36 @@ public class DisplayAllArticlesResourceResource_auth {
 		   endDate == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
-        
+		
 		if(startDate.isEmpty() && !endDate.isEmpty()) {
 			return Response.ok("ADD_START_DATE").build(); 
 		} else if(!startDate.isEmpty() && endDate.isEmpty()) {
 			return Response.ok("ADD_END_DATE").build(); 
 		} else if(!state.isEmpty() && startDate.isEmpty() && endDate.isEmpty()) { // if the user has only add the //state//
+			if(checkState(Integer.parseInt(state)) == false) {
+				return Response.status(Response.Status.NOT_ACCEPTABLE).entity("INCORRECT_STATE").build(); 
+			}
 			ArrayList<Article> filteredArray = filterByState(DATE_GET_ARTICLES, Integer.parseInt(state));
 			return Response.status(Response.Status.OK)
 	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(clickedByName, filteredArray, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 		} else if(state.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()){ // the user has add only the two //dates//
+			if(checkDates(startDate, endDate) == false) {
+				return Response.status(Response.Status.NOT_ACCEPTABLE).entity("START_DATE_GREATER_END_DATE").build();
+			}
 			ArrayList<Article> filteredArray = filterByDate(DATE_GET_ARTICLES, stringToDate(startDate), stringToDate(endDate));
 			return Response.status(Response.Status.OK)
 	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(clickedByName, filteredArray, DATE_GET_COMMENTS))
 	                .type(MediaType.TEXT_HTML)
 	                .build(); 
 		} else if(!state.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()) {
+			if(checkState(Integer.parseInt(state)) == false) {
+				return Response.status(Response.Status.NOT_ACCEPTABLE).entity("INCORRECT_STATE").build(); 
+			}
+			if(checkDates(startDate, endDate) == false) {
+				return Response.status(Response.Status.NOT_ACCEPTABLE).entity("START_DATE_GREATER_END_DATE").build();
+			}
 			ArrayList<Article> filteredArray = filterByStateAndDate(DATE_GET_ARTICLES, Integer.parseInt(state), stringToDate(startDate), stringToDate(endDate));
 			return Response.status(Response.Status.OK)
 	                .entity(HtmlHandler.getArticlesFromSEARCH_ALL_ARTICLES_auth(clickedByName, filteredArray, DATE_GET_COMMENTS))
@@ -162,16 +177,6 @@ public class DisplayAllArticlesResourceResource_auth {
 			return Response.ok("NOT_FILTERS_ADDED").build(); 
 		}
 	}
-	
-	private static Date parseDate(String dateString) {
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            return dateFormat.parse(dateString);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 	
 	@POST
 	@Path("/add_comment")
@@ -193,6 +198,41 @@ public class DisplayAllArticlesResourceResource_auth {
 	}
 	
 	/*----------------------------------------------------------------------------------------------------------------------------------------------*/
+	
+	/* NOTE: With this function we check if the startDate is less than the endDate */
+	private boolean checkDates(String startDate, String endDate) {
+		Date startDateObj = parseDate(startDate);
+        Date endDateObj = parseDate(endDate);
+
+        // Compare the dates using the compareTo method
+        int comparisonResult = startDateObj.compareTo(endDateObj);
+
+        if (comparisonResult > 0) {
+            System.out.println("SERVER STATUS: startDate is greater than endDate.");
+            return false; // we dont want that so we return false
+        } else if (comparisonResult < 0) {
+            System.out.println("SERVER STATUS: startDate is less than endDate.");
+            return true;
+        } else {
+            System.out.println("SERVER STATUS: startDate is equal to endDate.");
+            return true;
+        }
+	}
+	
+	private static Date parseDate(String dateString) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            return dateFormat.parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+	
+	/* NOTE: Here we ckeck if the user add a state that not exist */
+	private boolean checkState(int state) {
+	    return state >= 1 && state <= 4;
+	}
 	
 	/* NOTE: In this function we will get the articles from the database. This articles will be displayed in the --START--, that means when the 
 	 * user clicks the Link //Search all the articles// from the control center, without he add on of some filters.

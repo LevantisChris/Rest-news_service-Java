@@ -26,6 +26,9 @@ public class DisplayArticleResource_auth {
 	@GET
 	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS --> ACCEPT ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		if(role == null || role.isEmpty()) {
+			return Response.serverError().build();
+		}
 		ID_CLICKED = null;
 		try {
 			if(role.equals("JOURNALIST")) {
@@ -51,14 +54,14 @@ public class DisplayArticleResource_auth {
 			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
 		} catch(NotIdentifiedRole e) {
 			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
 		}
 	}
 	
 	@GET
     @Path("/{id}")
     public Response getArticle(@PathParam("id") String id, @PathParam("username") String username, @PathParam("role") String role, @PathParam("title") String title, @PathParam("topic") String topic, @PathParam("content") String content) {
-		if(id == null || id.isEmpty() || id.isBlank()) {
+		if(id == null || id.isEmpty()) {
 			Response.status(Response.Status.NOT_FOUND)
     		.entity("SELECT_ID")
     		.build();

@@ -32,6 +32,9 @@ public class ModifyArticleResource {
 	 * THAT BELONGS TO HIM ...*/
 	@GET
 	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
+		if(role == null || role.isEmpty()) {
+			return Response.serverError().build();
+		}
 		ID_CLICKED = null;
 		int ROLE_ID;
 		try {
@@ -58,14 +61,14 @@ public class ModifyArticleResource {
 			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
 		} catch(NotIdentifiedRole e) {
 			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
 		}
 	}
 	
 	/* Here we handle the clicks in the IDs (links) */ 
 	@GET
     @Path("/{id}")
-    public Response getArticle(@PathParam("id") String id, @PathParam("username") String username, @PathParam("role") String role, @PathParam("title") String title, @PathParam("topic") String topic, @PathParam("content") String content) {
+    public Response getArticle(@PathParam("id") String id, @PathParam("username") String username, @PathParam("role") String role) {
 		if(id == null || id.isEmpty() || id.isBlank()) {
 			Response.status(Response.Status.NOT_FOUND)
     		.entity("SELECT_ID")
@@ -106,11 +109,10 @@ public class ModifyArticleResource {
             		.entity("SELECT_ID")
             		.build();
 		}
-		if(title.equals("SELECT ID") || topic.equals("SELECT ID") || content.equals("SELECT ID")) {
-			return Response.status(Response.Status.NOT_FOUND)
-            		.entity("SELECT_ID")
-            		.build();
-		} else if(title.isEmpty() || content.isEmpty() || topic.isEmpty()) {
+		if(title == null || content == null || topic == null) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+		if(title.isEmpty() || content.isEmpty() || topic.isEmpty()) {
 			return Response.status(Response.Status.NOT_FOUND)
             		.entity("EMPTY_FIELDS")
             		.build();
