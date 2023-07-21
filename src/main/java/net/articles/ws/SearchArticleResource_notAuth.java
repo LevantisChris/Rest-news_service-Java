@@ -28,6 +28,9 @@ public class SearchArticleResource_notAuth {
 	@GET
 	public Response handleKeyPhrasesNotAuthUserArticles(@QueryParam("role") String role) {
 		System.out.println("SERVER STATUS: SEARCH ARTICLE CALLED BY USERNAME == " + "--NULL--" + " - ROLE == " + role);
+		if(role == null || role.isEmpty()) {
+			return Response.serverError().build();
+		}
 		int ROLE_ID;
 		if(role.equals("VISITOR")) {
 			ROLE_ID = 1;
@@ -36,7 +39,7 @@ public class SearchArticleResource_notAuth {
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 		} else { // if someone else get here we have a problem ...
-			return Response.serverError().build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();
 		}
 	}
 	
@@ -45,7 +48,9 @@ public class SearchArticleResource_notAuth {
 	public Response sendData(@QueryParam("titleKeyPhrases") String titleKeyPhrases, @QueryParam("contentKeyPhrases") String contentKeyPhrases) {
 		System.out.println("SERVER STATUS: VISITOR, Title key phrases --> " + titleKeyPhrases);
 		System.out.println("SERVER STATUS: VISITOR, Content key phrases --> " + contentKeyPhrases);
-		
+		if(titleKeyPhrases == null || contentKeyPhrases == null) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
 		getAllArticlesFromDB();
 		
 		if(hasWords(titleKeyPhrases) == false && hasWords(contentKeyPhrases) == false) {

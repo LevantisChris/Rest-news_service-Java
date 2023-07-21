@@ -25,6 +25,9 @@ public class SubmitArticleResource {
 	@GET
 	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS --> SUBMIT ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		if(role == null || role.isEmpty()) {
+			return Response.serverError().build();
+		}
 		ID_CLICKED = null;
 		int ROLE_ID;
 		try {
@@ -51,7 +54,7 @@ public class SubmitArticleResource {
 			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
 		} catch(NotIdentifiedRole e) {
 			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();		
 		}
 	}
 	

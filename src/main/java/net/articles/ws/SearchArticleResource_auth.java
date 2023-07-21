@@ -32,10 +32,13 @@ public class SearchArticleResource_auth {
 	@Consumes(MediaType.TEXT_PLAIN)
 	public Response handleKeyPhrasesAuthUserArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS: SEARCH ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		if(role == null || role.isEmpty()) {
+			return Response.serverError().build();
+		}
 		try {
 			if(role.equals("VISITOR")) { // if a visitor gets here we have a problem ...
 				ROLE_ID = 1;
-				return Response.serverError().build();
+				return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();
 			} else if(role.equals("JOURNALIST")) {
 				ROLE_ID = 2;
 				
@@ -55,7 +58,7 @@ public class SearchArticleResource_auth {
 			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
 		} catch(NotIdentifiedRole e) {
 			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();
 		}
 	}
 	
@@ -64,6 +67,9 @@ public class SearchArticleResource_auth {
 	@Path("/search")
 	@Consumes(MediaType.TEXT_PLAIN)
 	public Response sendData(@QueryParam("username") String username, @QueryParam("titleKeyPhrases") String titleKeyPhrases, @QueryParam("contentKeyPhrases") String contentKeyPhrases) {
+		if(username == null || titleKeyPhrases == null || contentKeyPhrases == null) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
 		titleKeyPhrases = titleKeyPhrases.replace("\\s", ""); // remove \n
 		contentKeyPhrases = contentKeyPhrases.replace("\\s", ""); // remove \n
 		System.out.println("SERVER STATUS: CURATOR AND JOURNALIST, Username --> " + username);
@@ -92,7 +98,6 @@ public class SearchArticleResource_auth {
 		/* NOTE SOS: Here we will have to break the words in the key phrases the user add, and find for each of it, if it exists in an article
 		 * WARNING: Both must be satisfied, for example if the user add for the title the key phrase --Review BMW-- both //Review// and //BMW// must be in the article/s */
 		else {
-			System.out.println("HAS MORE THAN ONE WORDS");
 			articlesGot(); // just to display what articles we have got ...
 			if(!titleKeyPhrases.isEmpty() && contentKeyPhrases.isEmpty()) { // title is not empty and contains more than one words
 				System.out.println("title is not empty and contains more than one words");
@@ -200,7 +205,6 @@ public class SearchArticleResource_auth {
 	        	Article new_ar = new Article(DATA_DB.getInt("ID"), DATA_DB.getString("TITLE"), DATA_DB.getString("CONTENT"));
 	        	articles_list.add(new_ar);
 	        }
-	    	
 	    } catch(SQLException e) {
 	    	e.printStackTrace();
 	    } finally {
