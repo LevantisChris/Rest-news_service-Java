@@ -28,6 +28,9 @@ public class ApproveCommentResource {
 	@GET
 	public Response handleDisplayAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS: A user with username //" + username + "// and role //" + role + "//");
+		if(role == null || role.isEmpty()) {
+			return Response.serverError().build();
+		}
 		if(role.equals("CURATOR")) {
 			
 			ArrayList<Comments> COMMENTS_DATA = getAllComments();
@@ -37,7 +40,7 @@ public class ApproveCommentResource {
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 		} else {
-			return Response.serverError().build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();		
 		}
 	}
 	
@@ -46,7 +49,9 @@ public class ApproveCommentResource {
     @Consumes(MediaType.APPLICATION_JSON)
 	public Response handleApproveButton(String json) {
 		System.out.println("SERVER STATUS: THE JSON WE GET FROM CLIENT IS " + json);
-
+		if(json == null) {
+			return Response.serverError().build();
+		}
 		Long commentId = null;
 
 	    /* Extract from the JSON the contents */
@@ -77,9 +82,11 @@ public class ApproveCommentResource {
 								  @QueryParam("clickedByName") String clickedByName) {
 		
 		System.out.println("SERVER STATUS: Filters clicked by name //" + clickedByName + "// the comment Id //" + commentId + "// and article Id //" + articleId + "//");
-		
 		if(commentId.isEmpty() && articleId.isEmpty()) {
-			return Response.ok("ADD_COMMENT_ID_OR_ARTICLE_ID").build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+	                .entity("ADD_COMMENT_ID_OR_ARTICLE_ID")
+	                .type(MediaType.TEXT_HTML)
+	                .build();
 		} else {
 			ArrayList<Comments> UPDATED_COMMENTS_DATA = getSpecificComments(articleId, commentId);
 			if(UPDATED_COMMENTS_DATA == null) {
@@ -105,7 +112,7 @@ public class ApproveCommentResource {
 	    Connection connection = null;
 	    PreparedStatement selectStatement = null;
 	    
-	    String selectQuery = "SELECT * FROM news_db.comments WHERE STATE_ID = 1;"; // only the comments that are in the CREATED state can be mofified (STATE_ID: 1)
+	    String selectQuery = "SELECT * FROM news_db.comments WHERE STATE_ID = 1;"; // only the comments that are in the CREATED state can be modified (STATE_ID: 1)
 	    
 	    try {
 	    	

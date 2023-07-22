@@ -27,6 +27,9 @@ public class DeclineCommentResource {
 	@GET
 	public Response handleDisplayAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS: A user with username //" + username + "// and role //" + role + "//");
+		if(role == null || role.isEmpty()) {
+			return Response.serverError().build();
+		}
 		if(role.equals("CURATOR")) {
 			
 			ArrayList<Comments> COMMENTS_DATA = getAllComments();
@@ -36,7 +39,7 @@ public class DeclineCommentResource {
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 		} else {
-			return Response.serverError().build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();		
 		}
 	}
 	
@@ -45,7 +48,9 @@ public class DeclineCommentResource {
     @Consumes(MediaType.APPLICATION_JSON)
 	public Response handleApproveButton(String json) {
 		System.out.println("SERVER STATUS: THE JSON WE GET FROM CLIENT IS " + json);
-
+		if(json == null) {
+			return Response.serverError().build();
+		}
 		Long commentId = null;
 
 	    /* Extract from the JSON the contents */

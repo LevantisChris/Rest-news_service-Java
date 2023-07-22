@@ -26,8 +26,11 @@ public class DisplayCommentsOfAnArticleResource_auth {
 	
 	@GET
 	@Consumes(MediaType.TEXT_PLAIN)
-	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleDisplayAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS --> ACCEPT ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		if(role == null || role.isEmpty()) {
+			return Response.serverError().build();
+		}
 		String ID_CLICKED = null;
 		int ROLE_ID;
 		try {
@@ -54,14 +57,21 @@ public class DisplayCommentsOfAnArticleResource_auth {
 			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
 		} catch(NotIdentifiedRole e) {
 			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();		
 		}
 	}
 	
 	@GET
 	@Path("/{id}")
 	@Consumes(MediaType.TEXT_PLAIN)
-	public Response handleDisplayComments(@PathParam("id") String article_id, @QueryParam("username") String username, @QueryParam("role") String role) {		
+	public Response handleDisplayComments(@PathParam("id") String article_id, 
+										  @QueryParam("username") String username, 
+										  @QueryParam("role") String role) {		
+		if(article_id == null || username == null || role == null) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		} else if(article_id.isEmpty()) {
+			return Response.status(Response.Status.NO_CONTENT).build();
+		}
 		Article ARTICLE_SELECTED = getSelectedArticle(Integer.parseInt(article_id));
 		ArrayList<Comments> COMMENTS_DATA = getCommentsOfArticle(Integer.parseInt(article_id));
 		
