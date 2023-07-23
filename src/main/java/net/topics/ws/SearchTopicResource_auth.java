@@ -24,11 +24,14 @@ public class SearchTopicResource_auth {
 	@GET
 	public Response handleKeyPhrasesAuthUserArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS: SEARCH TOPIC (auth_user) CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		if(role == null || role.isEmpty()) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
 		int ROLE_ID;
 		try {
 			if(role.equals("VISITOR")) { // if a visitor gets here we have a problem ...
 				ROLE_ID = 1;
-				return Response.serverError().build();
+				return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();
 			} else if(role.equals("JOURNALIST")) {
 				System.out.println("SERVER STATUS: ROLE: --JOURNALIST-- IN THE SEARCH TOPIC");
 				ROLE_ID = 2;
@@ -50,7 +53,7 @@ public class SearchTopicResource_auth {
 			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
 		} catch(NotIdentifiedRole e) {
 			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();
 		}
 	}
 	
@@ -59,14 +62,14 @@ public class SearchTopicResource_auth {
 	public Response sendData(@QueryParam("username") String username,
 	                         @QueryParam("role") String role,
 	                         @QueryParam("titleKeyPhrases") String titleKeyPhrases) {
-	    System.out.println("username --> " + username);
-	    System.out.println("role --> " + role);
-	    System.out.println("titleKeyPhrases --> " + titleKeyPhrases);
+	    System.out.println("SERVER STATUS: In Search Topic (in sendDate) username --> " + username);
+	    System.out.println("SERVER STATUS: In Search Topic (in sendDate) role --> " + role);
+	    System.out.println("SERVER STATUS: In Search Topic (in sendDate) titleKeyPhrases --> " + titleKeyPhrases);
 
 	    if(username == null || role == null || titleKeyPhrases == null) { // If something is null return error
 	    	return Response.serverError().build();
 	    } else if(titleKeyPhrases.isEmpty()) { // if the key is empty we can not proceed
-	    	return Response.ok("KEY_IS_EMPTY").build();
+			return Response.status(Response.Status.NOT_FOUND).entity("KEY_IS_EMPTY").build();
 	    } else { 
 	    	if(hasWords(titleKeyPhrases) == false) {
 	    		ArrayList<Topic> GOAL_TOPICS = searchOneWord(username, role, titleKeyPhrases);

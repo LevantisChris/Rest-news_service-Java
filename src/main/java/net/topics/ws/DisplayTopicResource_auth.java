@@ -23,6 +23,9 @@ public class DisplayTopicResource_auth {
 	@GET
 	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS --> DISPLAY TOPIC (auth) CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		if(role == null || role.isEmpty()) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
 		String ID_CLICKED = null;
 		int ROLE_ID;
 		try {
@@ -49,7 +52,7 @@ public class DisplayTopicResource_auth {
 			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
 		} catch(NotIdentifiedRole e) {
 			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();
 		}
 	}
 	
@@ -58,7 +61,7 @@ public class DisplayTopicResource_auth {
 	@Consumes(MediaType.TEXT_PLAIN)
     public Response handlegetTopic(@PathParam("id") String id) {
 		System.out.println("SERVER STATUS: ACTION IN APPROVED TOPIC: ID//" + id + "//");
-		if(id == null || id.isEmpty() || id.isBlank()) {
+		if(id == null || id.isEmpty()) {
 			Response.status(Response.Status.NOT_FOUND)
     		.entity("SELECT_ID")
     		.build();
@@ -82,8 +85,6 @@ public class DisplayTopicResource_auth {
 		/* NOTE: Here we get the titles of the kids topics the topic has, that means we have to 
 		 * find where the specific topic is PARENT. */
 		ArrayList<String> KIDS_TOPICS_FROM_DB = getKidsTopic_DB(id);
-		
-		//for(int i = 0;i < KIDS_TOPICS_FROM_DB)
 
 		return   Response.status(Response.Status.OK)
                 .entity(HtmlHandler.getDISPLAY_TOPIC_HTML(Integer.parseInt(id), TITLE_FROM_DB, PARENT_TOPIC_FROM_DB, KIDS_TOPICS_FROM_DB))
@@ -223,6 +224,7 @@ public class DisplayTopicResource_auth {
 	        }
 	    }
 	}
+	/* Get the parent topic of an ID returns the TITLE) */
 	private String getParentTopicTopic_DB(String id) {
 		String url = "jdbc:mysql://localhost:3306/news_db";
 	    String username_DB = "root";

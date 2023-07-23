@@ -32,6 +32,9 @@ public class ModifyTopicResource {
 	@GET
 	@Consumes(MediaType.TEXT_PLAIN)
 	public Response handleDisplatAllTopics(@QueryParam("username") String username, @QueryParam("role") String role) {
+		if(role == null || role.isEmpty()) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
 		String ID_CLICKED = null;
 		int ROLE_ID;
 		try {
@@ -58,7 +61,7 @@ public class ModifyTopicResource {
 			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
 		} catch(NotIdentifiedRole e) {
 			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();
 		}
 	}
 	

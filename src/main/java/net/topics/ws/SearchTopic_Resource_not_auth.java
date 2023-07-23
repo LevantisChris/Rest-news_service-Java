@@ -23,6 +23,9 @@ public class SearchTopic_Resource_not_auth {
 	@GET
 	public Response handleKeyPhrasesNotAuthUserArticles(@QueryParam("role") String role) {
 		System.out.println("SERVER STATUS: SEARCH TOPIC (not_auth) CALLED BY USERNAME == " + "--NULL--" + " - ROLE == " + role);
+		if(role == null || role.isEmpty()) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
 		int ROLE_ID;
 		if(role.equals("VISITOR")) {
 			ROLE_ID = 1;
@@ -31,7 +34,7 @@ public class SearchTopic_Resource_not_auth {
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 		} else { // if someone else get here we have a problem ...
-			return Response.serverError().build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();
 		}
 	}
 	

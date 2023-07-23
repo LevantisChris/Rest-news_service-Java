@@ -23,6 +23,9 @@ public class DisplayArticlesOfATopicResource_auth {
 	@GET
 	@Consumes(MediaType.TEXT_HTML)
 	public Response handleStartPage(@QueryParam("username") String username, @QueryParam("role") String role) {
+		if(role == null || role.isEmpty()) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
 		if(role.equals("JOURNALIST")) {
 			System.out.println("SERVER STATUS: ACTION IN DISPLAY ARTCICLES OF A TOPIC (auth_user) BY USERNAME --" + username + "-- AND ROLE --" + role + "--");
 			
@@ -42,7 +45,7 @@ public class DisplayArticlesOfATopicResource_auth {
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 		} else {
-			return Response.serverError().build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();
 		}
 	}
 	
@@ -52,6 +55,10 @@ public class DisplayArticlesOfATopicResource_auth {
 									    @QueryParam("role") String role,
 									    @QueryParam("topic_clicked") String topic_clicked) {
 		System.out.println("SERVER STATUS: ACTION IN THE DISPLAY_ARTICLES_OF_A_TOPIC BY USERNAME --" + username + "-- AND ROLE --" + role + "-- WITH TOPIC CLICKED --" + topic_clicked + "--");
+		
+		if(username == null || role == null || topic_clicked == null) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
 		
 		ArrayList<Article> ARTICLES_OF_TOPIC = getArticleOfTopic(username, role, topic_clicked);
 		printArticlesGot(ARTICLES_OF_TOPIC, topic_clicked);
