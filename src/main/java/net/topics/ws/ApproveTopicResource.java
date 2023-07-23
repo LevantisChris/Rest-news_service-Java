@@ -28,6 +28,9 @@ public class ApproveTopicResource {
 	@Consumes(MediaType.TEXT_PLAIN)
 	public Response handleDisplayAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS --> APPROVE TOPIC CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		if(role == null || role.isEmpty()) {
+			return Response.serverError().build();
+		}
 		String ID_CLICKED = null;
 		int ROLE_ID;
 		try {
@@ -49,7 +52,7 @@ public class ApproveTopicResource {
 			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
 		} catch(NotIdentifiedRole e) {
 			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();
 		}
 	}
 	
@@ -59,7 +62,7 @@ public class ApproveTopicResource {
     public Response handlegetTopic(@PathParam("id") String id) {
 		System.out.println("SERVER STATUS: ACTION IN APPROVED TOPIC: ID//" + id + "//");
 		if(id == null || id.isEmpty() || id.isBlank()) {
-			Response.status(Response.Status.NOT_FOUND)
+			return Response.status(Response.Status.NOT_FOUND)
     		.entity("SELECT_ID")
     		.build();
 		}
@@ -70,11 +73,8 @@ public class ApproveTopicResource {
 		}
 		String PARENT_TOPIC_FROM_DB = getParentTopicTopic_DB(id);
 		if(PARENT_TOPIC_FROM_DB == null) {
-			System.out.println("EINAI NULL ...");
 			PARENT_TOPIC_FROM_DB = "Empty";
 		}
-		
-		//ArrayList<String> TOPICS_LIST = takeTheAvailableTopics(); 
 
 		return   Response.status(Response.Status.OK)
                 .entity(HtmlHandler.getAPPROVE_TOPIC_HTML(TITLE_FROM_DB, PARENT_TOPIC_FROM_DB, Integer.parseInt(id)))
@@ -85,8 +85,12 @@ public class ApproveTopicResource {
 	@POST
 	@Path("/approve")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response handleModificationOfTopic(String JSON) {
+	public Response handleModificatiOnOfTopic(String JSON) {
 		System.out.println("SERVER STATUS: JSON FOR MODIFICATION IS: " + JSON);
+		
+		if(JSON == null) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
 		
 		String title = null;
 		String parentTopic = null;

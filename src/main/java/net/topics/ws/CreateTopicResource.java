@@ -28,7 +28,9 @@ public class CreateTopicResource {
 	@GET
 	public Response handleFormCreation(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS --> CREATE TOPIC CALLED BY USERNAME == " + username + " - ROLE == " + role);
-		
+		if(role == null || role.isEmpty()) {
+			return Response.serverError().build();
+		}
 		if(role.equals("JOURNALIST") || role.equals("CURATOR")) {
 			ArrayList<String> TOPICS_LIST = takeTheAvailableTopics(); 
 			return Response.status(Response.Status.UNAUTHORIZED)
@@ -36,7 +38,7 @@ public class CreateTopicResource {
 	                .type(MediaType.TEXT_HTML)
 	                .build();
 		} else {
-			return Response.serverError().build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();
 		}
 	}
 	
@@ -116,7 +118,7 @@ public class CreateTopicResource {
 	        	return true;
 	        }
 	    } catch(SQLException e) {
-	    	System.out.println("SERVER STATUS: --ERROR-- in the check f the topic already exists");
+	    	System.out.println("SERVER STATUS: --ERROR-- in the check if the topic already exists");
 	    	e.printStackTrace();
 	    	return false;
 	    } finally {
