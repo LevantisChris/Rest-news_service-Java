@@ -34,6 +34,9 @@ public class DisplayAllTopicsResource_auth {
 	@Consumes(MediaType.TEXT_PLAIN)
 	public Response handleKeyPhrasesAuthUserArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS: DISPLAY ALL TOPICS (auth_user) CALLED BY USERNAME == " + username + " - ROLE == " + role);
+		if(role == null || role.isEmpty()) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
 		int ROLE_ID;
 		try {
 			if(role.equals("VISITOR")) { // if a visitor gets here we have a problem ...
@@ -58,7 +61,7 @@ public class DisplayAllTopicsResource_auth {
 			} else { throw new NotIdentifiedRole("ERROR: The role could not be identified.");}
 		} catch(NotIdentifiedRole e) {
 			System.out.print(e.getMessage());
-			return Response.ok(e.getMessage()).build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("ROLE_NOT_IDENTIFIED").build();
 		}
 	}
 	
@@ -71,10 +74,9 @@ public class DisplayAllTopicsResource_auth {
 		    @FormParam("name") String name,
 		    @FormParam("role") String role
 	) {
-		System.out.println("PRINT BY NAME --> " + name);
-		System.out.println("PRINT BY role --> " + role);
+		
 	    if(sortByState == false && sortByName == false) {
-	    	return Response.ok("CLICK_ONLY_ONE_CHECKBOX").build();
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("CLICK_ONLY_ONE_CHECKBOX").build();
 	    }
 
 	    // Process the selected values
@@ -102,7 +104,7 @@ public class DisplayAllTopicsResource_auth {
 	                .build();
 	    	
 	    } else {
-	    	 return Response.ok("TRY_AGAIN").build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("TRY_AGAIN").build();
 	    }
 	}
 	
@@ -110,6 +112,10 @@ public class DisplayAllTopicsResource_auth {
 	@Path("/filAp")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response handleFilters(String JSON) {
+		
+		if(JSON == null) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
 		
 		System.out.println("SERVER STTUS: IN handleFilters (auth_user) in TOPICS JSON RECEIVED --> " + JSON);
 		String clickedByName = null;

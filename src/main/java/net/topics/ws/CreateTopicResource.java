@@ -47,6 +47,10 @@ public class CreateTopicResource {
 	@Produces(MediaType.APPLICATION_JSON)
     public Response handleFormSubmission(String JSON) {
 		
+		if(JSON == null) {
+			return Response.serverError().build();
+		}
+		
 		String title = null;
 		String creator_username = null;
 		String parent_topic_STRING = null;
