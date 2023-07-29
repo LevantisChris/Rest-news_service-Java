@@ -26,7 +26,7 @@ import net.htmlhandler.ws.HtmlHandler;
 public class ApproveCommentResource {
 	
 	@GET
-	public Response handleDisplayAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleDisplayAllComments(@QueryParam("username") String username, @QueryParam("role") String role) {
 		System.out.println("SERVER STATUS: A user with username //" + username + "// and role //" + role + "//");
 		if(role == null || role.isEmpty()) {
 			return Response.serverError().build();

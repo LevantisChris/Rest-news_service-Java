@@ -8,13 +8,14 @@ public class User {
 	private String SURNAME;
 	private int ROLE_ID;
 	
-	// Visitor
-	private int ID;
-	
-	public User(int ID, int ROLE_ID) {
+	/*
+	 
+	 public User(int ID, int ROLE_ID) {
 		this.ID = ID;
 		this.ROLE_ID = ROLE_ID;
 	}
+	 
+	 */
 	
 	// Curator and Journalist
 	public User(String USERNAME, String PASSWORD, String NAME, String SURNAME, int ROLE_ID) {
@@ -43,9 +44,5 @@ public class User {
 
 	public int getROLE_ID() {
 		return ROLE_ID;
-	}
-
-	public int getID() {
-		return ID;
 	}
 }

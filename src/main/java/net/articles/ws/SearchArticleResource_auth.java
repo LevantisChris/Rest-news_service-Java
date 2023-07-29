@@ -139,7 +139,9 @@ public class SearchArticleResource_auth {
 				ArrayList<String> contentArray = splitStrings(contentKeyPhrases);
 				System.out.println(titleArray);
 				System.out.println(contentArray);
-				/* WARNING: After this two functions we will have as Goal the articles that have in the satisfy the title OR the Content */
+				/* WARNING: After this two functions we will have as 
+				 * Goal the articles that have in the 
+				 * satisfy the title OR the Content */
 				searchTitleTwoWords(titleArray);
 				searchContentTwoWords(contentArray);
 				if(GOAL_ARTICLES.size() != 0) {

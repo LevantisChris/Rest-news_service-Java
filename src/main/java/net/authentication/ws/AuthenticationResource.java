@@ -1,4 +1,4 @@
-package net.authentication.ws;
+	package net.authentication.ws;
 
 import net.htmlhandler.ws.*;
 
@@ -31,17 +31,17 @@ public class AuthenticationResource {
     public Response processLoginAuthUser(@FormParam("username") String username, @FormParam("password") String password) {
 		   System.out.println("CALLED: /auth_user");
 		   Authentication auth = new Authentication();
-           User USER_AUTH = auth.checkCredentials(username, password);
-           if(USER_AUTH != null) {
+           Session SESSION_USER_AUTH = auth.checkCredentials(username, password);
+           if(SESSION_USER_AUTH != null) {
         	   System.out.println("User created-authenticated ...");
-        	   if(USER_AUTH.getROLE_ID() == 2) { /// If ROLE_ID is equal with 2 that means the user is a journalist ...
+        	   if(SESSION_USER_AUTH.getUSER_BELONGS().getROLE_ID() == 2) { /// If ROLE_ID is equal with 2 that means the user is a journalist ...
         		   return Response.status(Response.Status.UNAUTHORIZED)
-                           .entity(HtmlHandler.getJOURNALIST_HTML(USER_AUTH.getUSERNAME(), USER_AUTH.getNAME(), USER_AUTH.getSURNAME()))
+                           .entity(HtmlHandler.getJOURNALIST_HTML(SESSION_USER_AUTH.getUSER_BELONGS().getUSERNAME(), SESSION_USER_AUTH.getUSER_BELONGS().getNAME(), SESSION_USER_AUTH.getUSER_BELONGS().getSURNAME()))
                            .type(MediaType.TEXT_HTML)
                            .build();
         	   } else { /// else the user is a curator ...
 	        	   return   Response.status(Response.Status.UNAUTHORIZED)
-		                   .entity(HtmlHandler.getCURATOR_HTML(USER_AUTH.getUSERNAME(), USER_AUTH.getNAME(), USER_AUTH.getSURNAME()))
+		                   .entity(HtmlHandler.getCURATOR_HTML(SESSION_USER_AUTH.getUSER_BELONGS().getUSERNAME(), SESSION_USER_AUTH.getUSER_BELONGS().getNAME(), SESSION_USER_AUTH.getUSER_BELONGS().getSURNAME()))
 		                   .type(MediaType.TEXT_HTML)
 		                   .build();
         	   }

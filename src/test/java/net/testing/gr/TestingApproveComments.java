@@ -17,10 +17,10 @@ public class TestingApproveComments {
 	@Test
 	public void testStartMethod() {
 	    ApproveCommentResource a = new ApproveCommentResource();
-	    Response response = a.handleDisplayAllArticles("A_USERNAME", "VISITOR");
+	    Response response = a.handleDisplayAllComments("A_USERNAME", "VISITOR");
 	    assertEquals("ROLE_NOT_IDENTIFIED", response.getEntity());
 	    
-	    response = a.handleDisplayAllArticles("A_USERNAME", "ANOTHER_ROLE_NOT_KNOWN");
+	    response = a.handleDisplayAllComments("A_USERNAME", "ANOTHER_ROLE_NOT_KNOWN");
 	    assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
 	}
 

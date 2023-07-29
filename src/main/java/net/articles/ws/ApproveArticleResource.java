@@ -33,7 +33,7 @@ public class ApproveArticleResource {
 				
 				return Response.serverError().build(); // If for some reason we have a failure in out system and a JOURNALIST or some other access this function, we send a server error ... 
 				
-			} else if(role.equals("CURATOR")){
+			} else if(role.equals("CURATOR")) {
 				ROLE_ID = 3;
 				
 				ArrayList<String> ARTICLES_IDs = getAllArticleIDS(username);
@@ -43,7 +43,7 @@ public class ApproveArticleResource {
 		                .type(MediaType.TEXT_HTML)
 		                .build();
 				
-			} else { 
+			} else {
 				throw new NotIdentifiedRole("ROLE_NOT_IDENTIFIED");
 			}
 		} catch(NotIdentifiedRole e) {
@@ -85,7 +85,7 @@ public class ApproveArticleResource {
 	
 	@Path("/approve")
 	@PUT
-	public Response submitArticle() {
+	public Response approveArticle() {
 		System.out.println("SERVER STATUS: ARTICLE THAT CLICKED FOR CHANGING STATE TO --APPROVED-- IS WITH THE ID == " + ID_CLICKED);
 	    if(changeState() == true) {
 	    	return Response.ok("APPROVE_DONE_SUCCESFULLY:ID_MODIFIED:" + ID_CLICKED).build();

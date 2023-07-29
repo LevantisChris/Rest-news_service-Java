@@ -37,7 +37,7 @@ public class CreateArticleResource {
 				
 				ArrayList<String> TOPICS_LIST = takeTheAvailableTopics(); 
 				
-				return Response.status(Response.Status.UNAUTHORIZED)
+				return Response.status(Response.Status.OK)
                 .entity(HtmlHandler.getCREATE_ARTICLE_HTML(TOPICS_LIST, username, role))
                 .type(MediaType.TEXT_HTML)
                 .build();
@@ -47,7 +47,7 @@ public class CreateArticleResource {
 				
 				ArrayList<String> TOPICS_LIST = takeTheAvailableTopics();
 				
-				return Response.status(Response.Status.UNAUTHORIZED)
+				return Response.status(Response.Status.OK)
                 .entity(HtmlHandler.getCREATE_ARTICLE_HTML(TOPICS_LIST, username, role))
                 .type(MediaType.TEXT_HTML)
                 .build();
