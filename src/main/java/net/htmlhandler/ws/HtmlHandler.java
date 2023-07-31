@@ -63,7 +63,7 @@ public class HtmlHandler {
 		        "    <h1>Welcome " + name + " " + surname + " - Role: " + "JOURNALIST" + "</h1>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_article\">Create Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_article\">Modify Article</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article?username=" + username + "&role=" + "JOURNALIST" + "\">Submit Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article\">Submit Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article?username=" + username + "&role=" + "JOURNALIST" + "\">Search Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_article\">Display Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article\">Display all the Articles/Add Comment</a>\n" +
@@ -107,10 +107,10 @@ public class HtmlHandler {
 		        "    <h1>Welcome " + name + " " + surname + " - Role: " + "CURATOR" + "</h1>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_article\">Create Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_article\">Modify Article</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article?username=" + username + "&role=" + "CURATOR" + "\">Submit Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article\">Submit Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_article\">Approve Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_article\">Decline Article</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/publish_article?username=" + username + "&role=" + "CURATOR" + "\">Article Puplication</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/publish_article\">Article publication</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article?username=" + username + "&role=" + "CURATOR" + "\">Search Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_article\">Display Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article\">Display all the Articles/Add Comment</a>\n" +
@@ -311,8 +311,7 @@ public class HtmlHandler {
 		String frameHTML = "<div class=\"ids-frame\">";
 		
 		for (int i = 0; i < ARTICLES_IDs.size(); i++) {
-	        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/modify_article/" + ARTICLES_IDs.get(i) + "?method=GET\">" + ARTICLES_IDs.get(i) + "</a> ";
-		}
+			frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/modify_article/" + ARTICLES_IDs.get(i) + "\">" + ARTICLES_IDs.get(i) + "</a> ";		}
 		
 		frameHTML += "</div>";
 		
@@ -418,7 +417,7 @@ public class HtmlHandler {
 		String frameHTML = "<div class=\"ids-frame\">";
 		
 		for (int i = 0; i < ARTICLES_IDs.size(); i++) {
-	        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/submit_article/" + ARTICLES_IDs.get(i) + "?method=GET\">" + ARTICLES_IDs.get(i) + "</a> ";
+			frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/submit_article/" + ARTICLES_IDs.get(i) + "\">" + ARTICLES_IDs.get(i) + "</a> ";
 		}
 		
 		frameHTML += "</div>";

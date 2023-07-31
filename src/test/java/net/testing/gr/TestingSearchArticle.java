@@ -23,20 +23,17 @@ public class TestingSearchArticle {
 	@Test
 	public void testStartMethod() {
 		SearchArticleResource_auth s_auth_user = new SearchArticleResource_auth();
-	    Response response = s_auth_user.handleKeyPhrasesAuthUserArticles("", "VISITOR");
-	    assertEquals("ROLE_NOT_IDENTIFIED", response.getEntity());
+	    Response response1 = s_auth_user.handleKeyPhrasesAuthUserArticles(null);
+	    assertEquals(Response.Status.BAD_REQUEST, response1.getStatusInfo());
 	    
-	    SearchArticleResource_notAuth s_not_auth_user = new SearchArticleResource_notAuth();
-	    response = s_not_auth_user.handleKeyPhrasesNotAuthUserArticles("JOURNALIST");
-	    assertEquals("ROLE_NOT_IDENTIFIED", response.getEntity());
-	    response = s_not_auth_user.handleKeyPhrasesNotAuthUserArticles("CURATOR");
-	    assertEquals("ROLE_NOT_IDENTIFIED", response.getEntity());
+	    Response response2 = s_auth_user.handleKeyPhrasesAuthUserArticles("");
+	    assertEquals(Response.Status.BAD_REQUEST, response2.getStatusInfo());   
 	}
 	
 	@Test
 	public void testSendDate_WithNullValues_MustReturnInternalServerError() {
 		SearchArticleResource_auth s_auth_user = new SearchArticleResource_auth();
-		Response response = s_auth_user.sendData(null, null, null);
+		Response response = s_auth_user.sendData("123456", null, null);
 	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR, response.getStatusInfo());
 	    
 	    SearchArticleResource_notAuth s_not_auth_user = new SearchArticleResource_notAuth();

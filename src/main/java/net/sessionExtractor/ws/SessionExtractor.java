@@ -49,6 +49,73 @@ public class SessionExtractor implements ExtractSession_ID {
 	    }
 	}
 	
+	@Override
+	public boolean checkIfArticleCanBeViewed(String sessionId, 
+											 String articleId,
+											 int functionState) {
+		String username = getUsernameFromSession(sessionId);
+		String role = getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: AUTHORIZE for article with ID == " + articleId + " about username == " + username + " and role == " + role);
+		
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    Connection connection = null;
+	    PreparedStatement selectStatement = null;
+	    
+	    String selectQuery = "SELECT STATE_ID, CREATOR_USERNAME, alert FROM news_db.articles WHERE ID = ?;";
+	    
+	    String state_id = null, creator_username = null;
+	    boolean alert = false;
+	    try {
+	    	connection = DriverManager.getConnection(url, username_DB, passwd);
+	        System.out.println("\nSERVER STATUS: Connected to the database...");
+		    
+	        selectStatement = connection.prepareStatement(selectQuery);
+	        selectStatement.setInt(1, Integer.parseInt(articleId));
+	        ResultSet resultSet = selectStatement.executeQuery();
+
+	        while(resultSet.next()) {
+	        	state_id = resultSet.getString("STATE_ID");
+	        	creator_username = resultSet.getString("CREATOR_USERNAME");
+	        	alert = resultSet.getBoolean("alert");
+	        }
+	        if(state_id == null || creator_username == null) {
+	        	return false;
+	        }
+	        /* At start, the article must be in the state the function allows to be */
+	        if(Integer.parseInt(state_id) == functionState) {
+	        	/* Secondly we must see if the article belongs to him */
+		        if(role.equals("JOURNALIST")) {
+		        	if(creator_username.equals(username)) {
+		        		if(alert != true)
+		        			return true;
+		        	}
+		        } else if(role.equals("CURATOR")) { // if the role is a Curator he can all the articles but only the one that have the correct state of the function requested
+		        	if(alert != true)
+		        		return true;
+		        }
+	        }
+	        return false;
+	    } catch(SQLException e) {
+	    	e.printStackTrace();
+	    	return false;
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
+	
 	/* We will just look up in the Database for the username */
 	@Override
 	public String getUsernameFromSession(String sessionId) {

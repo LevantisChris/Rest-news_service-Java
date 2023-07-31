@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -16,8 +17,11 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 
 /* NOTE: This function is only available for a Curator and no one else ... */ 
+
+/// DONE
 
 @Path("/auth/auth_user/publish_article")
 public class PublishArticleResource {
@@ -25,7 +29,22 @@ public class PublishArticleResource {
 	private static String ID_CLICKED;
 	
 	@GET
-	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleDisplatAllArticles(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS --> PUBLISH ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		if(role == null || role.isEmpty()) {
 			return Response.serverError().build();
@@ -59,7 +78,22 @@ public class PublishArticleResource {
 	
 	@GET
     @Path("/{id}")
-    public Response getArticle(@PathParam("id") String id, @PathParam("username") String username, @PathParam("role") String role, @PathParam("title") String title, @PathParam("topic") String topic, @PathParam("content") String content) {
+    public Response getArticle(@PathParam("id") String id, @CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		if(id == null || id.isEmpty() || id.isBlank()) {
 			Response.status(Response.Status.NOT_FOUND)
     		.entity("SELECT_ID")
@@ -88,7 +122,22 @@ public class PublishArticleResource {
 	
 	@Path("/publish")
 	@PUT
-	public Response submitArticle() {
+	public Response submitArticle(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS: ARTICLE THAT CLICKED FOR CHANGING STATE TO --PUBLISHED-- IS WITH THE ID == " + ID_CLICKED);
 	    if(changeState() == true) {
 	    	return Response.ok("PUBLISH_DONE_SUCCESFULLY:ID_MODIFIED:" + ID_CLICKED).build();
