@@ -18,17 +18,13 @@ public class TestingDisplayArticle_auth_not_auth {
 	public void testHandleKeyPhrasesAuthUserArticles_WithNulAndEmpty_MustReturnCorrectResponse() {
 		DisplayArticleResource_auth d = new DisplayArticleResource_auth();
 		
-	    // We can not proceed if the role is null
-	    Response response2 = d.handleDisplatAllArticles("", null);
-	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response2.getStatus());
+	    // We can not proceed if the session id is null
+	    Response response2 = d.handleDisplatAllArticles(null);
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response2.getStatus());
 	    
-	    // A visitor should not be able to access this function
-	    Response response1 = d.handleDisplatAllArticles("", "VISITOR");
-	    assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response1.getStatus());
-	    
-	    // If some other with a role not correct 
-	    Response response3 = d.handleDisplatAllArticles("", "ANOTHER_ROLE_NOT_KNOWN");
-	    assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response3.getStatus());    
+	    // We can not proceed if the session id is empty
+	    Response response3 = d.handleDisplatAllArticles("");
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response3.getStatus());    
 	}
 	
 	@Test

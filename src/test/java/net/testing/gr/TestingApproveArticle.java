@@ -10,31 +10,30 @@ import org.junit.Test;
 import jakarta.ws.rs.core.Response;
 import net.articles.ws.ApproveArticleResource;
 
-public class TestingApproveArticle {
+/// DONE
 
-	/* In the approve article we do not want a VISITOR to access.
-	 * We test the case a visitor is trying to access it. We see that 
-	 * the error is throwing correctly */
+public class TestingApproveArticle {
+	/* Cookie is null or empty == bad request */
 	@Test
 	public void testStartMethod() {
 	    ApproveArticleResource a = new ApproveArticleResource();
 
-	    Response response = a.handleDisplatAllArticles("", "VISITOR");
-	    assertEquals("ROLE_NOT_IDENTIFIED", response.getEntity());
+	    Response response = a.handleDisplatAllArticles(null);
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	}
 	
 	/* We don't want the id to be null or empty */
     @Test
-    public void testGetArticle_WithNullId_ShouldReturnNotFound() {
+    public void testGetArticle_WithNullId_ShouldReturnUNAUTHORIZED() {
         ApproveArticleResource articleResource = new ApproveArticleResource();
-        Response response = articleResource.getArticle(null, null, null);
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        Response response = articleResource.getArticle("1234", null);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
     @Test
-    public void testGetArticle_WithEmptyId_ShouldReturnNotFound() {
+    public void testGetArticle_WithEmptyId_ShouldReturnINTERNAL_SERVER_ERROR() {
         ApproveArticleResource articleResource = new ApproveArticleResource();
-        Response response = articleResource.getArticle("", null, null);
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        Response response = articleResource.getArticle("6771", "");
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
     
     /* Now lets test the other functions */

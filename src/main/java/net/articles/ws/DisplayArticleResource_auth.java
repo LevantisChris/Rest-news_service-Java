@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -16,20 +17,34 @@ import jakarta.ws.rs.core.Response;
 import net.articles.ws.manage_articles.Article;
 import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 
 @Path("/auth/auth_user/display_article")
 public class DisplayArticleResource_auth {
 
-	private static String ID_CLICKED;
 	private static int ROLE_ID;
 	
 	@GET
-	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleDisplatAllArticles(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS --> ACCEPT ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		if(role == null || role.isEmpty()) {
 			return Response.serverError().build();
 		}
-		ID_CLICKED = null;
 		try {
 			if(role.equals("JOURNALIST")) {
 				ROLE_ID = 2;
@@ -60,7 +75,22 @@ public class DisplayArticleResource_auth {
 	
 	@GET
     @Path("/{id}")
-    public Response getArticle(@PathParam("id") String id, @PathParam("username") String username, @PathParam("role") String role, @PathParam("title") String title, @PathParam("topic") String topic, @PathParam("content") String content) {
+    public Response getArticle(@CookieParam("session_id") String sessionId, @PathParam("id") String id) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		if(id == null || id.isEmpty()) {
 			Response.status(Response.Status.NOT_FOUND)
     		.entity("SELECT_ID")
@@ -83,7 +113,6 @@ public class DisplayArticleResource_auth {
 		if(CONTENTS_FROM_DB == null) {
 			return Response.serverError().build();
 		}
-		ID_CLICKED = id;
 		/// We return him the same html page but filled with the contents of the article he clicked
 		return   Response.status(Response.Status.OK)
                 .entity(HtmlHandler.getDISPLAY_ARTICLE_HTML(username, role, CREATOR_USERNAME_FROM_DB, TITLE_FROM_DB, TOPIC_TITLE_FROM_DB, CONTENTS_FROM_DB))

@@ -37,7 +37,7 @@ public class HtmlHandler {
 	        "</body>\n" +
 	        "</html>";
 	
-	public static String getJOURNALIST_HTML(String username, String name, String surname) {
+	public static String getJOURNALIST_HTML(int SESSION_ID, String username, String name, String surname) {
 		return  "<!DOCTYPE html>\n" +
 		        "<html>\n" +
 		        "<head>\n" +
@@ -61,12 +61,12 @@ public class HtmlHandler {
 		        "<body>\n" +
 		        "  <div class=\"center\">\n" +
 		        "    <h1>Welcome " + name + " " + surname + " - Role: " + "JOURNALIST" + "</h1>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_article?username=" + username + "&role=" + "JOURNALIST" + "\">Create Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_article\">Create Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_article?username=" + username + "&role=" + "JOURNALIST" + "\">Modify Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article?username=" + username + "&role=" + "JOURNALIST" + "\">Submit Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article?username=" + username + "&role=" + "JOURNALIST" + "\">Search Article</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_article?username=" + username + "&role=" + "JOURNALIST" + "\">Display Article</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article?username=" + username + "&role=" + "JOURNALIST" + "\">Display all the Articles/Add Comment</a>\n" +		        "    <hr>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_article\">Display Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article\">Display all the Articles/Add Comment</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment?username=" + username + "&role=" + "JOURNALIST" + "\">Display Comments of an article</a>\n" +
 		        "    <hr>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Create topic</a>\n" +
@@ -81,7 +81,7 @@ public class HtmlHandler {
 	}
 	
 	/// NOTE: We send back the username so we can know which user is requesting ...
-	public static String getCURATOR_HTML(String username, String name, String surname) {
+	public static String getCURATOR_HTML(int SESSION_ID, String username, String name, String surname) {
 		return  "<!DOCTYPE html>\n" +
 		        "<html>\n" +
 		        "<head>\n" +
@@ -105,15 +105,15 @@ public class HtmlHandler {
 		        "<body>\n" +
 		        "  <div class=\"center\">\n" +
 		        "    <h1>Welcome " + name + " " + surname + " - Role: " + "CURATOR" + "</h1>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_article?username=" + username + "&role=" + "CURATOR" + "\">Create Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_article\">Create Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_article?username=" + username + "&role=" + "CURATOR" + "\">Modify Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article?username=" + username + "&role=" + "CURATOR" + "\">Submit Article</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_article?username=" + username + "&role=" + "CURATOR" + "\">Approve Article</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_article?username=" + username + "&role=" + "CURATOR" + "\">Decline Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_article\">Approve Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_article\">Decline Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/publish_article?username=" + username + "&role=" + "CURATOR" + "\">Article Puplication</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article?username=" + username + "&role=" + "CURATOR" + "\">Search Article</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_article?username=" + username + "&role=" + "CURATOR" + "\">Display Article</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article?username=" + username + "&role=" + "CURATOR" + "\">Display all the Articles/Add Comment</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_article\">Display Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article\">Display all the Articles/Add Comment</a>\n" +
 		        "    <hr>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_comment?username=" + username + "&role=" + "CURATOR" + "\">Modify Comment</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_comment?username=" + username + "&role=" + "CURATOR" + "\">Approve Comment</a>\n" +
@@ -288,7 +288,6 @@ public class HtmlHandler {
                 "        <h1>USERNAME: " + username + " - ROLE: " + role + "</h1>\n" +
                 "        <h1>Create an Article {THE TOPICS ARE: " + topicsString + "} </h1>\n" +
                 "        <form action=\"/RESTstart/rest/auth/auth_user/create_article/create\" method=\"post\">\n" +
-                "            <input type=\"hidden\" id=\"username\" name=\"username\" value=\"" + username + "\">\n" +
                 "            <label for=\"topic\">Topic:</label>\n" +
                 "            <input type=\"text\" id=\"topic\" name=\"topic\">\n" +
                 "            <br>\n" +
@@ -540,7 +539,7 @@ public class HtmlHandler {
 		String frameHTML = "<div class=\"ids-frame\">";
 		
 		for (int i = 0; i < ARTICLES_IDs.size(); i++) {
-	        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/approve_article/" + ARTICLES_IDs.get(i) + "?method=GET\">" + ARTICLES_IDs.get(i) + "</a> ";
+			frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/approve_article/" + ARTICLES_IDs.get(i) + "\">" + ARTICLES_IDs.get(i) + "</a> ";
 		}
 		
 		frameHTML += "</div>";
@@ -659,7 +658,7 @@ public class HtmlHandler {
 		String frameHTML = "<div class=\"ids-frame\">";
 		
 		for (int i = 0; i < ARTICLES_IDs.size(); i++) {
-	        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/decline_article/" + ARTICLES_IDs.get(i) + "?method=GET\">" + ARTICLES_IDs.get(i) + "</a> ";
+			frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/decline_article/" + ARTICLES_IDs.get(i) + "\">" + ARTICLES_IDs.get(i) + "</a> ";		
 		}
 		
 		frameHTML += "</div>";

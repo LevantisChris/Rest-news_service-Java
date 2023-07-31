@@ -110,13 +110,7 @@ public class Authentication {
 		    for(Iterator<Session> iterator = LIST_SESSIONS.iterator(); iterator.hasNext(); ) {
 		        Session session = iterator.next();
 		        if(session.getUSERNAME_BELONGS().equals(username)) {
-		            if(session.isExpired()) {
-		                iterator.remove(); // remove expired session
-		                deleteSessionFromDatabase(session.getSESSION_ID()); // remove expired session from database
-		                return null; // expired session found and removed, return null to create a new one
-		            } else {
 		                return session; // valid session found, return it
-		            }
 		        }
 		    }
 		    return null; // no session found, return null to create a new one

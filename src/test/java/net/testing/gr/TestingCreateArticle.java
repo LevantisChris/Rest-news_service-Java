@@ -17,8 +17,8 @@ public class TestingCreateArticle {
 	@Test
 	public void testStartMethod() {
 		CreateArticleResource c = new CreateArticleResource();
-	    Response response = c.handleFormCreation("", "VISITOR");
-	    assertEquals("ROLE_NOT_IDENTIFIED", response.getEntity());
+	    Response response = c.handleFormCreation(null);
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	}
 	
 	/* NOTE: With the following test we also check the function addInTheDB(...) because 
@@ -27,10 +27,10 @@ public class TestingCreateArticle {
 	public void testingHandleFormSubmission_WithNullOrEmptyParameters_MustReturnCorrectResponse() {
 		CreateArticleResource c = new CreateArticleResource();
 		Response response1 = c.handleFormSubmission(null, null, null, null);
-		assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response1.getStatus());
+		assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response1.getStatus());
 		
 		Response response2 = c.handleFormSubmission("", "", "", "");
-		assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response2.getStatus());
+		assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response2.getStatus());
 	}
 	
 	/* NOTE: Here we test if the function takeTheAvailableTopics are returning null or not. */

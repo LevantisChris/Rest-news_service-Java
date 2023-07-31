@@ -1,6 +1,7 @@
-	package net.authentication.ws;
+package net.authentication.ws;
 
 import net.htmlhandler.ws.*;
+
 
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
@@ -9,6 +10,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import jakarta.ws.rs.core.NewCookie;
 
 
 @Path("/auth")
@@ -32,16 +35,23 @@ public class AuthenticationResource {
 		   System.out.println("CALLED: /auth_user");
 		   Authentication auth = new Authentication();
            Session SESSION_USER_AUTH = auth.checkCredentials(username, password);
+           
            if(SESSION_USER_AUTH != null) {
         	   System.out.println("User created-authenticated ...");
+        	   
+        	   // Create a cookie that stores the SESSION_ID
+               NewCookie sessionCookie = new NewCookie("session_id", String.valueOf(SESSION_USER_AUTH.getSESSION_ID()), "/", null, null, NewCookie.DEFAULT_MAX_AGE, false);
+        	   
         	   if(SESSION_USER_AUTH.getUSER_BELONGS().getROLE_ID() == 2) { /// If ROLE_ID is equal with 2 that means the user is a journalist ...
         		   return Response.status(Response.Status.UNAUTHORIZED)
-                           .entity(HtmlHandler.getJOURNALIST_HTML(SESSION_USER_AUTH.getUSER_BELONGS().getUSERNAME(), SESSION_USER_AUTH.getUSER_BELONGS().getNAME(), SESSION_USER_AUTH.getUSER_BELONGS().getSURNAME()))
+        				   .cookie(sessionCookie)
+                           .entity(HtmlHandler.getJOURNALIST_HTML(SESSION_USER_AUTH.getSESSION_ID(), SESSION_USER_AUTH.getUSER_BELONGS().getUSERNAME(), SESSION_USER_AUTH.getUSER_BELONGS().getNAME(), SESSION_USER_AUTH.getUSER_BELONGS().getSURNAME()))
                            .type(MediaType.TEXT_HTML)
                            .build();
         	   } else { /// else the user is a curator ...
 	        	   return   Response.status(Response.Status.UNAUTHORIZED)
-		                   .entity(HtmlHandler.getCURATOR_HTML(SESSION_USER_AUTH.getUSER_BELONGS().getUSERNAME(), SESSION_USER_AUTH.getUSER_BELONGS().getNAME(), SESSION_USER_AUTH.getUSER_BELONGS().getSURNAME()))
+	        			   .cookie(sessionCookie)
+	        			   .entity(HtmlHandler.getCURATOR_HTML(SESSION_USER_AUTH.getSESSION_ID(), SESSION_USER_AUTH.getUSER_BELONGS().getUSERNAME(), SESSION_USER_AUTH.getUSER_BELONGS().getNAME(), SESSION_USER_AUTH.getUSER_BELONGS().getSURNAME()))
 		                   .type(MediaType.TEXT_HTML)
 		                   .build();
         	   }

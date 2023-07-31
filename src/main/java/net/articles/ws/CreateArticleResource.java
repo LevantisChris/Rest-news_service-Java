@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -22,13 +23,30 @@ import jakarta.ws.rs.core.Response;
 import net.exceptions.ws.EmptyFields;
 import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 
 @Path("/auth/auth_user/create_article")
 public class CreateArticleResource {
 	
 	/// NOTE: This function only a JOURNALIST and a CURATOR can call it ...
 	@GET
-	public Response handleFormCreation(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleFormCreation(@CookieParam("session_id") String sessionId) {
+		System.out.println("SESSION_ID RECEIVED 1 --> " + sessionId);
+		
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
 		
 		System.out.println("SERVER STATUS --> CREATE ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		int ROLE_ID;
@@ -65,7 +83,24 @@ public class CreateArticleResource {
 	@Path("/create")
 	@POST
 	@Produces(MediaType.TEXT_HTML)
-    public Response handleFormSubmission(@FormParam("username") String username, @FormParam("topic") String topic, @FormParam("title") String title, @FormParam("content") String content) {
+    public Response handleFormSubmission(@CookieParam("session_id") String sessionId, @FormParam("topic") String topic, @FormParam("title") String title, @FormParam("content") String content) {
+		System.out.println("SESSION_ID RECEIVED 2 --> " + sessionId);
+		
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("-------------------------------------");
         System.out.println("THE ARTICLE THAT SUBMITED FROM THE USER //" + username + "// IS --> ");
 		System.out.println("TITLE --> " + title);

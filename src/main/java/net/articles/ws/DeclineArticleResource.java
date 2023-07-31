@@ -12,6 +12,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 
 ///NOTE: The function decline article is only available for the Curator ...
 /* NOTE: THE CURATOR CAN SEE ALL THE ARTICLES THAT BELONGS TO EVERY-ONE 
@@ -26,7 +27,24 @@ public class DeclineArticleResource {
 	private static String ID_CLICKED;
 	
 	@GET
-	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleDisplatAllArticles(@CookieParam("session_id") String sessionId) {
+		System.out.println("SESSION_ID RECEIVED 1 --> " + sessionId);
+		
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS --> DECLINE ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		ID_CLICKED = null;
 		
@@ -59,14 +77,29 @@ public class DeclineArticleResource {
 	
 	@GET
     @Path("/{id}")
-    public Response getArticle(@PathParam("id") String id, 
-    						   @PathParam("username") String username, 
-    						   @PathParam("role") String role) {
+    public Response getArticle(@CookieParam("session_id") String sessionId, @PathParam("id") String id) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
 		if(id == null || id.isEmpty()) {
 			return Response.status(Response.Status.NOT_FOUND)
     		.entity("SELECT_ID")
     		.build();
 		}
+		
+		System.out.println("SESSION_ID RECEIVED 1 --> " + sessionId);
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
 		
 		String TITLE_FROM_DB = getTitleArticle_DB(id); 
 		if(TITLE_FROM_DB == null) {
@@ -94,7 +127,24 @@ public class DeclineArticleResource {
 	
 	@Path("/decline")
 	@PUT
-	public Response declineArticle(@QueryParam("cause") String cause) {
+	public Response declineArticle(@CookieParam("session_id") String sessionId, @QueryParam("cause") String cause) {
+		System.out.println("SESSION_ID RECEIVED 1 --> " + sessionId);
+		
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS: ARTICLE THAT CLICKED FOR CHANGING STATE TO --CREATED-- //BECAUSE OF --DECLINED--// IS WITH THE ID == " + ID_CLICKED);
 		if(cause == null) {
 			return Response.status(Response.Status.NOT_FOUND)
