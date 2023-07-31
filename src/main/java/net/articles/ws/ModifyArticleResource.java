@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -18,6 +19,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 
 /* NOTE: IF THERE IS A ALERT ON AN ARTICLE THE USER WILL SEE THE CAUSE OF IT ... */ 
 
@@ -31,7 +33,22 @@ public class ModifyArticleResource {
 	 * THE USER WILL CHOOSE WHAT ARTICLE HE WANT TO MODIFY. ALSO NOTE THAT WE WIL RETURN THE ARTICLES
 	 * THAT BELONGS TO HIM ...*/
 	@GET
-	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleDisplatAllArticles(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		if(role == null || role.isEmpty()) {
 			return Response.serverError().build();
 		}
@@ -68,7 +85,22 @@ public class ModifyArticleResource {
 	/* Here we handle the clicks in the IDs (links) */ 
 	@GET
     @Path("/{id}")
-    public Response getArticle(@PathParam("id") String id, @PathParam("username") String username, @PathParam("role") String role) {
+    public Response getArticle(@CookieParam("session_id") String sessionId, @PathParam("id") String id) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		if(id == null || id.isEmpty() || id.isBlank()) {
 			Response.status(Response.Status.NOT_FOUND)
     		.entity("SELECT_ID")
@@ -102,7 +134,21 @@ public class ModifyArticleResource {
 	/// NOTE: Here based of the id of the article the user has modified, we submit those changes in the DB 
 	@POST
 	@Path("/modify")
-	public Response modifyModifiedArticle(@FormParam("id") String id, @FormParam("title") String title, @FormParam("topic") String topic, @FormParam("content") String content) {
+	public Response modifyModifiedArticle(@CookieParam("session_id") String sessionId, @FormParam("id") String id, @FormParam("title") String title, @FormParam("topic") String topic, @FormParam("content") String content) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
 		
 		if(ID_CLICKED == null) {
 			return Response.status(Response.Status.NOT_FOUND)

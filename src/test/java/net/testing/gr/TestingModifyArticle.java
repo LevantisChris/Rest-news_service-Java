@@ -16,39 +16,32 @@ public class TestingModifyArticle {
 	public void testHandleKeyPhrasesAuthUserArticles_WithNulAndEmpty_MustReturnCorrectResponse() {
 		ModifyArticleResource m = new ModifyArticleResource();
 		
-	    // We can not proceed if the role is null
-	    Response response2 = m.handleDisplatAllArticles("", null);
-	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response2.getStatus());
+	    // We can not proceed if the session id is null
+	    Response response2 = m.handleDisplatAllArticles(null);
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response2.getStatus());
 	    
-	    // A visitor should not be able to access this function
-	    Response response1 = m.handleDisplatAllArticles("", "VISITOR");
-	    assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response1.getStatus());
-	    
-	    // If some other with a role not correct 
-	    Response response3 = m.handleDisplatAllArticles("", "ANOTHER_ROLE_NOT_KNOWN");
-	    assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response3.getStatus());    
+	    // We can not proceed if the session id is empty
+	    Response response3 = m.handleDisplatAllArticles("");
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response3.getStatus());
 	}
 	
 	@Test
 	public void testModifyModifiedArticle_WithNullAndEmptyParameters_MustReturnCorrectResponses() {
 		ModifyArticleResource m = new ModifyArticleResource();
 
-		// null
-		/* Here we should get INTERNAL_SERVER_ERROR (500) But we get NOT_FOUND (404)
-		 * that is because the global variable ID_CLICKED is not initialised with an id of
-		 * an article yet */
-		Response response1 = m.modifyModifiedArticle(null, null, null, null);
-	    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response1.getStatus());
+		/* The user that have session id 12345, does not exist  */
+		Response response1 = m.modifyModifiedArticle("12345", null, null, null, null);
+	    assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response1.getStatus());
 	    
 	    /* If we want to test it correctly we need to first call the function getArticle
-	     * to initialise the ID_CLICKED with an id of an article, lets say 2. */
-	    m.getArticle("3", "A_USERNAME", "A_ROLE");
+	     * to initialise the ID_CLICKED with an id of an article, lets say 3. */
+	    m.getArticle("123456", "3");
 	    /// Now the ID_CLICKED is initialised with the value 3
 	    /// So now we should get INTERNAL_SERVER_ERROR
-	    Response response2 = m.modifyModifiedArticle(null, null, null, null);
+	    Response response2 = m.modifyModifiedArticle("123456", null, null, null, null);
 	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response2.getStatus());
 	    
-	    Response response3 = m.modifyModifiedArticle("", null, null, null);
+	    Response response3 = m.modifyModifiedArticle("123456", "", null, null, null);
 	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response3.getStatus());
 	}
 	
