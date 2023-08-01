@@ -25,8 +25,6 @@ public class ApproveArticleResource {
 	
 	@GET
 	public Response handleDisplatAllArticles(@CookieParam("session_id") String sessionId) {
-		System.out.println("SESSION_ID RECEIVED 1 --> " + sessionId);
-		
 		if(sessionId == null || sessionId.isBlank()) {
 			return Response.status(Response.Status.BAD_REQUEST).build();
 		}
@@ -68,7 +66,6 @@ public class ApproveArticleResource {
     @Path("/{id}")
     public Response getArticle(@CookieParam("session_id") String sessionId,
     						   @PathParam("id") String id) {
-		System.out.println("SESSION_ID RECEIVED 2 --> " + sessionId);
 		
 		///
 				/* Get the user that has the session and also the role */
@@ -80,6 +77,13 @@ public class ApproveArticleResource {
 				String role = sessionExtractor.getRoleFromSession(sessionId);
 				System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
 		///
+				///
+				/* Check if the article can be viewed by the user of the session */
+				/// The article must be in the state 2 to be viewed
+				if(sessionExtractor.checkIfArticleCanBeViewed(sessionId, id, 2) == false) {
+					return Response.status(Response.Status.NOT_ACCEPTABLE).build();
+				}
+				///
 		
 		String TITLE_FROM_DB = getTitleArticle_DB(id); 
 		if(TITLE_FROM_DB == null) {

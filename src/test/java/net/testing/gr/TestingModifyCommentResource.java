@@ -12,20 +12,17 @@ public class TestingModifyCommentResource {
 	@Test
 	public void testStartMethod() {
 		ModifyCommentResource a = new ModifyCommentResource();
-	    Response response = a.handleDisplayAllArticles("A_USERNAME", "VISITOR");
-	    assertEquals("ROLE_NOT_IDENTIFIED", response.getEntity());
+	    Response response = a.handleDisplayAllArticles(null);
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	    
-	    response = a.handleDisplayAllArticles("A_USERNAME", "JOURNALIST");
-	    assertEquals("ROLE_NOT_IDENTIFIED", response.getEntity());
-	    
-	    response = a.handleDisplayAllArticles("A_USERNAME", "ANOTHER_ROLE_NOT_KNOWN");
-	    assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
+	    response = a.handleDisplayAllArticles("");
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	}
 	
 	@Test
 	public void testHandleModifyButton_WithNullJSON_MustReturnServerError() {
 		ModifyCommentResource a = new ModifyCommentResource();
-	    Response response = a.handleModifyButton(null);
+	    Response response = a.handleModifyButton("123456", null);
 	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
 	}
 	
@@ -36,7 +33,7 @@ public class TestingModifyCommentResource {
 		
 		String JSON = "{\"comment_id\": 22, \"new_contents\": \"Testing modify comment\"}";
 		
-	    Response response = a.handleModifyButton(JSON);
+	    Response response = a.handleModifyButton("123456", JSON);
 	    assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 	}
 	
@@ -46,7 +43,7 @@ public class TestingModifyCommentResource {
 		
 		String JSON = "{\"comment_id\": 22, \"new_contentsWrong\": \"Testing modify comment\"}";
 		
-	    Response response = a.handleModifyButton(JSON);
+	    Response response = a.handleModifyButton("123456", JSON);
 	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
 	}
 	

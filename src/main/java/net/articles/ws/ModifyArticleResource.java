@@ -100,6 +100,18 @@ public class ModifyArticleResource {
 		String role = sessionExtractor.getRoleFromSession(sessionId);
 		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
 		///
+		/* Check if the article can be viewed by the user of the session */
+		/// The article must be in the state 1 to be viewed
+		if(role.equals("CURATOR")) {
+			if(sessionExtractor.checkIfArticleCanBeViewed(sessionId, id, 1, 3, "modify") == false) { // the curator can mofify articles that are in the state 1 and 3
+				return Response.status(Response.Status.NOT_ACCEPTABLE).build();
+			}
+		} else if(role.equals("JOURNALIST")) {
+			if(sessionExtractor.checkIfArticleCanBeViewed(sessionId, id, 1, "modify") == false) { // the journalist can only see articles that are in the state 1
+				return Response.status(Response.Status.NOT_ACCEPTABLE).build();
+			}
+		}
+		///
 		
 		if(id == null || id.isEmpty() || id.isBlank()) {
 			Response.status(Response.Status.NOT_FOUND)

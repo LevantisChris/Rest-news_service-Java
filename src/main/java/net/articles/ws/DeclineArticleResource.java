@@ -100,6 +100,12 @@ public class DeclineArticleResource {
 		String role = sessionExtractor.getRoleFromSession(sessionId);
 		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
 		///
+		/* Check if the article can be viewed by the user of the session */
+		/// The article must be in the state 2 and 3 to be viewed
+		if(sessionExtractor.checkIfArticleCanBeViewed(sessionId, id, 2, 3) == false) { // the curator can decline article that are in the state 2 and also 3
+			return Response.status(Response.Status.NOT_ACCEPTABLE).build();
+		}
+		///
 		
 		String TITLE_FROM_DB = getTitleArticle_DB(id); 
 		if(TITLE_FROM_DB == null) {

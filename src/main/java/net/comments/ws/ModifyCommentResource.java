@@ -11,6 +11,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -19,6 +20,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.comments.ws.manage_comments.Comments;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 
 /// This function is only for a Curator
 
@@ -26,7 +28,22 @@ import net.htmlhandler.ws.HtmlHandler;
 public class ModifyCommentResource {
 
 	@GET
-	public Response handleDisplayAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleDisplayAllArticles(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS: A user with username //" + username + "// and role //" + role + "//");
 		if(role == null || role.isEmpty()) {
 			return Response.serverError().build();
@@ -47,7 +64,22 @@ public class ModifyCommentResource {
 	@POST
 	@Path("/modify")
     @Consumes(MediaType.APPLICATION_JSON)
-	public Response handleModifyButton(String json) {
+	public Response handleModifyButton(@CookieParam("session_id") String sessionId, String json) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS: THE JSON WE GET FROM CLIENT IS " + json);
 		if(json == null) {
 		    return Response.serverError().build();

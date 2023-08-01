@@ -90,6 +90,14 @@ public class DisplayArticleResource_auth {
 		String role = sessionExtractor.getRoleFromSession(sessionId);
 		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
 		///
+		if(role.equals("JOURNALIST")) {
+			/* Check if the article can be viewed by the user of the session */
+			/// The article must be in the state 2 to be viewed
+			if(sessionExtractor.checkIfArticleCanBeViewed(sessionId, id, 4, "display") == false) {
+				return Response.status(Response.Status.NOT_ACCEPTABLE).build();
+			}
+			///
+		}
 		
 		if(id == null || id.isEmpty()) {
 			Response.status(Response.Status.NOT_FOUND)

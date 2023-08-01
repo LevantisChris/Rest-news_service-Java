@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashSet;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -20,13 +21,30 @@ import net.articles.ws.manage_articles.Article;
 import net.comments.ws.manage_comments.Comments;
 import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 
 @Path("/auth/auth_user/displayCommentsOfArticle_comment")
 public class DisplayCommentsOfAnArticleResource_auth {
 	
 	@GET
 	@Consumes(MediaType.TEXT_PLAIN)
-	public Response handleDisplayAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleDisplayAllArticles(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS --> ACCEPT ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		if(role == null || role.isEmpty()) {
 			return Response.serverError().build();
@@ -64,16 +82,33 @@ public class DisplayCommentsOfAnArticleResource_auth {
 	@GET
 	@Path("/{id}")
 	@Consumes(MediaType.TEXT_PLAIN)
-	public Response handleDisplayComments(@PathParam("id") String article_id, 
-										  @QueryParam("username") String username, 
-										  @QueryParam("role") String role) {		
+	public Response handleDisplayComments(@CookieParam("session_id") String sessionId, @PathParam("id") String article_id) {	
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
+		///
+		/* Check if the article can be viewed by the user of the session */
+		/// The article must be in the state 2 to be viewed
+		if(sessionExtractor.checkIfArticleCanBeViewed(sessionId, article_id, 4, "displayCommetsOfArticle") == false) {
+			return Response.status(Response.Status.NOT_ACCEPTABLE).build();
+		}
+		///
+		
 		if(article_id == null || username == null || role == null) {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
 		} else if(article_id.isEmpty()) {
 			return Response.status(Response.Status.NO_CONTENT).build();
 		}
 		Article ARTICLE_SELECTED = getSelectedArticle(Integer.parseInt(article_id));
-		ArrayList<Comments> COMMENTS_DATA = getCommentsOfArticle(Integer.parseInt(article_id));
+		ArrayList<Comments> COMMENTS_DATA = getCommentsOfArticle(Integer.parseInt(article_id), role);
 		
 		return Response.status(Response.Status.OK)
                 .entity(HtmlHandler.getArticleComments(ARTICLE_SELECTED, COMMENTS_DATA, username))
@@ -207,15 +242,21 @@ public class DisplayCommentsOfAnArticleResource_auth {
 	    }
 	}
 	
-	/* Based on the ID of the article that the user select we will get the comment and put them in an ArrayList */
-	private ArrayList<Comments> getCommentsOfArticle(int article_id) {
+	/* Based on the ID of the article that the user select we will get the comment and put them in an ArrayList 
+	 * 
+	 * NOTE: We must return the comments that are in the state 3 */
+	private ArrayList<Comments> getCommentsOfArticle(int article_id, String role) {
 			String url = "jdbc:mysql://localhost:3306/news_db";
 		    String username_DB = "root";
 		    String passwd = "kolos2020";
 		    
 		    ArrayList<Comments> COMMENTS_DATA = new ArrayList<>();
-		    
-		    String selectQuery = "SELECT * FROM news_db.comments WHERE ARTICLE_ID = ?";
+		    String selectQuery;
+		    if(role.equals("CURATOR")) {	
+		    	selectQuery = "SELECT * FROM news_db.comments WHERE ARTICLE_ID = ?;"; 
+		    } else {
+		    	selectQuery = "SELECT * FROM news_db.comments WHERE ARTICLE_ID = ? AND STATE_ID = 3;"; 
+		    }
 		    Connection connection = null;
 		    PreparedStatement selectStatement = null;
 		    

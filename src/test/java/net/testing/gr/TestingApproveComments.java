@@ -17,11 +17,11 @@ public class TestingApproveComments {
 	@Test
 	public void testStartMethod() {
 	    ApproveCommentResource a = new ApproveCommentResource();
-	    Response response = a.handleDisplayAllComments("A_USERNAME", "VISITOR");
-	    assertEquals("ROLE_NOT_IDENTIFIED", response.getEntity());
+	    Response response = a.handleDisplayAllComments(null);
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	    
-	    response = a.handleDisplayAllComments("A_USERNAME", "ANOTHER_ROLE_NOT_KNOWN");
-	    assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
+	    response = a.handleDisplayAllComments("");
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	}
 
 	@Test
@@ -30,7 +30,7 @@ public class TestingApproveComments {
 	    /* We add the ID of an article that at this time has STATE_ID 1, to test if 
 	     * the approve method is working correctly */
 	    String JSON_STR = "{\"comment_id\": 20}";
-	    Response response = a.handleApproveButton(JSON_STR);
+	    Response response = a.handleApproveButton("123456", JSON_STR);
 	    assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 	}
 	
@@ -39,14 +39,14 @@ public class TestingApproveComments {
 		ApproveCommentResource a = new ApproveCommentResource();
 		/* Now the JSON we add is invalid because the ID does not exist */
 		String JSON_STR = "{\"comment_id\": 53}";
-	    Response response = a.handleApproveButton(JSON_STR);
+	    Response response = a.handleApproveButton("123456", JSON_STR);
 	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
 	}
 	
 	@Test
 	public void testHandleApproveButton_WithNullJSON_MustReturnServerError() {
 		ApproveCommentResource a = new ApproveCommentResource();
-		Response response = a.handleApproveButton(null);
+		Response response = a.handleApproveButton("123456",null);
 	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
 	}
 	

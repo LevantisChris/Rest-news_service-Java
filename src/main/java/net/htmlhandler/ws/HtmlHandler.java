@@ -64,10 +64,11 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_article\">Create Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_article\">Modify Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/submit_article\">Submit Article</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article?username=" + username + "&role=" + "JOURNALIST" + "\">Search Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article\">Search Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_article\">Display Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article\">Display all the Articles/Add Comment</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment?username=" + username + "&role=" + "JOURNALIST" + "\">Display Comments of an article</a>\n" +
+		        "    <hr>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment\">Display Comments of an article</a>\n" +
 		        "    <hr>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Create topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Modify topic</a>\n" +
@@ -111,14 +112,14 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_article\">Approve Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_article\">Decline Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/publish_article\">Article publication</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article?username=" + username + "&role=" + "CURATOR" + "\">Search Article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_article\">Search Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_article\">Display Article</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_article\">Display all the Articles/Add Comment</a>\n" +
 		        "    <hr>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_comment?username=" + username + "&role=" + "CURATOR" + "\">Modify Comment</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_comment?username=" + username + "&role=" + "CURATOR" + "\">Approve Comment</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_comment?username=" + username + "&role=" + "CURATOR" + "\">Decline Comment</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment?username=" + username + "&role=" + "CURATOR" + "\">Display Comments of an article</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_comment\">Modify Comment</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_comment\">Approve Comment</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_comment\">Decline Comment</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment\">Display Comments of an article</a>\n" +
 		        "    <hr>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_topic?username=" + username + "&role=" + "CURATOR" + "\">Create topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_topic?username=" + username + "&role=" + "CURATOR" + "\">Modify topic</a>\n" +
@@ -1733,9 +1734,9 @@ public class HtmlHandler {
 
 		    for (String element : COMMENTS_ARTICLES_IDs) {
 		    	if(!role.equals("VISITOR"))
-		        	frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment/" + element + "?username=" + username + "&role=" + role + "&method=GET\">" + element + "</a> ";
-		    	else
-		        	frameHTML += "<a href=\"/RESTstart/rest/auth/not_auth_user/displayCommentsOfArticle_comment/" + element + "?username=" + username + "&role=" + role + "&method=GET\">" + element + "</a> ";		   
+		    		frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment/" + element + "\">" + element + "</a> ";
+		    	else // changed for authorisation
+		        	frameHTML += "<a href=\"/RESTstart/rest/auth/not_auth_user/displayCommentsOfArticle_comment/" + element + "\">" + element + "</a> ";		   
 		    }
 		    frameHTML += "</div>";
 

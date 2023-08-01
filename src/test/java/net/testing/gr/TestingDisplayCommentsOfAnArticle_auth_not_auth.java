@@ -21,32 +21,34 @@ public class TestingDisplayCommentsOfAnArticle_auth_not_auth {
 	public void testHandleDisplayAllArticles_WithNulAndEmpty_MustReturnCorrectResponse() {
 		DisplayCommentsOfAnArticleResource_auth d = new DisplayCommentsOfAnArticleResource_auth();
 		
-	    // We can not proceed if the role is null
-	    Response response2 = d.handleDisplayAllArticles("", null);
-	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response2.getStatus());
+	    // We can not proceed if the session id is null
+	    Response response2 = d.handleDisplayAllArticles(null);
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response2.getStatus());
 	    
-	    // A visitor should not be able to access this function
-	    Response response1 = d.handleDisplayAllArticles("", "VISITOR");
-	    assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response1.getStatus());
-	    
-	    // If some other with a role not correct 
-	    Response response3 = d.handleDisplayAllArticles("", "ANOTHER_ROLE_NOT_KNOWN");
-	    assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response3.getStatus());    
+	    // We can not procced if the session id is empty
+	    Response response3 = d.handleDisplayAllArticles("");
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response3.getStatus());
 	}
 	
 	@Test
 	public void testHandleDisplayComments_WithNullParameters_MustReturnServerError() {
+		/// null in session
 		DisplayCommentsOfAnArticleResource_auth d = new DisplayCommentsOfAnArticleResource_auth();
 		String temp = null;
-		Response response2 = d.handleDisplayComments(temp, temp, temp);
-	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response2.getStatus());
+		Response response2 = d.handleDisplayComments(temp, temp);
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response2.getStatus());
+	    
+	    /// null article id
+	    Response response3 = d.handleDisplayComments("123456", temp);
+	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response3.getStatus());
 	}
 	
 	@Test
 	public void testHandleDisplayComments_WithEmptyArticleID_MustReturnNoContent() {
 		DisplayCommentsOfAnArticleResource_auth d = new DisplayCommentsOfAnArticleResource_auth();
-		Response response2 = d.handleDisplayComments("", "A_USERNAME", "A_ROLE");
-	    assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response2.getStatus());
+		/// empty article id
+	    Response response4 = d.handleDisplayComments("123456", "");
+	    assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response4.getStatus());
 	}
 	
 	@Test
