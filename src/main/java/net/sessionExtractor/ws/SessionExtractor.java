@@ -602,7 +602,19 @@ public class SessionExtractor implements ExtractSession_ID {
 		        		if(creator_username.equals(username) || Integer.parseInt(state_id) == functionState) {
 			        		return true;
 		        		}
-		        	}
+		        }
+		    }
+	        
+	        if(description.equals("modify")) {
+	        	System.out.println("1");
+		        if(role.equals("JOURNALIST")) {
+		        	System.out.println("2");
+		        	if(creator_username.equals(username) && Integer.parseInt(state_id) == functionState) {
+		        		System.out.println("3");
+			        	return true;
+		        	} else 
+		        		return false;
+		        }
 		    }
 	        
 	        /* At start, the topic must be in the state the function allows to be */

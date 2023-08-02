@@ -19,34 +19,31 @@ public class TestingSearchTopic_auth_not_auth {
 	public void testHandleKeyPhrasesAuthUserArticles_WithNullAndEmpty_MustReturnCorrectResponse() {
 		SearchTopicResource_auth s = new SearchTopicResource_auth();
 		
-		Response response1 = s.handleKeyPhrasesAuthUserArticles("", "JOURNALIST");
-		assertEquals(Response.Status.OK.getStatusCode(), response1.getStatus());
+		Response response1 = s.handleKeyPhrasesAuthUserArticles("");
+		assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response1.getStatus());
 		
-	    Response response2 = s.handleKeyPhrasesAuthUserArticles("", "VISITOR");
-	    assertEquals("ROLE_NOT_IDENTIFIED", response2.getEntity());
-	    
-	    Response response3 = s.handleKeyPhrasesAuthUserArticles("", "CURATOR");
-	    assertEquals(Response.Status.OK.getStatusCode(), response3.getStatus());
+		Response response2 = s.handleKeyPhrasesAuthUserArticles(null);
+		assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response2.getStatus());
 	}
 	
 	@Test
 	public void testSendDate_WithNullValues_MustReturnServerError() {
 		SearchTopicResource_auth s = new SearchTopicResource_auth();
-		Response response1 = s.sendData(null, null, null);
+		Response response1 = s.sendData("123456", null);
 		assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response1.getStatus());
 	}
 	
 	@Test
 	public void testSendDate_WithEmptyKeyPhrase_MustReturnNotFound() {
 		SearchTopicResource_auth s = new SearchTopicResource_auth();
-		Response response1 = s.sendData("A_USERNAME", "CURATOR", "");
+		Response response1 = s.sendData("123456", "");
 		assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response1.getStatus());
 	}
 	
 	@Test
 	public void testSendData_WithCorrectKeyPhrase_MustReturnOk() {
 		SearchTopicResource_auth s = new SearchTopicResource_auth();
-		Response response1 = s.sendData("A_USERNAME", "CURATOR", "BMW");
+		Response response1 = s.sendData("123456", "BMW");
 		assertEquals(Response.Status.OK.getStatusCode(), response1.getStatus());
 	}
 	
