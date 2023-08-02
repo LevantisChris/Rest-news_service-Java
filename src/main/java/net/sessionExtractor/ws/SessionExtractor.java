@@ -563,4 +563,68 @@ public class SessionExtractor implements ExtractSession_ID {
 	        }
 	    }
 	}
+	
+	@Override
+	public boolean checkIfTopicCanBeViewed(String sessionId, String topicId, int functionState, String description) {
+		String username = getUsernameFromSession(sessionId);
+		String role = getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: AUTHORIZE for article with ID == " + topicId + " about username == " + username + " and role == " + role);
+		
+		String url = "jdbc:mysql://localhost:3306/news_db";
+	    String username_DB = "root";
+	    String passwd = "kolos2020";
+	    
+	    Connection connection = null;
+	    PreparedStatement selectStatement = null;
+	    
+	    String selectQuery = "SELECT STATE_ID, CREATOR_USERNAME FROM news_db.topic WHERE ID = ?;";
+	    
+	    String state_id = null, creator_username = null;
+	    boolean alert = false;
+	    try {
+	    	connection = DriverManager.getConnection(url, username_DB, passwd);
+	        System.out.println("\nSERVER STATUS: Connected to the database...");
+		    
+	        selectStatement = connection.prepareStatement(selectQuery);
+	        selectStatement.setInt(1, Integer.parseInt(topicId));
+	        ResultSet resultSet = selectStatement.executeQuery();
+
+	        while(resultSet.next()) {
+	        	state_id = resultSet.getString("STATE_ID");
+	        	creator_username = resultSet.getString("CREATOR_USERNAME");
+	        }
+	        if(state_id == null || creator_username == null) {
+	        	return false;
+	        }
+	        
+	        if(description.equals("display")) {
+		        if(role.equals("JOURNALIST")) {
+		        		if(creator_username.equals(username) || Integer.parseInt(state_id) == functionState) {
+			        		return true;
+		        		}
+		        	}
+		    }
+	        
+	        /* At start, the topic must be in the state the function allows to be */
+	        if(Integer.parseInt(state_id) == functionState) {
+	        	return true;
+	        }
+	        return false;
+	    } catch(SQLException e) {
+	    	e.printStackTrace();
+	    	return false;
+	    } finally {
+	        try {
+	            if (selectStatement != null) {
+	                selectStatement.close();
+	            }
+	            if (connection != null && !connection.isClosed()) {
+	                connection.close();
+	                System.out.println("Disconnected from the database...\n");
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
 }

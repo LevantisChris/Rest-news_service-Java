@@ -13,23 +13,23 @@ import net.topics.ws.DisplayArticlesOfATopicResource_auth;
 public class TestingDisplayArticlesOfATopic_auth_not_auth {
 
 	@Test
-	public void testHandleStartPage_WithRoleVisitor_MustReturnServerError() {
+	public void testHandleStartPage_WithNullSessionId_MustReturnBAD_REQUEST() {
 		DisplayArticlesOfATopicResource_auth a = new DisplayArticlesOfATopicResource_auth();
-	    Response response = a.handleStartPage("", "VISITOR");
-	    assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
+	    Response response = a.handleStartPage(null);
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	}
 	
 	@Test
 	public void testHandleTopicArticles_WithCorectInputs_MustReturnOk() {
 		DisplayArticlesOfATopicResource_auth a = new DisplayArticlesOfATopicResource_auth();
-		Response response = a.handleTopicArticles("A_USERNAME", "CURATOR", "Cars");
+		Response response = a.handleTopicArticles("123456", "Cars");
 		assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 	}
 	
 	@Test
 	public void testHandleTopicArticles_WithNullParameters_MustReturnNotFound() {
 		DisplayArticlesOfATopicResource_auth a = new DisplayArticlesOfATopicResource_auth();
-		Response response = a.handleTopicArticles(null, null, null);
+		Response response = a.handleTopicArticles("123456", null);
 		assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
 	}
 	

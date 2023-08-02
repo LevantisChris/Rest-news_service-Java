@@ -72,10 +72,10 @@ public class HtmlHandler {
 		        "    <hr>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_topic\">Create topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Modify topic</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display Topic</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display all the Topics</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic\">Display Topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_topic\">Display all the Topics</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Search topic</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayArticlesOfTopic_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display articles of a topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayArticlesOfTopic_topic\">Display articles of a topic</a>\n" +
 		        "  </div>\n" +
 		        "</body>\n" +
 		        "</html>";
@@ -125,10 +125,10 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_topic?username=" + username + "&role=" + "CURATOR" + "\">Modify topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_topic\">Approve topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_topic\">Decline topic</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "CURATOR" + "\">Display Topic</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_topic?username=" + username + "&role=" + "CURATOR" + "\">Display all the Topics</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic\">Display Topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_topic\">Display all the Topics</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_topic?username=" + username + "&role=" + "CURATOR" + "\">Search topic</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayArticlesOfTopic_topic?username=" + username + "&role=" + "CURATOR" + "\">Display articles of a topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayArticlesOfTopic_topic\">Display articles of a topic</a>\n" +
 		        "  </div>\n" +
 		        "</body>\n" +
 		        "</html>";
@@ -2998,7 +2998,7 @@ public class HtmlHandler {
         		script = "<script>function getArticles(topic_clicked) {\r\n"
 	        			+ "    console.log('getArticles CALLED');\r\n"
 	        			+ "\r\n"
-	        			+ "    var url = '/RESTstart/rest/auth/not_auth_user/displayArticlesOfTopic_topic/display?username=" + username + "&role=" + role + "&topic_clicked=' + encodeURIComponent(topic_clicked);\r\n"
+	        			+ "    var url = '/RESTstart/rest/auth/not_auth_user/displayArticlesOfTopic_topic/display';\r\n"
 	        			+ "    var xhr = new XMLHttpRequest();\r\n"
 	        			+ "    xhr.open('GET', url, true);\r\n"
 	        			+ "    // Remove or set Content-Type to application/json\r\n"

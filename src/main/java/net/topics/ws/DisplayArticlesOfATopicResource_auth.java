@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
@@ -16,13 +17,29 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.articles.ws.manage_articles.Article;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 
 @Path("/auth/auth_user/displayArticlesOfTopic_topic")
 public class DisplayArticlesOfATopicResource_auth {
 
 	@GET
 	@Consumes(MediaType.TEXT_HTML)
-	public Response handleStartPage(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleStartPage(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		if(role == null || role.isEmpty()) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
@@ -51,9 +68,23 @@ public class DisplayArticlesOfATopicResource_auth {
 	
 	@GET
 	@Path("/display")
-	public Response handleTopicArticles(@QueryParam("username") String username, 
-									    @QueryParam("role") String role,
+	public Response handleTopicArticles(@CookieParam("session_id") String sessionId,
 									    @QueryParam("topic_clicked") String topic_clicked) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS: ACTION IN THE DISPLAY_ARTICLES_OF_A_TOPIC BY USERNAME --" + username + "-- AND ROLE --" + role + "-- WITH TOPIC CLICKED --" + topic_clicked + "--");
 		
 		if(username == null || role == null || topic_clicked == null) {

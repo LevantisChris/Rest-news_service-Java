@@ -15,44 +15,44 @@ import net.topics.ws.DisplayAllTopicsResource_auth;
 public class TestingDisplayAllTopics_auth_not_auth {
 
 	@Test
-	public void testHandleKeyPhrasesAuthUserArticles_WithRoleVisitor_MustReturnServerError() {
+	public void testHandleKeyPhrasesAuthUserArticles_WithEmptySessionId_MustReturnBAD_REQUEST() {
 		DisplayAllTopicsResource_auth a = new DisplayAllTopicsResource_auth();
-	    Response response = a.handleKeyPhrasesAuthUserArticles("", "VISITOR");
-	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+	    Response response = a.handleKeyPhrasesAuthUserTopics("");
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	}
 	
 	@Test
-	public void testHandleKeyPhrasesAuthUserArticles_withNullParameters_MustReturnNotFound() {
+	public void testHandleKeyPhrasesAuthUserArticles_withNullSessionId_MustReturnBAD_REQUEST() {
 		DisplayAllTopicsResource_auth a = new DisplayAllTopicsResource_auth();
-		Response response = a.handleKeyPhrasesAuthUserArticles(null, null);
-	    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+		Response response = a.handleKeyPhrasesAuthUserTopics(null);
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	}
 	
 	@Test
 	public void testHandleSort_WithBothCheckBoxesClicked_MustReturnNotAcceptable() {
 		DisplayAllTopicsResource_auth a = new DisplayAllTopicsResource_auth();
-		Response repsonse = a.handleSort(false, false, "A_NAME", "A_ROLE");
+		Response repsonse = a.handleSort("123456", false, false);
 		assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), repsonse.getStatus());
 	}
 	
 	@Test
 	public void testHandleSort_WithSortByStateTrue_MustReturnOk() {
 		DisplayAllTopicsResource_auth a = new DisplayAllTopicsResource_auth();
-		Response repsonse = a.handleSort(false, true, "A_NAME", "CURATOR");
+		Response repsonse = a.handleSort("123456", false, true);
 		assertEquals(Response.Status.OK.getStatusCode(), repsonse.getStatus());
 	}
 	
 	@Test
 	public void testHandleSort_WithSortByNameTrue_MustReturnOk() {
 		DisplayAllTopicsResource_auth a = new DisplayAllTopicsResource_auth();
-		Response repsonse = a.handleSort(true, false, "A_NAME", "CURATOR");
+		Response repsonse = a.handleSort("123456", true, false);
 		assertEquals(Response.Status.OK.getStatusCode(), repsonse.getStatus());
 	}
 	
 	@Test
 	public void testHandleFilters_WithNullJson_MustReturnServerError() {
 		DisplayAllTopicsResource_auth a = new DisplayAllTopicsResource_auth();
-		Response repsonse = a.handleFilters(null);
+		Response repsonse = a.handleFilters("123456", null);
 		assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), repsonse.getStatus());
 	}
 
@@ -62,7 +62,7 @@ public class TestingDisplayAllTopics_auth_not_auth {
 		
 		String JSON_STR = "{\"clickedByName\": \"A_NAME\", \"WrongRole\": \"CURATOR\", \"state\": \"2\", \"startDate\": 2023-05-25, \"endDate\": 2023-05-20}";
 
-		Response repsonse = a.handleFilters(JSON_STR);
+		Response repsonse = a.handleFilters("123456", JSON_STR);
 		assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), repsonse.getStatus());
 	}
 	

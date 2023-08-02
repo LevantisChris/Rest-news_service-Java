@@ -9,6 +9,7 @@ public interface ExtractSession_ID {
 	public boolean checkIfArticleCanBeViewed(String sessionId, String articleId, int functionState1, int functionState2, String description);
 	
 	public boolean checkIfTopicCanBeViewed(String sessionId, String topicId, int functionState);
+	public boolean checkIfTopicCanBeViewed(String sessionId, String topicId, int functionState, String description);
 	
 	String getUsernameFromSession(String sessionId);
     String getRoleFromSession(String sessionId); // it will return the definition
