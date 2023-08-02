@@ -14,17 +14,17 @@ import net.topics.ws.CreateTopicResource;
 public class TestingCreateTopic {
 	
 	@Test
-	public void testHandleFormCreation_WithRoleVisitor_MustReturnServerError() {
+	public void testHandleFormCreation_WithEmptySessionId_MustReturnServerError() {
 		CreateTopicResource c = new CreateTopicResource();
-	    Response response = c.handleFormCreation("", "VISITOR");
-	    assertEquals("ROLE_NOT_IDENTIFIED", response.getEntity());
+	    Response response = c.handleFormCreation("");
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	}
 	
 	@Test
-	public void testHandleFormCreation_WithNullParamters_MustReturnServerError() {
+	public void testHandleFormCreation_WithNullSessionId_MustReturnServerError() {
 		CreateTopicResource c = new CreateTopicResource();
-	    Response response = c.handleFormCreation(null, null);
-	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+	    Response response = c.handleFormCreation(null);
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	}
 	
 	/* NOTE: the function topicExists checks if a topic exists based on the title

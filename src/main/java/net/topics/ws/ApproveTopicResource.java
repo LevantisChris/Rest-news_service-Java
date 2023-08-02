@@ -11,6 +11,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -20,13 +21,29 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 
 @Path("/auth/auth_user/approve_topic")
 public class ApproveTopicResource {
 
 	@GET
 	@Consumes(MediaType.TEXT_PLAIN)
-	public Response handleDisplayAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleDisplayAllArticles(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS --> APPROVE TOPIC CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		if(role == null || role.isEmpty()) {
 			return Response.serverError().build();
@@ -59,7 +76,27 @@ public class ApproveTopicResource {
 	@GET
     @Path("/{id}")
 	@Consumes(MediaType.TEXT_PLAIN)
-    public Response handlegetTopic(@PathParam("id") String id) {
+    public Response handlegetTopic(@CookieParam("session_id") String sessionId,
+    							   @PathParam("id") String id) {
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		///
+		/* Check if the article can be viewed by the user of the session */
+		/// The topic must be in the state 1 to be viewed
+		if(sessionExtractor.checkIfTopicCanBeViewed(sessionId, id, 1) == false) {
+			return Response.status(Response.Status.NOT_ACCEPTABLE).build();
+		}
+		///
+		
+		
 		System.out.println("SERVER STATUS: ACTION IN APPROVED TOPIC: ID//" + id + "//");
 		if(id == null || id.isEmpty() || id.isBlank()) {
 			return Response.status(Response.Status.NOT_FOUND)
@@ -85,7 +122,22 @@ public class ApproveTopicResource {
 	@POST
 	@Path("/approve")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response handleModificatiOnOfTopic(String JSON) {
+	public Response handleModificatiOnOfTopic(@CookieParam("session_id") String sessionId, String JSON) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS: JSON FOR MODIFICATION IS: " + JSON);
 		
 		if(JSON == null) {

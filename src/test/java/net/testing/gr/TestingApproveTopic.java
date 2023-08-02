@@ -15,32 +15,33 @@ public class TestingApproveTopic {
 	@Test
 	public void testStartMethod() {
 		ApproveTopicResource a = new ApproveTopicResource();
-	    Response response = a.handleDisplayAllArticles("", "VISITOR");
-	    assertEquals("ROLE_NOT_IDENTIFIED", response.getEntity());
+	    Response response = a.handleDisplayAllArticles(null);
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	    
-	    response = a.handleDisplayAllArticles(null, null);
-	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+	    response = a.handleDisplayAllArticles("");
+	    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	}
 	
 	
 	@Test
 	public void testHandlegetTopic_WithCorrectId_MustReturnOk() {
 		ApproveTopicResource a = new ApproveTopicResource();
-		Response response = a.handlegetTopic("14"); // 14 is a ID for a topic
+		Response response = a.handlegetTopic("123456", "19"); // 19 is a ID for a topic
 	    assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 	}
 	
 	@Test
 	public void testHandlegetTopic_WithNullId_MustReturnNotFound() {
 		ApproveTopicResource a = new ApproveTopicResource();
-		Response response = a.handlegetTopic(null); // 14 is a ID for a topic
+		String temp = null;
+		Response response = a.handlegetTopic("123456", temp); 
 	    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
 	}
 	
 	@Test
 	public void testHandleModificatiOnOfTopic_WithNullJson_MustReturnServerError() {
 		ApproveTopicResource a = new ApproveTopicResource();
-		Response response = a.handleModificatiOnOfTopic(null);
+		Response response = a.handleModificatiOnOfTopic("123456", null);
 		assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
 	}
 	
@@ -48,7 +49,7 @@ public class TestingApproveTopic {
 	public void testHandleModificatiOnOfTopic_WithInCorrectJson_MustReturnServerError() {
 		ApproveTopicResource a = new ApproveTopicResource();
 		String JSON_STR = "{\"titleINCORRECT\": \"This is the title\", \"parentTopic\": \"This is the parent Topic\", \"topic_id_picked\": \"This is the topic picked\"}";
-		Response response = a.handleModificatiOnOfTopic(JSON_STR);
+		Response response = a.handleModificatiOnOfTopic("123456", JSON_STR);
 		assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
 	}
 	

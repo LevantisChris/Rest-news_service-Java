@@ -70,7 +70,7 @@ public class HtmlHandler {
 		        "    <hr>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment\">Display Comments of an article</a>\n" +
 		        "    <hr>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Create topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_topic\">Create topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Modify topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display Topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_topic?username=" + username + "&role=" + "JOURNALIST" + "\">Display all the Topics</a>\n" +
@@ -121,10 +121,10 @@ public class HtmlHandler {
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_comment\">Decline Comment</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayCommentsOfArticle_comment\">Display Comments of an article</a>\n" +
 		        "    <hr>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_topic?username=" + username + "&role=" + "CURATOR" + "\">Create topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/create_topic\">Create topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/modify_topic?username=" + username + "&role=" + "CURATOR" + "\">Modify topic</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_topic?username=" + username + "&role=" + "CURATOR" + "\">Approve topic</a>\n" +
-		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_topic?username=" + username + "&role=" + "CURATOR" + "\">Decline topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/approve_topic\">Approve topic</a>\n" +
+		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/decline_topic\">Decline topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/display_topic?username=" + username + "&role=" + "CURATOR" + "\">Display Topic</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/displayAll_topic?username=" + username + "&role=" + "CURATOR" + "\">Display all the Topics</a>\n" +
 		        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/auth_user/search_topic?username=" + username + "&role=" + "CURATOR" + "\">Search topic</a>\n" +
@@ -2149,7 +2149,7 @@ public class HtmlHandler {
 			String frameHTML = "<div class=\"ids-frame\">";
 			
 			for (int i = 0; i < TOPICS_IDs.size(); i++) {
-		        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/approve_topic/" + TOPICS_IDs.get(i) + "?method=GET\">" + TOPICS_IDs.get(i) + "</a> ";
+		        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/approve_topic/" + TOPICS_IDs.get(i) + "\">" + TOPICS_IDs.get(i) + "</a> ";
 			}
 			
 			frameHTML += "</div>";
@@ -2300,7 +2300,7 @@ public class HtmlHandler {
 					String frameHTML = "<div class=\"ids-frame\">";
 					
 					for (int i = 0; i < TOPICS_IDs.size(); i++) {
-				        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/decline_topic/" + TOPICS_IDs.get(i) + "?method=GET\">" + TOPICS_IDs.get(i) + "</a> ";
+				        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/decline_topic/" + TOPICS_IDs.get(i) + "\">" + TOPICS_IDs.get(i) + "</a> ";
 					}
 					
 					frameHTML += "</div>";
