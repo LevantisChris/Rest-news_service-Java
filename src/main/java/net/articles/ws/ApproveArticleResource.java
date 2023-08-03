@@ -75,6 +75,9 @@ public class ApproveArticleResource {
 				}
 				String username = sessionExtractor.getUsernameFromSession(sessionId);
 				String role = sessionExtractor.getRoleFromSession(sessionId);
+				if(!role.equals("CURATOR")) {
+					return Response.status(Response.Status.NOT_ACCEPTABLE).entity("YOU_DONT_HAVE_PERMISSION").build();
+				}
 				System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
 		///
 				///
@@ -118,6 +121,9 @@ public class ApproveArticleResource {
 				}
 				String username = sessionExtractor.getUsernameFromSession(sessionId);
 				String role = sessionExtractor.getRoleFromSession(sessionId);
+				if(!role.equals("CURATOR")) {
+					return Response.status(Response.Status.NOT_ACCEPTABLE).entity("YOU_DONT_HAVE_PERMISSION").build();
+				}
 				System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
 		///
 	    if(changeState() == true) {

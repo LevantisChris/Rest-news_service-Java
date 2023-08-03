@@ -98,6 +98,9 @@ public class ModifyTopicResource {
 		}
 		String username = sessionExtractor.getUsernameFromSession(sessionId);
 		String role = sessionExtractor.getRoleFromSession(sessionId);
+		if(role.equals("VISITOR")) {
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("YOU_DONT_HAVE_PERMISSION").build();
+		}
 		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
 		///
 		/* Check if the topic can be viewed by the user of the session */
@@ -148,6 +151,9 @@ public class ModifyTopicResource {
 		}
 		String username = sessionExtractor.getUsernameFromSession(sessionId);
 		String role = sessionExtractor.getRoleFromSession(sessionId);
+		if(role.equals("VISITOR")) {
+			return Response.status(Response.Status.NOT_ACCEPTABLE).entity("YOU_DONT_HAVE_PERMISSION").build();
+		}
 		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
 		///
 		
