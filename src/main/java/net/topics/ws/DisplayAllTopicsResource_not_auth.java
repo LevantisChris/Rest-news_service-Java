@@ -14,6 +14,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -22,6 +23,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 import net.topics.ws.manage_topics.Topic;
 
 @Path("/auth/not_auth_user/displayAll_topic")
@@ -29,7 +31,22 @@ public class DisplayAllTopicsResource_not_auth {
 
 	@GET
 	@Consumes(MediaType.TEXT_PLAIN)
-	public Response handleKeyPhrasesAuthUserArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleKeyPhrasesAuthUserArticles(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS: DISPLAY ALL TOPICS (not_auth) CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		if(role == null || role.isEmpty()) {
 			return Response.status(Response.Status.NOT_FOUND).build();
@@ -50,10 +67,24 @@ public class DisplayAllTopicsResource_not_auth {
 	@Path("/displayAll")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response handleSort(
-		    @FormParam("sortByName") boolean sortByName,
-		    @FormParam("name") String name,
-		    @FormParam("role") String role
+			@CookieParam("session_id") String sessionId,
+		    @FormParam("sortByName") boolean sortByName
 	) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String name = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + name + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("PRINT BY NAME --> " + name);
 		System.out.println("PRINT BY role --> " + role);
 	    if(sortByName == false) {
@@ -79,11 +110,23 @@ public class DisplayAllTopicsResource_not_auth {
 	@POST
 	@Path("/filAp")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response handleFilters(String JSON) {
+	public Response handleFilters(@CookieParam("session_id") String sessionId, String JSON) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String clickedByName = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + clickedByName + " and ROLE extracted is " + role);
+		///
 		
 		System.out.println("SERVER STTUS: IN handleFilters (not_auth_user) in TOPICS JSON RECEIVED --> " + JSON);
-		String clickedByName = null;
-		String role = null;
 		String startDate = null;
 		String endDate = null;
 		ArrayList<String> topics = new ArrayList<>();
@@ -91,8 +134,6 @@ public class DisplayAllTopicsResource_not_auth {
 		try {
 	        
 	    	JSONObject jsonObjectDecode = (JSONObject) JSONValue.parse(JSON);
-	    	clickedByName = (String) jsonObjectDecode.get("clickedByName");
-	    	role = (String) jsonObjectDecode.get("role");
 	    	startDate = (String) jsonObjectDecode.get("startDate");
 	    	endDate = (String) jsonObjectDecode.get("endDate");
 	    	

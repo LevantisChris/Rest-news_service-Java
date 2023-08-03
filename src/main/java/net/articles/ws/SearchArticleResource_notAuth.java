@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
@@ -15,18 +16,33 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.articles.ws.manage_articles.Article;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 
 //// FOR VISITOR
 
 @Path("/auth/not_auth_user/search_article")
 public class SearchArticleResource_notAuth {
 	
-	private static int ROLE_ID;
 	private ArrayList<Article> articles_list;
 	private ArrayList<Article> GOAL_ARTICLES; // the articles that satisfy all the criteria ...
 	
 	@GET
-	public Response handleKeyPhrasesNotAuthUserArticles(@QueryParam("role") String role) {
+	public Response handleKeyPhrasesNotAuthUserArticles(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS: SEARCH ARTICLE CALLED BY USERNAME == " + "--NULL--" + " - ROLE == " + role);
 		if(role == null || role.isEmpty()) {
 			return Response.serverError().build();
@@ -45,7 +61,25 @@ public class SearchArticleResource_notAuth {
 	
 	@GET
 	@Path("/search")
-	public Response sendData(@QueryParam("titleKeyPhrases") String titleKeyPhrases, @QueryParam("contentKeyPhrases") String contentKeyPhrases) {
+	public Response sendData(@CookieParam("session_id") String sessionId, @QueryParam("titleKeyPhrases") String titleKeyPhrases, @QueryParam("contentKeyPhrases") String contentKeyPhrases) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String name = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		if(!role.equals("VISITOR")) {
+			return Response.status(Response.Status.UNAUTHORIZED).entity("YOU_DONT_HAVE_PERMISSION").build();
+		}
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + name + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS: VISITOR, Title key phrases --> " + titleKeyPhrases);
 		System.out.println("SERVER STATUS: VISITOR, Content key phrases --> " + contentKeyPhrases);
 		if(titleKeyPhrases == null || contentKeyPhrases == null) {

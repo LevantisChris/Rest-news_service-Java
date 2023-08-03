@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -22,6 +23,7 @@ import jakarta.ws.rs.core.Response;
 import net.articles.ws.manage_articles.Article;
 import net.comments.ws.manage_comments.Comments;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 
 @Path("/auth/not_auth_user/displayAll_article")
 public class DisplayAllArticlesResourceResource_notAuth {
@@ -30,11 +32,24 @@ public class DisplayAllArticlesResourceResource_notAuth {
 	private static ArrayList<Comments> DATE_GET_COMMENTS;
 	
 	@GET
-	public Response handleKeyPhrasesNotAuthUserArticles(@QueryParam("role") String role) {
+	public Response handleKeyPhrasesNotAuthUserArticles(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS: DISPLAY ALL ARTICLE CALLED BY USERNAME == " + "--NULL--" + " - ROLE == " + role);
-		int ROLE_ID;
 		if(role.equals("VISITOR")) {
-			ROLE_ID = 1;
 			return Response.status(Response.Status.OK)
 	                .entity(HtmlHandler.getStartOptionsHTML("null", role))
 	                .type(MediaType.TEXT_HTML)
@@ -48,10 +63,27 @@ public class DisplayAllArticlesResourceResource_notAuth {
 	@Path("/displayAll")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response handleSort(
-		    @FormParam("sortByDate") boolean sortByDate,
-		    @FormParam("name") String name,
-		    @FormParam("role") String role
+			@CookieParam("session_id") String sessionId,
+		    @FormParam("sortByDate") boolean sortByDate
 	) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String name = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		if(!role.equals("VISITOR")) {
+			return Response.status(Response.Status.UNAUTHORIZED).entity("YOU_DONT_HAVE_PERMISSION").build();
+		}
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + name + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("PRINT BY NAME --> " + name);
 		System.out.println("PRINT BY role --> " + role);
 	    if(sortByDate == false) {
@@ -75,8 +107,26 @@ public class DisplayAllArticlesResourceResource_notAuth {
 	
 	@POST
 	@Path("/filAp")
-	public Response handleFilters(@FormParam("startDate") String startDate, 
+	public Response handleFilters(@CookieParam("session_id") String sessionId,
+								  @FormParam("startDate") String startDate, 
 			  					  @FormParam("endDate") String endDate) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String name = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		if(!role.equals("VISITOR")) {
+			return Response.status(Response.Status.UNAUTHORIZED).entity("YOU_DONT_HAVE_PERMISSION").build();
+		}
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + name + " and ROLE extracted is " + role);
+		///
 		
 		System.out.println("SERVER STATUS: Filters in Display all Articles (not_auth) PRESSED");
 		System.out.println("SERVER STATUS: startDate: " + startDate);
@@ -100,10 +150,28 @@ public class DisplayAllArticlesResourceResource_notAuth {
 	
 	@POST
 	@Path("/add_comment")
-	public Response handleAddComment(@FormParam("name_visitor") String name_visitor,
+	public Response handleAddComment(@CookieParam("session_id") String sessionId,
+									 @FormParam("name_visitor") String name_visitor,
 									 @FormParam("articleId") String articleId,
 									 @FormParam("comment") String comment,
 									 @FormParam("commentVisibility") String commentVisibility) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String name = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		if(!role.equals("VISITOR")) {
+			return Response.status(Response.Status.UNAUTHORIZED).entity("YOU_DONT_HAVE_PERMISSION").build();
+		}
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + name + " and ROLE extracted is " + role);
+		///
 		
 		if(comment.isEmpty()) {
 			return Response.ok("ERROR_EMTPY_COMMENT").build();

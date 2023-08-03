@@ -92,7 +92,7 @@ public class DisplayArticleResource_auth {
 		///
 		if(role.equals("JOURNALIST")) {
 			/* Check if the article can be viewed by the user of the session */
-			/// The article must be in the state 2 to be viewed
+			/// The article must be in the state 4 to be viewed
 			if(sessionExtractor.checkIfArticleCanBeViewed(sessionId, id, 4, "display") == false) {
 				return Response.status(Response.Status.NOT_ACCEPTABLE).build();
 			}

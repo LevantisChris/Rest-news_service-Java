@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
@@ -16,12 +17,27 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.articles.ws.manage_articles.Article;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 
 @Path("/auth/not_auth_user/displayArticlesOfTopic_topic")
 public class DisplayArticlesOfATopicResource_not_auth {
 	@GET
 	@Consumes(MediaType.TEXT_HTML)
-	public Response handleStartPage(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleStartPage(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
 		
 		if(role.equals("VISITOR")) {
 			System.out.println("SERVER STATUS: ACTION IN DISPLAY ARTCICLES OF A TOPIC (not_auth_user) BY USERNAME --" + username + "-- AND ROLE --" + role + "--");
@@ -39,9 +55,26 @@ public class DisplayArticlesOfATopicResource_not_auth {
 	
 	@GET
 	@Path("/display")
-	public Response handleTopicArticles(@QueryParam("username") String username, 
-									    @QueryParam("role") String role,
+	public Response handleTopicArticles(@CookieParam("session_id") String sessionId,
 									    @QueryParam("topic_clicked") String topic_clicked) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		if(!role.equals("VISITOR")) {
+			return Response.status(Response.Status.UNAUTHORIZED).entity("YOU_DONT_HAVE_PERMISSION").build();
+		}
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS: ACTION IN THE DISPLAY_ARTICLES_OF_A_TOPIC BY USERNAME --" + username + "-- AND ROLE --" + role + "-- WITH TOPIC CLICKED --" + topic_clicked + "--");
 		
 		ArrayList<Article> ARTICLES_OF_TOPIC = getArticleOfTopic(username, role, topic_clicked);
@@ -81,8 +114,9 @@ public class DisplayArticlesOfATopicResource_not_auth {
 	}
 	
 	private ArrayList<Article> getArticleOfTopic(String username, String role, String topic_clicked) {
+		System.out.println("EDOOOOO");
 		ArrayList<Article> ARTICLES_OF_TOPIC = new ArrayList<>();
-		
+		System.out.println("TESTING TITLE --> " + topic_clicked);
 		int TOPIC_ID = getTopicID(topic_clicked); // to run the following code we need to know the ID of the topic ...
 		if(TOPIC_ID == -1) {
 			return null;
@@ -119,6 +153,7 @@ public class DisplayArticlesOfATopicResource_not_auth {
 	    			int state_id = resultSet.getInt("STATE_ID");
 	    			ARTICLES_OF_TOPIC.add(new Article(id, title, content, date_creation, state_id, creator_username));
 		        }
+	    		System.out.println("TESTT -> " + ARTICLES_OF_TOPIC.size());
 	    		return ARTICLES_OF_TOPIC;
 	    	} catch(SQLException e) {
 	    		System.out.println("SERVER STATUS: --ERROR-- IN THE DISPLAY_ALL_ARTICLES_OF_A_TOPIC in the getTopics IN ROLE VISITOR");

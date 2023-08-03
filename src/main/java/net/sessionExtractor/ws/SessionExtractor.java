@@ -88,8 +88,10 @@ public class SessionExtractor implements ExtractSession_ID {
 	        }
 	        /* At start, the article must be in the state the function allows to be */
 	        if(Integer.parseInt(state_id) == functionState) {
+	        	System.out.println("1");
 	        	/* Secondly we must see if the article belongs to him */
 		        if(role.equals("JOURNALIST")) {
+		        	System.out.println("2");
 		        	if(creator_username.equals(username)) {
 		        		if(alert != true)
 		        			return true;
@@ -97,6 +99,9 @@ public class SessionExtractor implements ExtractSession_ID {
 		        } else if(role.equals("CURATOR")) { // if the role is a Curator he can all the articles but only the one that have the correct state of the function requested
 		        	if(alert != true)
 		        		return true;
+		        } else {
+		        	System.out.println("2");
+		        	return true;
 		        }
 	        }
 	        return false;
@@ -458,6 +463,11 @@ public class SessionExtractor implements ExtractSession_ID {
 	@Override
 	public String getRoleFromSession(String sessionId) {
 		String username = getUsernameFromSession(sessionId);
+		
+		/* if the user is Visitor the username will be null */
+		if(username == null) {
+			return "VISITOR";
+		}
 		
 		String url = "jdbc:mysql://localhost:3306/news_db";
 	    String username_DB = "root";

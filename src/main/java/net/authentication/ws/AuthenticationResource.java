@@ -56,7 +56,7 @@ public class AuthenticationResource {
 		                   .build();
         	   }
            } else {
-        	   System.out.println("User NOT created-authenticated ...");
+        	   System.out.println("User NOT created-authenticated (auth) ...");
         	   return Response.status(Response.Status.OK).entity("The credentials are NOT correct ...").build();
            }
     }
@@ -67,9 +67,19 @@ public class AuthenticationResource {
 	@Produces(MediaType.TEXT_HTML)
 	public Response processLoginNotAuthUser() {
 		System.out.println("CALLED: /not_auth_user");
-		return   Response.status(Response.Status.UNAUTHORIZED)
-                .entity(HtmlHandler.getVISITOR_HTML())
-                .type(MediaType.TEXT_HTML)
-                .build();
+		Authentication auth = new Authentication();
+        Session SESSION_USER_NOT_AUTH = auth.createSessionNotAuthUser();
+		
+        if(SESSION_USER_NOT_AUTH != null) {
+        	NewCookie sessionCookie = new NewCookie("session_id", String.valueOf(SESSION_USER_NOT_AUTH.getSESSION_ID()), "/", null, null, NewCookie.DEFAULT_MAX_AGE, false);
+        	return   Response.status(Response.Status.UNAUTHORIZED)
+        			.cookie(sessionCookie)
+                    .entity(HtmlHandler.getVISITOR_HTML())
+                    .type(MediaType.TEXT_HTML)
+                    .build();
+        } else {
+     	   System.out.println("User NOT created-authenticated (not-auth) ...");
+     	   return Response.status(Response.Status.OK).entity("Cannot create a Session for Visitor ...").build();
+        }
 	}
 }

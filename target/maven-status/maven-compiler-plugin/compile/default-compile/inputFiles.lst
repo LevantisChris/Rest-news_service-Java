@@ -4,6 +4,7 @@ C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\co
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\articles\ws\DisplayArticleResource_auth.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\articles\ws\DisplayAllArticlesResourceResource_notAuth.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\topics\ws\DisplayTopicResource_auth.java
+C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\sessionExtractor\ws\ExtractSession_ID.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\topics\ws\DisplayArticlesOfATopicResource_auth.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\articles\ws\SubmitArticleResource.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\comments\ws\DisplayCommentsOfAnArticleResource_auth.java
@@ -37,3 +38,4 @@ C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\ht
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\articles\ws\CreateArticleResource.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\authentication\ws\User.java
 C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\comments\ws\manage_comments\Comments.java
+C:\Users\Chris Levantis\Documents\eclipseProjects\RESTstart\src\main\java\net\sessionExtractor\ws\SessionExtractor.java

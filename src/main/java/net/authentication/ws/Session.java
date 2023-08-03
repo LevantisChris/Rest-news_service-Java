@@ -5,6 +5,13 @@ public class Session {
 	private String USERNAME_BELONGS; //the username of the user that the session belongs
 	private User USER_BELONGS;
 	
+	/* Visitor */
+	public Session(int SESSION_ID, User USER_BELONGS) {
+		this.SESSION_ID = SESSION_ID;
+		this.USER_BELONGS = USER_BELONGS;
+	}
+	
+	/* Curator and Journalist */
 	public Session(int SESSION_ID, String USERNAME_BELONGS, User USER_BELONGS) {
 		this.SESSION_ID = SESSION_ID;
 		this.USERNAME_BELONGS = USERNAME_BELONGS;

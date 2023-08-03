@@ -18,6 +18,17 @@ public class Authentication {
 	private final String username = "root";
 	private final String passwd = "kolos2020";
 	
+	/// ALL THIS FOR THE VISITOR ...
+	public Session createSessionNotAuthUser() {
+		User user = new User(1);
+		int rand_id = randomSessionID();
+		Session USER_SESSION = new Session(rand_id, user);
+        LIST_SESSIONS.add(USER_SESSION);
+        addSessionInTheDatabase(rand_id, user.getUSERNAME());
+        printUsers();
+        return USER_SESSION;
+	} 
+	
 	////////////////////////////////////////////////////////////////////////////
 	/// ALL THIS FOR THE CURATOR AND THE JOURNALIST ...
 	public Session checkCredentials(String givenUsername, String givenPassword) {
@@ -95,7 +106,7 @@ public class Authentication {
 				            LIST_SESSIONS.add(USER_SESSION);
 				            addSessionInTheDatabase(rand_id, user.getUSERNAME());
 			            }
-			            printUser();
+			            printUsers();
 			            return USER_SESSION;
 			            ////////////////////////////////////////////////////////////////////////////
 		        } while (resultSet.next());
@@ -263,7 +274,7 @@ public class Authentication {
 		/* Every time a User is entering the Service we will 
 		 * display in the terminal all the users that are
 		 * the system */
-		private void printUser() {
+		private void printUsers() {
 			System.out.println("\n\n\n======================================================================ALL THE USER ACTIVE ONE SYSTEM======================================================================");
 			for(int i = 0;i < LIST_SESSIONS.size();i++) {
 				System.out.println("-------------------------------------------------------------------------------------");

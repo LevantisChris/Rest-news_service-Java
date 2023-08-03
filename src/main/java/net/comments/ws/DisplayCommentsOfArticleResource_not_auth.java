@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashSet;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -20,22 +21,36 @@ import net.articles.ws.manage_articles.Article;
 import net.comments.ws.manage_comments.Comments;
 import net.exceptions.ws.NotIdentifiedRole;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 
 @Path("/auth/not_auth_user/displayCommentsOfArticle_comment")
 public class DisplayCommentsOfArticleResource_not_auth {
 
 	@GET
 	@Consumes(MediaType.TEXT_PLAIN)
-	public Response handleDisplatAllArticles(@QueryParam("username") String username, @QueryParam("role") String role) {
+	public Response handleDisplatAllArticles(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS --> ACCEPT ARTICLE CALLED BY USERNAME == " + username + " - ROLE == " + role);
 		if(role == null || role.isEmpty()) {
 			return Response.serverError().build();
 		}
-		String ID_CLICKED = null;
-		int ROLE_ID;
 		try {
 			if(role.equals("VISITOR")) {
-				ROLE_ID = 2;
 				
 				HashSet<String>  COMMENTS_ARTICLES_IDs = getAllArticleIDS(username, role);
 				
@@ -54,7 +69,29 @@ public class DisplayCommentsOfArticleResource_not_auth {
 	@GET
 	@Path("/{id}")
 	@Consumes(MediaType.TEXT_PLAIN)
-	public Response handleDisplayComments(@PathParam("id") String article_id, @QueryParam("username") String username, @QueryParam("role") String role) {		
+	public Response handleDisplayComments(@CookieParam("session_id") String sessionId, @PathParam("id") String article_id) {		
+		///
+				/* Get the user that has the session and also the role */
+				SessionExtractor sessionExtractor = new SessionExtractor();
+				if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+					return Response.status(Response.Status.UNAUTHORIZED).build();
+				}
+				String username = sessionExtractor.getUsernameFromSession(sessionId);
+				String role = sessionExtractor.getRoleFromSession(sessionId);
+				if(!role.equals("VISITOR")) {
+					return Response.status(Response.Status.UNAUTHORIZED).entity("YOU_DONT_HAVE_PERMISSION").build();
+				}
+				System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+				///
+				
+				///
+				/* Check if the article can be viewed by the user of the session */
+				/// The article must be in the state 2 to be viewed
+				if(sessionExtractor.checkIfArticleCanBeViewed(sessionId, article_id, 4) == false) {
+					return Response.status(Response.Status.NOT_ACCEPTABLE).build();
+				}
+		///
+		
 		Article ARTICLE_SELECTED = getSelectedArticle(Integer.parseInt(article_id));
 		ArrayList<Comments> COMMENTS_DATA = getCommentsOfArticle(Integer.parseInt(article_id));
 		

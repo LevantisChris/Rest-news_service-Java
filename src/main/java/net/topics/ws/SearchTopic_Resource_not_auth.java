@@ -9,19 +9,36 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.htmlhandler.ws.HtmlHandler;
+import net.sessionExtractor.ws.SessionExtractor;
 import net.topics.ws.manage_topics.Topic;
 
 @Path("/auth/not_auth_user/search_topic")
 public class SearchTopic_Resource_not_auth {
 	
 	@GET
-	public Response handleKeyPhrasesNotAuthUserArticles(@QueryParam("role") String role) {
+	public Response handleKeyPhrasesNotAuthUserArticles(@CookieParam("session_id") String sessionId) {
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
 		System.out.println("SERVER STATUS: SEARCH TOPIC (not_auth) CALLED BY USERNAME == " + "--NULL--" + " - ROLE == " + role);
 		if(role == null || role.isEmpty()) {
 			return Response.status(Response.Status.NOT_FOUND).build();
@@ -40,10 +57,24 @@ public class SearchTopic_Resource_not_auth {
 	
 	@GET
 	@Path("/search")
-	public Response sendData(@QueryParam("username") String username,
-	                         @QueryParam("role") String role,
+	public Response sendData(@CookieParam("session_id") String sessionId,
 	                         @QueryParam("titleKeyPhrases") String titleKeyPhrases) {
-	    System.out.println("username --> " + username);
+		if(sessionId == null || sessionId.isBlank()) {
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		///
+		/* Get the user that has the session and also the role */
+		SessionExtractor sessionExtractor = new SessionExtractor();
+		if(sessionExtractor.checkIfSessionExists(sessionId) == false) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+		String username = sessionExtractor.getUsernameFromSession(sessionId);
+		String role = sessionExtractor.getRoleFromSession(sessionId);
+		System.out.println("SERVER STATUS: SESSION_ID NUM: " + sessionId +" USERNAME extracted is --> " + username + " and ROLE extracted is " + role);
+		///
+		
+		System.out.println("username --> " + username);
 	    System.out.println("role --> " + role);
 	    System.out.println("titleKeyPhrases --> " + titleKeyPhrases);
 
@@ -109,6 +140,8 @@ public class SearchTopic_Resource_not_auth {
     	    for(int i = 1;i < titleKeyPhrasesArray.size();i++) {
     	    	selectQuery = selectQuery + " AND TITLE LIKE ?";
     	    }
+    	    
+    	    selectQuery += "AND STATE_ID = 3;";
     		
     	    selectStatement = connection.prepareStatement(selectQuery);
     	    for(int i = 0;i < titleKeyPhrasesArray.size();i++) {

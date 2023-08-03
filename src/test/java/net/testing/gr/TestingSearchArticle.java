@@ -35,9 +35,6 @@ public class TestingSearchArticle {
 		SearchArticleResource_auth s_auth_user = new SearchArticleResource_auth();
 		Response response = s_auth_user.sendData("123456", null, null);
 	    assertEquals(Response.Status.INTERNAL_SERVER_ERROR, response.getStatusInfo());
-	    
-	    SearchArticleResource_notAuth s_not_auth_user = new SearchArticleResource_notAuth();
-	    response = s_not_auth_user.sendData(null, null);
 	}
 	
 	/* Here we are going to test the functionality 

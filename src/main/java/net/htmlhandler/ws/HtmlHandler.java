@@ -158,94 +158,22 @@ public class HtmlHandler {
 	              "<body>\n" +
 	              "  <div class=\"center\">\n" +
 	              "    <h1>Welcome - Role: " + "VISITOR" + "</h1>\n" +
-			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/search_article?role=" + "VISITOR" + "\">Search Article</a>\n" +
-			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/display_article?role=" + "VISITOR" + "\">Display Article</a>\n" +
-			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayAll_article?role=" + "VISITOR" + "\">Display all the Article/Add Comment</a>\n" +
+			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/search_article\">Search Article</a>\n" +
+			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/display_article\">Display Article</a>\n" +
+			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayAll_article\">Display all the Articles/Add Comment</a>\n" +
 	              "    <hr>\n" +
-			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayCommentsOfArticle_comment?role=" + "VISITOR" + "\">Display comments of an Article</a>\n" +
+			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayCommentsOfArticle_comment\">Display Comments of an article</a>\n" +
 	              "    <hr>\n" +
-			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/display_topic?role=" + "VISITOR" + "\">Display Topic</a>\n" +
-			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayAll_topic?role=" + "VISITOR" + "\">Display all the Topics</a>\n" +
-			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/search_topic?role=" + "VISITOR" + "\">Search topics</a>\n" +
-			      "	   <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayArticlesOfTopic_topic?role=" + "VISITOR" + "\">Display articles of a topic</a>\n" +
+			        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/display_topic\">Display Topic</a>\n" +
+			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayAll_topic\">Display all the Topics</a>\n" +
+			        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/search_topic\">Search topic</a>\n" +
+			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayArticlesOfTopic_topic\">Display articles of a topic</a>\n" +
+			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayArticlesOfTopic_topic\">Display articles of a topic</a>\n" +
 			      "  </div>\n" +
 	              "</body>\n" +
 	              "</html>";
 	}
-	/*public static String getVISITOR_HTML() {
 
-	    String script_str = "<script>"
-	            + "function func_buttons(requested_func) {\r\n"
-	            + "    console.log('filterTopics CALLED');\r\n"
-	            + "\r\n"
-	            + "    var url = '/RESTstart/rest/auth/not_auth_user/search_topic/' + requested_func + '?role=VISITOR';\r\n"
-	            + "\r\n"
-	            + "    var newWindow = window.open();"
-	            + "    var xhr = new XMLHttpRequest();\r\n"
-	            + "    xhr.open('GET', url, true);\r\n"
-	            + "    xhr.setRequestHeader('Content-Type', 'application/json');\r\n"
-	            + "    xhr.onreadystatechange = function() {\r\n"
-	            + "            document.body.innerHTML = xhr.responseText;\n" 	  
-	            + "    };\r\n"
-	            + "    xhr.send();\r\n"
-	            + "}\r\n"
-	            + "</script>";
-
-	    return "<!DOCTYPE html>\n" +
-	            "<html>\n" +
-	            "<head>\n" +
-	            "  <title>Visitor Control Center</title>\n" +
-	            "  <style>\n" +
-	            "    body {\n" +
-	            "      text-align: center;\n" +
-	            "    }\n" +
-	            "    .center {\n" +
-	            "      display: flex;\n" +
-	            "      flex-direction: column;\n" +
-	            "      justify-content: center;\n" +
-	            "      align-items: center;\n" +
-	            "      height: 100vh;\n" +
-	            "    }\n" +
-	            "    .link {\n" +
-	            "      margin-bottom: 10px;\n" +
-	            "    }\n" +
-	            "    .btn {\n" +
-	            "      display: inline-block;\n" +
-	            "      padding: 12px 24px;\n" +
-	            "      font-size: 16px;\n" +
-	            "      text-align: center;\n" +
-	            "      text-decoration: none;\n" +
-	            "      background-color: #4CAF50;\n" +
-	            "      color: white;\n" +
-	            "      border: none;\n" +
-	            "      border-radius: 4px;\n" +
-	            "      transition: background-color 0.3s;\n" +
-	            "    }\n" +
-	            "    .btn:hover {\n" +
-	            "      background-color: #45a049;\n" +
-	            "    }\n" +
-	            "  </style>\n" +
-	            "</head>\n" +
-	            "<body>\n" +
-	            "  <div class=\"center\">\n" +
-	            "    <h1>Welcome - Role: " + "VISITOR" + "</h1>\n" +
-	            "    <button class=\"btn link\" onclick=\"func_buttons('search_article')\">Search Article</button>\n" +
-	            "    <button class=\"btn link\" onclick=\"func_buttons('display_article')\">Display Article</button>\n" +
-	            "    <button class=\"btn link\" onclick=\"func_buttons('displayAll_article')\">Display all the Article/Add Comment</button>\n" +
-	            "    <hr>\n" +
-	            "    <button class=\"btn link\" onclick=\"func_buttons('displayCommentsOfArticle_comment')\">Display comments of an Article</button>\n" +
-	            "    <hr>\n" +
-	            "    <button class=\"btn link\" onclick=\"func_buttons('display_topic')\">Display Topic</button>\n" +
-	            "    <button class=\"btn link\" onclick=\"func_buttons('displayAll_topic')\">Display all the Topics</button>\n" +
-	            "    <button class=\"btn link\" onclick=\"func_buttons('search_topic')\">Search topics</button>\n" +
-	            "  </div>\n" +
-	            script_str +
-	            "</body>\n" +
-	            "</html>";
-	}*/
-
-
-	
 	
 	/// NOTE: In this HTML code in the POST I also include the username (hidden) because later in the 
 	/// insertion in the database I will need to add also the CREATOR of the article
@@ -1036,7 +964,11 @@ public class HtmlHandler {
 			String frameHTML = "<div class=\"ids-frame\">";
 			
 			for (int i = 0; i < ARTICLES_IDs.size(); i++) {
-		        frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/display_article/" + ARTICLES_IDs.get(i) + "?method=GET\">" + ARTICLES_IDs.get(i) + "</a> ";
+				if(ROLE_ID == 2 || ROLE_ID == 3) {
+		        	frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/display_article/" + ARTICLES_IDs.get(i) + "?method=GET\">" + ARTICLES_IDs.get(i) + "</a> ";
+				} else {
+		        	frameHTML += "<a href=\"/RESTstart/rest/auth/not_auth_user/display_article/" + ARTICLES_IDs.get(i) + "?method=GET\">" + ARTICLES_IDs.get(i) + "</a> ";
+				}
 			}
 			
 			frameHTML += "</div>";
@@ -2451,7 +2383,7 @@ public class HtmlHandler {
 					
 					for (int i = 0; i < TOPICS_IDs.size(); i++) {
 						if(role.equals("VISITOR"))
-							frameHTML += "<a href=\"/RESTstart/rest/auth/not_auth_user/display_topic" + TOPICS_IDs.get(i) + "?method=GET\">" + TOPICS_IDs.get(i) + "</a> ";
+							frameHTML += "<a href=\"/RESTstart/rest/auth/not_auth_user/display_topic/" + TOPICS_IDs.get(i) + "?method=GET\">" + TOPICS_IDs.get(i) + "</a> ";
 						else
 							frameHTML += "<a href=\"/RESTstart/rest/auth/auth_user/display_topic/" + TOPICS_IDs.get(i) + "?method=GET\">" + TOPICS_IDs.get(i) + "</a> ";
 					}
@@ -2982,8 +2914,7 @@ public class HtmlHandler {
 	        	script = "<script>function getArticles(topic_clicked) {\r\n"
 	        			+ "    console.log('getArticles CALLED');\r\n"
 	        			+ "\r\n"
-	        			+ "    var url = '/RESTstart/rest/auth/auth_user/displayArticlesOfTopic_topic/display?username=" + username + "&role=" + role + "&topic_clicked=' + encodeURIComponent(topic_clicked);\r\n"
-	        			+ "    var xhr = new XMLHttpRequest();\r\n"
+	        			+ "    var url = '/RESTstart/rest/auth/auth_user/displayArticlesOfTopic_topic/display?username=" + username + "&role=" + role + "&topic_clicked=' + topic_clicked;\r\n"	        			+ "    var xhr = new XMLHttpRequest();\r\n"
 	        			+ "    xhr.open('GET', url, true);\r\n"
 	        			+ "    // Remove or set Content-Type to application/json\r\n"
 	        			+ "    xhr.setRequestHeader('Content-Type', 'application/json');\r\n"
@@ -2998,7 +2929,8 @@ public class HtmlHandler {
         		script = "<script>function getArticles(topic_clicked) {\r\n"
 	        			+ "    console.log('getArticles CALLED');\r\n"
 	        			+ "\r\n"
-	        			+ "    var url = '/RESTstart/rest/auth/not_auth_user/displayArticlesOfTopic_topic/display';\r\n"
+	        			+ "    var url = '/RESTstart/rest/auth/not_auth_user/displayArticlesOfTopic_topic/display?username=" + username + "&role=" + role + "&topic_clicked=' + topic_clicked;\r\n"	        			
+	        			+ "    var xhr = new XMLHttpRequest();\r\n"
 	        			+ "    var xhr = new XMLHttpRequest();\r\n"
 	        			+ "    xhr.open('GET', url, true);\r\n"
 	        			+ "    // Remove or set Content-Type to application/json\r\n"
