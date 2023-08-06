@@ -168,7 +168,6 @@ public class HtmlHandler {
 			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayAll_topic\">Display all the Topics</a>\n" +
 			        "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/search_topic\">Search topic</a>\n" +
 			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayArticlesOfTopic_topic\">Display articles of a topic</a>\n" +
-			      "	 <a class=\"link\" href=\"/RESTstart/rest/auth/not_auth_user/displayArticlesOfTopic_topic\">Display articles of a topic</a>\n" +
 			      "  </div>\n" +
 	              "</body>\n" +
 	              "</html>";

@@ -1,0 +1,1 @@
+Import the database, the schema are been creating automatically.
